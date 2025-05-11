@@ -1,4 +1,5 @@
 package src.main;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoException;
@@ -11,14 +12,17 @@ import org.bson.Document;
 
 public class Network {
     public static void main(String[] args) {
-        String connectionString = "mongodb+srv://xiangyangyin45:<UXCA8jncOjl5JcKR>@cluster0.9spasgd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+        String connectionString = "mongodb+srv://Objisb:tndOpx58yaCkc9dt@cluster0.9spasgd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)
                 .build();
+
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connectionString))
                 .serverApi(serverApi)
                 .build();
+
         // Create a new client and connect to the server
         try (MongoClient mongoClient = MongoClients.create(settings)) {
             try {
