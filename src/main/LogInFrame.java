@@ -2,12 +2,15 @@ package src.main;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class LogInFrame extends JFrame{
     public LogInFrame(){
         initJPanel();
         initJFrame();
         initJButton();
+        this.setVisible(true);
     }
 
     private void initJFrame() {
@@ -16,16 +19,30 @@ public class LogInFrame extends JFrame{
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLayout(null);
-        this.setVisible(true);
+        this.setBackground(Color.orange);
+        this.repaint();
     }
 
     private void initJButton(){
         JButton logInButton=new JButton("Log In");
         logInButton.setBounds(200,400,100,50);
+        logInButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
         this.getContentPane().add(logInButton);
 
         JButton registerButton=new JButton("Register");
         registerButton.setBounds(350,400,100,50);
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new RegisterFrame();
+            }
+        });
         this.getContentPane().add(registerButton);
     }
 
@@ -36,7 +53,7 @@ public class LogInFrame extends JFrame{
         jPanel.add(new JLabel("User Name:"));
         jPanel.add(new JTextField());
         jPanel.add(new JLabel("Password:"));
-        jPanel.add(new JTextField());
+        jPanel.add(new JPasswordField());
         this.add(jPanel);
     }
 }
