@@ -1,4 +1,3 @@
-package src.main;
 
 import com.mongodb.*;
 import com.mongodb.bulk.BulkWriteResult;
@@ -21,8 +20,8 @@ public class MongoDBUtil {
 
     // 初始化连接
     public MongoDBUtil() {
-        String connectionString = ConfigReader.getProperty("mongo.uri");
-        String dbName = ConfigReader.getProperty("mongo.database");
+        String connectionString = src.main.ConfigReader.getProperty("mongo.uri");
+        String dbName = src.main.ConfigReader.getProperty("mongo.database");
 
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)
