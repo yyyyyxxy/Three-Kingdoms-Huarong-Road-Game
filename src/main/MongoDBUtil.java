@@ -39,7 +39,17 @@ public class MongoDBUtil {
     public MongoCollection<Document> getCollection(String collectionName) {
         return database.getCollection(collectionName);
     }
+    //查询单个文档
+    public Document getDocument(String collectionName, Bson filter) {
+        // 1. 获取集合引用（如果集合不存在，MongoDB 会自动处理）
+        MongoCollection<Document> collection = database.getCollection(collectionName);
 
+        // 2. 执行查询（find + filter + limit(1)）
+        return collection.find(filter).first(); // first() 如果没有结果会返回 null
+    }
+    // 示例1：查询 name = "张三" 的文档
+    //Document doc1 = getDocument("users", eq("name", "张三"));
+    // System.out.println(doc1); // 存在则打印文档，否则返回 null
     // 插入单个文档
     public void insertOne(String collectionName, Document document) {
         getCollection(collectionName).insertOne(document);
