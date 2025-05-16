@@ -1,5 +1,3 @@
-package src.main;
-
 import com.mongodb.*;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;

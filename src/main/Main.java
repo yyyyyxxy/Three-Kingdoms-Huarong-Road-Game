@@ -1,10 +1,21 @@
-package src.main;
-import java.util.*;
-import com.mongodb.client.MongoDatabase;
 
-public class Main {
-    public static void main(String[] args) {
-        MongoDBUtil mg = new MongoDBUtil();
-        MongoDatabase a = mg.getDatabase();
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        // 初始化游戏界面
+        // 例如：创建GameFrame实例并设置场景
     }
+
+    public static void main(String[] args) {
+        System.setProperty("javafx.version", "17");
+        Application.launch(GameFrame.class, args);
+        launch(args); // 启动JavaFX应用
+    }
+
 }
