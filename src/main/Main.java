@@ -13,6 +13,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        new LogInFrame();
         System.setProperty("javafx.version", "17");
         Application.launch(GameFrame.class, args);
         launch(args); // 启动JavaFX应用

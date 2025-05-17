@@ -1,8 +1,14 @@
+import org.bson.Document;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class RegisterFrame extends JFrame{
 
@@ -32,7 +38,7 @@ public class RegisterFrame extends JFrame{
         jPanel.add(new JLabel("Password:"));
         JPasswordField jPasswordField=new JPasswordField();
         jPanel.add(jPasswordField);
-        this.add(jPanel);
+        this.getContentPane().add(jPanel);
         JButton jtb = getJButton(jTextField, jPasswordField);
         getContentPane().add(jtb);
     }
@@ -45,12 +51,54 @@ public class RegisterFrame extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 String userName= jTextField.getText();
                 String password= jPasswordField.getUIClassID();
-                if(db.findAll(userName)==null){
+                if(db.getDocument("Users",eq("_id",userName))!=null){
                     new UserNameError();
                 }
                 else{
-                    new PasswordError(password);
+                    boolean[] checkPassword=checkPassword(password);
+                    int T=0;
+                    for(boolean b:checkPassword){
+                        if(b){
+                            T++;
+                        }
+                    }
+                    if(T==5){
+                        String hashed=BCrypt.hashpw(password,BCrypt.gensalt());
+                        Document document=new Document("_id",userName).append("Password",hashed);
+                        db.insertOne("Users",document);
+                        dispose();
+                        new Success();
+                    }
+                    else{
+                        new PasswordError(password);
+                    }
                 }
+            }
+
+            public boolean[] checkPassword(String password){
+                String specialChars="!@#$%";
+                boolean length=false;
+                boolean hasUpper=false;
+                boolean hasLower=false;
+                boolean hasDigit=false;
+                boolean hasSpecial=false;
+                boolean[] result={length,hasUpper,hasLower,hasDigit,hasSpecial};
+                if(password.length()>=8){
+                    length=true;
+                }
+                for(char ch:password.toCharArray()){
+                    if(Character.isUpperCase(ch))
+                        hasUpper=true;
+                    else if(Character.isLowerCase(ch))
+                        hasLower=true;
+                    else if(Character.isDigit(ch))
+                        hasDigit=true;
+                    else if(specialChars.indexOf(ch)!=-1)
+                        hasSpecial=true;
+                    if(hasUpper && hasLower && hasDigit && hasSpecial)
+                        break;
+                }
+                return result;
             }
         });
         return jtb;
@@ -158,6 +206,38 @@ class PasswordError extends JFrame{
         if(!hasSpecial)
             errors.add("Sorry! Your password must include one or more than one special letters from !, @, #, $, %.");
         return errors;
+    }
+
+    private void initJButton(){
+        JButton jButton=new JButton("Return");
+        jButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        this.getContentPane().add(jButton);
+    }
+}
+
+class Success extends JFrame{
+    public Success(){
+        initJFrame();
+        initJLabel();
+        initJButton();
+        this.setVisible(true);
+    }
+
+    private void initJFrame(){
+        this.setSize(200,400);
+        this.setTitle("Congratulation");
+        this.setLocationRelativeTo(null);
+        this.setLayout(null);
+    }
+
+    private void initJLabel(){
+        JLabel jLabel=new JLabel("You register in successfully!");
+        this.getContentPane().add(jLabel);
     }
 
     private void initJButton(){
