@@ -41,7 +41,7 @@ public class LogInFrame extends JFrame{
                 else{
                     if(BCrypt.checkpw(password, (String) db.getDocument("Users",eq("_id",userName)).get("password"))){
                         dispose();
-                        new GameFrame();
+//                        new GameFrame();
                     }
                     else{
                         new NotMatch();
