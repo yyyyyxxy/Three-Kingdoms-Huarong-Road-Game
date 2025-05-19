@@ -10,11 +10,12 @@
     <packaging>jar</packaging>
 
     <properties>
-        <mainClass>src.main.Main</mainClass>
+        <!-- 必须使用主类的全限定名（例如：com.objisb.Main） -->
+        <mainClass>Main</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <javafx.version>21.0.2</javafx.version>
+        <javafx.version>24.0.1</javafx.version>
         <slf4j.version>2.0.7</slf4j.version>
         <junit.version>5.9.2</junit.version>
         <assertj.version>3.24.2</assertj.version>
@@ -25,7 +26,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX 核心依赖 -->
+        <!-- JavaFX 核心依赖（已去重） -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -56,21 +57,6 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>17.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>17</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>17</version>
-        </dependency>
 
         <!-- 日志系统 -->
         <dependency>
@@ -85,7 +71,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- MongoDB 官方驱动 -->
+        <!-- MongoDB 驱动 -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
@@ -115,38 +101,24 @@
 
     <build>
         <plugins>
-            <!-- JavaFX 插件 - 用于运行和打包 -->
+            <!-- JavaFX 插件（仅需配置一次） -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
-                    <mainClass>src.main.Main</mainClass> <!-- 根据您的实际主类修改 -->
-                    <executable>${java.home}/bin/java</executable>
+                    <!-- 使用全限定名，与 properties 保持一致 -->
+                    <mainClass>${mainClass}</mainClass>
                     <options>
-                        <option>--module-path</option>
-                        <option>${project.build.directory}/classpath</option>
+                        <!-- 添加必要的模块，与依赖保持一致 -->
                         <option>--add-modules</option>
-                        <option>javafx.controls,javafx.fxml,javafx.graphics,javafx.base</option>
+                        <option>javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.swing,javafx.media</option>
                     </options>
+                    <!-- 打包配置（可选） -->
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>src.main.GameFrame</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <compress>2</compress>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
-            <!-- 编译插件 -->
+            <!-- 编译插件（移除冗余的 compilerArgs） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -156,14 +128,10 @@
                     <target>${maven.compiler.target}</target>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
-                    <compilerArgs>
-                        <arg>--add-modules</arg>
-                        <arg>javafx.controls,javafx.fxml,javafx.graphics</arg>
-                    </compilerArgs>
                 </configuration>
             </plugin>
 
-            <!-- 打包插件 -->
+            <!-- 打包插件（移除无效的模块重定位） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -177,7 +145,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>src.main.Main</mainClass> <!-- 根据实际主类修改 -->
+                                    <mainClass>${mainClass}</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -190,12 +158,6 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <relocations>
-                                <relocation>
-                                    <pattern>javafx</pattern>
-                                    <shadedPattern>shaded.javafx</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

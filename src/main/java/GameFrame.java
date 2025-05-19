@@ -1,8 +1,7 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -12,15 +11,16 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 /**
  * 华容道游戏主窗口
  */
 public class GameFrame extends Application {
-    private static final int BOARD_ROWS = 4;
-    private static final int BOARD_COLS = 5;
+    private static final int BOARD_ROWS = 5;
+    private static final int BOARD_COLS = 4;
     private static final int CELL_SIZE = 100;
-    private static final int EXIT_ROW = 1;
-    private static final int EXIT_COL = 2;
+    private static final int EXIT_ROW = 3;
+    private static final int EXIT_COL = 1;
 
     private GridPane gameBoard;
     private List<Block> blocks;
@@ -30,8 +30,7 @@ public class GameFrame extends Application {
     private Stage primaryStage;
     private boolean gameWon;
     private List<Button> directionButtons;
-
-
+    private int currentLayoutIndex = 0;
 
     @Override
     public void start(Stage primaryStage) {
@@ -48,9 +47,10 @@ public class GameFrame extends Application {
         // 初始化游戏数据
         initGameData();
 
-
         // 设置场景
-        Scene scene = new Scene(root, BOARD_COLS * CELL_SIZE + 200, BOARD_ROWS * CELL_SIZE + 150);
+        double sceneWidth = BOARD_COLS * CELL_SIZE + 220;
+        double sceneHeight = BOARD_ROWS * CELL_SIZE + 150;
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
 
         // 添加键盘事件处理
@@ -59,33 +59,23 @@ public class GameFrame extends Application {
         primaryStage.show();
     }
 
-    /**
-     * 初始化游戏数据
-     */
-    private int currentLayoutIndex = 0;
-
-    // 在start方法中添加布局选择对话框
     private void showLayoutSelectionDialog() {
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(0, 0, 1, 2, 3);
+        List<String> layoutNames = List.of("标准布局", "经典布局", "对角线布局", "复杂布局");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(layoutNames.get(0), layoutNames);
         dialog.setTitle("选择布局");
         dialog.setHeaderText("请选择华容道布局");
         dialog.setContentText("布局:");
 
-        // 设置布局名称
-        dialog.getItems().set(0, Integer.valueOf("标准布局"));
-        dialog.getItems().set(1, Integer.valueOf("经典布局"));
-        dialog.getItems().set(2, Integer.valueOf("对角线布局"));
-        dialog.getItems().set(3, Integer.valueOf("复杂布局"));
-
-        // 默认选择
-        dialog.setSelectedItem(0);
-
-        Optional<Integer> result = dialog.showAndWait();
-        result.ifPresent(layoutIndex -> {
-            currentLayoutIndex = layoutIndex;
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(layoutName -> {
+            currentLayoutIndex = layoutNames.indexOf(layoutName);
             initGameData();
+            // 确保gameBoard已初始化
+            gameBoard = createGameBoard();
+            drawBlocks();
         });
     }
+
     private void initGameData() {
         blocks = BoardLayouts.getLayout(currentLayoutIndex);
         moveCount = 0;
@@ -94,9 +84,6 @@ public class GameFrame extends Application {
         directionButtons = new ArrayList<>();
     }
 
-    /**
-     * 创建主界面布局
-     */
     private BorderPane createMainLayout() {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f0f0f0;");
@@ -116,9 +103,6 @@ public class GameFrame extends Application {
         return root;
     }
 
-    /**
-     * 创建顶部面板
-     */
     private HBox createTopPanel() {
         HBox topPanel = new HBox(20);
         topPanel.setPadding(new javafx.geometry.Insets(10));
@@ -134,16 +118,17 @@ public class GameFrame extends Application {
         restartButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white;");
         restartButton.setOnAction(e -> restartGame());
 
-        topPanel.getChildren().addAll(titleLabel, moveCountLabel, restartButton);
+        Button layoutButton = new Button("更换布局");
+        layoutButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white;");
+        layoutButton.setOnAction(e -> showLayoutSelectionDialog());
+
+        topPanel.getChildren().addAll(titleLabel, moveCountLabel, restartButton, layoutButton);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         titleLabel.setAlignment(javafx.geometry.Pos.CENTER);
 
         return topPanel;
     }
 
-    /**
-     * 创建游戏棋盘
-     */
     private GridPane createGameBoard() {
         GridPane board = new GridPane();
         board.setHgap(2);
@@ -167,20 +152,11 @@ public class GameFrame extends Application {
             }
         }
 
-        // 保存对棋盘的引用
-        this.gameBoard = board;
-
-        // 添加方块到棋盘
-        drawBlocks();
-
         return board;
     }
 
-    /**
-     * 在棋盘上绘制所有方块
-     */
     private void drawBlocks() {
-        // 先清除所有方块
+        // 清除所有方块
         gameBoard.getChildren().removeIf(node -> node instanceof StackPane);
 
         // 绘制所有方块
@@ -197,9 +173,6 @@ public class GameFrame extends Application {
         }
     }
 
-    /**
-     * 创建方块面板
-     */
     private StackPane createBlockPane(Block block) {
         StackPane pane = new StackPane();
 
@@ -212,9 +185,9 @@ public class GameFrame extends Application {
         rect.setStroke(Color.BLACK);
         rect.setStrokeWidth(2);
 
-        // 如果是选中的方块，添加高亮效果
+        // 选中效果
         if (block == selectedBlock) {
-            rect.setEffect(new javafx.scene.effect.DropShadow(10, Color.YELLOW));
+            rect.setEffect(new DropShadow(10, Color.YELLOW));
         }
 
         // 添加方块标签
@@ -225,9 +198,6 @@ public class GameFrame extends Application {
         return pane;
     }
 
-    /**
-     * 创建控制面板
-     */
     private VBox createControlPanel() {
         VBox controlPanel = new VBox(20);
         controlPanel.setPadding(new javafx.geometry.Insets(20));
@@ -246,7 +216,9 @@ public class GameFrame extends Application {
         for (Button btn : new Button[]{upButton, downButton, leftButton, rightButton}) {
             btn.setPrefSize(80, 40);
             btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white;");
-            btn.setDisable(true); // 初始禁用，直到选择方块
+            btn.setDisable(true);
+            btn.setOnMouseEntered(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #3b8c7a; -fx-text-fill: white;"));
+            btn.setOnMouseExited(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white;"));
             directionButtons.add(btn);
         }
 
@@ -265,15 +237,16 @@ public class GameFrame extends Application {
         buttonGrid.add(rightButton, 2, 1);
         buttonGrid.add(downButton, 1, 2);
 
-        controlPanel.getChildren().addAll(controlLabel, buttonGrid);
+        // 添加操作说明
+        Label instructionLabel = new Label("操作说明:\n\n1. 点击方块选择\n2. 使用方向键移动\n3. 或使用按钮移动");
+        instructionLabel.setStyle("-fx-font-size: 14px;");
+
+        controlPanel.getChildren().addAll(controlLabel, buttonGrid, instructionLabel);
         VBox.setVgrow(buttonGrid, Priority.ALWAYS);
 
         return controlPanel;
     }
 
-    /**
-     * 处理键盘事件
-     */
     private void handleKeyPress(KeyEvent event) {
         if (selectedBlock == null || gameWon) {
             return;
@@ -295,9 +268,6 @@ public class GameFrame extends Application {
         }
     }
 
-    /**
-     * 选择方块
-     */
     private void selectBlock(Block block) {
         selectedBlock = block;
         drawBlocks(); // 重绘棋盘以显示选中效果
@@ -308,9 +278,6 @@ public class GameFrame extends Application {
         }
     }
 
-    /**
-     * 移动选中的方块
-     */
     private void moveSelectedBlock(Direction direction) {
         if (selectedBlock == null || gameWon) {
             return;
@@ -353,9 +320,6 @@ public class GameFrame extends Application {
         }
     }
 
-    /**
-     * 检查移动是否合法
-     */
     private boolean isValidMove(Block block, int newRow, int newCol) {
         // 检查边界
         if (newRow < 0 || newRow + block.getHeight() > BOARD_ROWS ||
@@ -377,9 +341,6 @@ public class GameFrame extends Application {
         return true;
     }
 
-    /**
-     * 检查两个方块是否重叠
-     */
     private boolean isOverlapping(Block block1, int row1, int col1, Block block2) {
         int row2 = block2.getRow();
         int col2 = block2.getCol();
@@ -391,9 +352,6 @@ public class GameFrame extends Application {
                 col2 + block2.getWidth() <= col1);
     }
 
-    /**
-     * 检查胜利条件
-     */
     private void checkWinCondition() {
         // 检查曹操方块是否到达出口位置
         Block caoCao = blocks.get(0); // 曹操方块是第一个添加的
@@ -404,9 +362,6 @@ public class GameFrame extends Application {
         }
     }
 
-    /**
-     * 显示胜利对话框
-     */
     private void showWinDialog() {
         javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
         alert.setTitle("游戏胜利！");
@@ -425,9 +380,6 @@ public class GameFrame extends Application {
         });
     }
 
-    /**
-     * 重新开始游戏
-     */
     private void restartGame() {
         // 重新初始化游戏数据
         initGameData();
@@ -449,7 +401,6 @@ public class GameFrame extends Application {
     /**
      * 方块类
      */
-
     public static class Block {
         private int row;
         private int col;
@@ -505,5 +456,9 @@ public class GameFrame extends Application {
      */
     private enum Direction {
         UP, DOWN, LEFT, RIGHT
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

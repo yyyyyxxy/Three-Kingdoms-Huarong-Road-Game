@@ -11,11 +11,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Label label = new Label("Hello, JavaFX!");
+        Label label = new Label("Hello, JavaFX! 我是尹向阳");
         StackPane root = new StackPane(label);
         Scene scene = new Scene(root, 300, 200);
 
-        primaryStage.setTitle("JavaFX示例");
+        primaryStage.setTitle("JavaFX示例,我是尹向阳");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
