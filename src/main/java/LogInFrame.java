@@ -1,81 +1,107 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
-public class LogInFrame extends JFrame{
+public class LogInFrame extends Application {
 
-    MongoDBUtil db=new MongoDBUtil();
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("登录界面");
 
-    public LogInFrame(){
-        initJFrame();
-        initJPanel();
-        initJButton();
-        this.setVisible(true);
-    }
+        // 主布局
+        BorderPane root = new BorderPane();
+        root.setBackground(new Background(new BackgroundFill(Color.CYAN, CornerRadii.EMPTY, Insets.EMPTY)));
 
-    private void initJFrame() {
-        this.setSize(600,600);
-        this.setTitle("登录界面");
-        this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setLayout(null);
-        this.getContentPane().setBackground(Color.cyan);
-    }
+        // 中间表单
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(20);
+        grid.setPadding(new Insets(40, 40, 40, 40));
+        grid.setStyle("-fx-background-color: rgba(255,255,255,0.7); -fx-background-radius: 10;");
 
-    private void initJButton(){
-        JButton logInButton=new JButton("Log In");
-        logInButton.setBounds(200,400,100,50);
-        logInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        Label userLabel = new Label("用户名:");
+        TextField userField = new TextField();
+        Label passLabel = new Label("密码:");
+        PasswordField passField = new PasswordField();
 
+        // 密码可见切换
+        TextField passVisibleField = new TextField();
+        passVisibleField.setManaged(false);
+        passVisibleField.setVisible(false);
+
+        Button eyeButton = new Button("\uD83D\uDC41");
+        eyeButton.setFocusTraversable(false);
+        eyeButton.setOnAction(e -> {
+            if (passVisibleField.isVisible()) {
+                passField.setText(passVisibleField.getText());
+                passVisibleField.setVisible(false);
+                passVisibleField.setManaged(false);
+                passField.setVisible(true);
+                passField.setManaged(true);
+                eyeButton.setText("\uD83D\uDC41");
+            } else {
+                passVisibleField.setText(passField.getText());
+                passVisibleField.setVisible(true);
+                passVisibleField.setManaged(true);
+                passField.setVisible(false);
+                passField.setManaged(false);
+                eyeButton.setText("◯");
             }
         });
-        this.getContentPane().add(logInButton);
 
-        JButton registerButton=new JButton("Register");
-        registerButton.setBounds(350,400,100,50);
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                new RegisterFrame();
+        // 同步密码内容
+        passField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!passVisibleField.isVisible()) {
+                passVisibleField.setText(newVal);
             }
         });
-        getContentPane().add(registerButton);
+        passVisibleField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (passVisibleField.isVisible()) {
+                passField.setText(newVal);
+            }
+        });
+
+        // 按钮区
+        Button loginBtn = new Button("登录");
+        Button registerBtn = new Button("注册");
+        HBox btnBox = new HBox(20, loginBtn, registerBtn);
+        btnBox.setAlignment(Pos.CENTER);
+
+        // 布局
+        grid.add(userLabel, 0, 0);
+        grid.add(userField, 1, 0, 2, 1);
+        grid.add(passLabel, 0, 1);
+        grid.add(passField, 1, 1);
+        grid.add(passVisibleField, 1, 1);
+        grid.add(eyeButton, 2, 1);
+        grid.add(btnBox, 0, 2, 3, 1);
+
+        root.setCenter(grid);
+
+        // 事件（示例）
+        loginBtn.setOnAction(e -> {
+            String username = userField.getText();
+            String password = passField.isVisible() ? passField.getText() : passVisibleField.getText();
+            // 登录逻辑
+            System.out.println("登录：" + username + " / " + password);
+        });
+        registerBtn.setOnAction(e -> {
+            // 注册逻辑
+            System.out.println("跳转注册界面");
+        });
+
+        Scene scene = new Scene(root, 400, 350);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private void initJPanel(){
-        JPanel jPanel=new JPanel(new GridLayout(3,2,10,10));
-        jPanel.setBorder(BorderFactory.createEmptyBorder());
-        jPanel.setBounds(100,200,300,200);
-        jPanel.add(new JLabel("User Name:"));
-        jPanel.add(new JTextField());
-        jPanel.add(new JLabel("Password:"));
-        JPasswordField jPasswordField=new JPasswordField();
-        char echoChar=jPasswordField.getEchoChar();
-        JButton eyeButton=new JButton("\uD83D\uDC41");
-        eyeButton.setBounds(400,270,50,60);
-        eyeButton.addActionListener(new ActionListener() {
-            boolean isVisible=false;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isVisible=!isVisible;
-                if(isVisible){
-                    jPasswordField.setEchoChar((char) 0);
-                    eyeButton.setText("\uD83D\uDC41");
-                }
-                else{
-                    jPasswordField.setEchoChar(echoChar);
-                    eyeButton.setText("◯");
-                }
-            }
-        });
-        getContentPane().add(eyeButton);
-        jPanel.add(jPasswordField);
-        jPanel.setBackground(Color.cyan);
-        getContentPane().add(jPanel);
+    public static void main(String[] args) {
+        launch(args);
     }
 }

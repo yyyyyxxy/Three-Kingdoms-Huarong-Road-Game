@@ -1,4 +1,5 @@
-import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -15,7 +16,7 @@ import java.util.Optional;
 /**
  * 华容道游戏主窗口
  */
-public class GameFrame extends Application {
+public class GameFrame {
     private static final int BOARD_ROWS = 5;
     private static final int BOARD_COLS = 4;
     private static final int CELL_SIZE = 100;
@@ -29,38 +30,40 @@ public class GameFrame extends Application {
     private Label moveCountLabel;
     private Stage primaryStage;
     private boolean gameWon;
-    private List<Button> directionButtons;
+    private List<Button> directionButtons = new ArrayList<>();
     private int currentLayoutIndex = 0;
 
-    @Override
-    public void start(Stage primaryStage) {
+    public void show(Stage primaryStage) {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("华容道游戏");
         primaryStage.setResizable(false);
 
-        // 显示布局选择对话框
-        showLayoutSelectionDialog();
-
-        // 创建主界面
+        // 先创建主界面
         BorderPane root = createMainLayout();
 
-        // 初始化游戏数据
+        // 然后初始化游戏数据
         initGameData();
 
         // 设置场景
-        double sceneWidth = BOARD_COLS * CELL_SIZE + 220;
+        double sceneWidth = BOARD_COLS * CELL_SIZE + 240;
         double sceneHeight = BOARD_ROWS * CELL_SIZE + 150;
         Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
 
+        // 设置最小宽度
+        primaryStage.setMinWidth(sceneWidth);
+
         // 添加键盘事件处理
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress);
+
+        // 显示布局选择对话框
+        showLayoutSelectionDialog();
 
         primaryStage.show();
     }
 
     private void showLayoutSelectionDialog() {
-        List<String> layoutNames = List.of("标准布局", "经典布局", "对角线布局", "复杂布局");
+        List<String> layoutNames = BoardLayouts.getLayoutNames();
         ChoiceDialog<String> dialog = new ChoiceDialog<>(layoutNames.get(0), layoutNames);
         dialog.setTitle("选择布局");
         dialog.setHeaderText("请选择华容道布局");
@@ -70,8 +73,6 @@ public class GameFrame extends Application {
         result.ifPresent(layoutName -> {
             currentLayoutIndex = layoutNames.indexOf(layoutName);
             initGameData();
-            // 确保gameBoard已初始化
-            gameBoard = createGameBoard();
             drawBlocks();
         });
     }
@@ -81,7 +82,9 @@ public class GameFrame extends Application {
         moveCount = 0;
         gameWon = false;
         selectedBlock = null;
-        directionButtons = new ArrayList<>();
+        if (gameBoard != null) {
+            drawBlocks();
+        }
     }
 
     private BorderPane createMainLayout() {
@@ -100,12 +103,13 @@ public class GameFrame extends Application {
         VBox controlPanel = createControlPanel();
         root.setRight(controlPanel);
 
+        BorderPane.setMargin(controlPanel, new Insets(0, 0, 0, 10));
         return root;
     }
 
     private HBox createTopPanel() {
         HBox topPanel = new HBox(20);
-        topPanel.setPadding(new javafx.geometry.Insets(10));
+        topPanel.setPadding(new Insets(10));
         topPanel.setStyle("-fx-background-color: #4a6fa5;");
 
         Label titleLabel = new Label("华容道游戏");
@@ -124,7 +128,7 @@ public class GameFrame extends Application {
 
         topPanel.getChildren().addAll(titleLabel, moveCountLabel, restartButton, layoutButton);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
-        titleLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        titleLabel.setAlignment(Pos.CENTER);
 
         return topPanel;
     }
@@ -133,7 +137,7 @@ public class GameFrame extends Application {
         GridPane board = new GridPane();
         board.setHgap(2);
         board.setVgap(2);
-        board.setPadding(new javafx.geometry.Insets(10));
+        board.setPadding(new Insets(10));
 
         // 创建棋盘背景
         for (int row = 0; row < BOARD_ROWS; row++) {
@@ -200,8 +204,9 @@ public class GameFrame extends Application {
 
     private VBox createControlPanel() {
         VBox controlPanel = new VBox(20);
-        controlPanel.setPadding(new javafx.geometry.Insets(20));
+        controlPanel.setPadding(new Insets(20));
         controlPanel.setStyle("-fx-background-color: #c8d8e4;");
+        controlPanel.setMinWidth(240);
 
         Label controlLabel = new Label("控制");
         controlLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
@@ -212,9 +217,11 @@ public class GameFrame extends Application {
         Button leftButton = new Button("左");
         Button rightButton = new Button("右");
 
+        directionButtons.clear();
+
         // 设置按钮样式
         for (Button btn : new Button[]{upButton, downButton, leftButton, rightButton}) {
-            btn.setPrefSize(80, 40);
+            btn.setPrefSize(60, 35);
             btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white;");
             btn.setDisable(true);
             btn.setOnMouseEntered(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #3b8c7a; -fx-text-fill: white;"));
@@ -228,22 +235,22 @@ public class GameFrame extends Application {
         leftButton.setOnAction(e -> moveSelectedBlock(Direction.LEFT));
         rightButton.setOnAction(e -> moveSelectedBlock(Direction.RIGHT));
 
-        // 创建按钮网格
-        GridPane buttonGrid = new GridPane();
-        buttonGrid.setHgap(10);
-        buttonGrid.setVgap(10);
-        buttonGrid.add(upButton, 1, 0);
-        buttonGrid.add(leftButton, 0, 1);
-        buttonGrid.add(rightButton, 2, 1);
-        buttonGrid.add(downButton, 1, 2);
+        // 使用 HBox 代替 GridPane
+        HBox buttonRow1 = new HBox(10, upButton);
+        buttonRow1.setAlignment(Pos.CENTER);
+        HBox buttonRow2 = new HBox(10, leftButton, rightButton);
+        buttonRow2.setAlignment(Pos.CENTER);
+        HBox buttonRow3 = new HBox(10, downButton);
+        buttonRow3.setAlignment(Pos.CENTER);
+
+        VBox buttonLayout = new VBox(10, buttonRow1, buttonRow2, buttonRow3);
+        buttonLayout.setAlignment(Pos.CENTER);
 
         // 添加操作说明
         Label instructionLabel = new Label("操作说明:\n\n1. 点击方块选择\n2. 使用方向键移动\n3. 或使用按钮移动");
         instructionLabel.setStyle("-fx-font-size: 14px;");
 
-        controlPanel.getChildren().addAll(controlLabel, buttonGrid, instructionLabel);
-        VBox.setVgrow(buttonGrid, Priority.ALWAYS);
-
+        controlPanel.getChildren().addAll(controlLabel, buttonLayout, instructionLabel);
         return controlPanel;
     }
 
@@ -270,7 +277,7 @@ public class GameFrame extends Application {
 
     private void selectBlock(Block block) {
         selectedBlock = block;
-        drawBlocks(); // 重绘棋盘以显示选中效果
+        drawBlocks();
 
         // 启用方向按钮
         for (Button btn : directionButtons) {
@@ -363,14 +370,14 @@ public class GameFrame extends Application {
     }
 
     private void showWinDialog() {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("游戏胜利！");
         alert.setHeaderText("恭喜你完成了华容道！");
         alert.setContentText("你用了 " + moveCount + " 步完成了游戏。");
 
         // 添加重新开始按钮
-        javafx.scene.control.ButtonType restartButton = new javafx.scene.control.ButtonType("重新开始");
-        javafx.scene.control.ButtonType closeButton = new javafx.scene.control.ButtonType("关闭");
+        ButtonType restartButton = new ButtonType("重新开始");
+        ButtonType closeButton = new ButtonType("关闭");
         alert.getButtonTypes().setAll(restartButton, closeButton);
 
         alert.showAndWait().ifPresent(response -> {
@@ -456,9 +463,5 @@ public class GameFrame extends Application {
      */
     private enum Direction {
         UP, DOWN, LEFT, RIGHT
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

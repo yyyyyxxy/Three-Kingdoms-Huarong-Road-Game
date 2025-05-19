@@ -1,25 +1,15 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
+// Main.java
 public class Main extends Application {
-
     @Override
     public void start(Stage primaryStage) {
-        Label label = new Label("Hello, JavaFX! 我是尹向阳");
-        StackPane root = new StackPane(label);
-        Scene scene = new Scene(root, 300, 200);
+        // 启动注册窗口
+        new RegisterFrame();
 
-        primaryStage.setTitle("JavaFX示例,我是尹向阳");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        new GameFrame().show(primaryStage);
     }
-
     public static void main(String[] args) {
         launch(args);
     }

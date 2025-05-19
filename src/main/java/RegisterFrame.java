@@ -1,173 +1,101 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 
-public class RegisterFrame extends JFrame{
+public class RegisterFrame extends Application {
 
-    MongoDBUtil db=new MongoDBUtil();
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("注册界面");
 
-    public RegisterFrame(){
-        initFrame();
-        initJPanel();
-        setVisible(true);
-    }
+        BorderPane root = new BorderPane();
+        root.setBackground(new Background(new BackgroundFill(Color.CYAN, CornerRadii.EMPTY, Insets.EMPTY)));
 
-    private void initFrame(){
-        this.setSize(600,600);
-        this.setTitle("注册界面");
-        this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setLayout(null);
-    }
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(20);
+        grid.setPadding(new Insets(40, 40, 40, 40));
+        grid.setStyle("-fx-background-color: rgba(255,255,255,0.7); -fx-background-radius: 10;");
 
-    private void initJPanel(){
-        JPanel jPanel=new JPanel(new GridLayout(3,2,10,10));
-        jPanel.setBorder(BorderFactory.createEmptyBorder());
-        jPanel.setBounds(100,200,300,200);
-        jPanel.add(new JLabel("User Name:"));
-        JTextField jTextField=new JTextField();
-        jPanel.add(jTextField);
-        jPanel.add(new JLabel("Password:"));
-        JPasswordField jPasswordField=new JPasswordField();
-        jPanel.add(jPasswordField);
-        this.add(jPanel);
-        JButton jtb = getJButton(jTextField, jPasswordField);
-        getContentPane().add(jtb);
-    }
+        Label userLabel = new Label("用户名:");
+        TextField userField = new TextField();
+        Label passLabel = new Label("密码:");
+        PasswordField passField = new PasswordField();
 
-    private JButton getJButton(JTextField jTextField, JPasswordField jPasswordField) {
-        JButton jtb=new JButton("Register Now");
-        jtb.setBounds(200,400,300,100);
-        jtb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String userName= jTextField.getText();
-                String password= jPasswordField.getUIClassID();
-                if(db.findAll(userName)==null){
-                    new UserNameError();
-                }
-                else{
-                    new PasswordError(password);
-                }
+        Button registerBtn = new Button("注册");
+        HBox btnBox = new HBox(20, registerBtn);
+        btnBox.setAlignment(Pos.CENTER);
+
+        grid.add(userLabel, 0, 0);
+        grid.add(userField, 1, 0);
+        grid.add(passLabel, 0, 1);
+        grid.add(passField, 1, 1);
+        grid.add(btnBox, 0, 2, 2, 1);
+
+        root.setCenter(grid);
+
+        registerBtn.setOnAction(e -> {
+            String username = userField.getText();
+            String password = passField.getText();
+
+            // 用户名校验（示例，实际应查数据库）
+            if ("已存在用户名".equals(username)) {
+                showAlert(Alert.AlertType.ERROR, "用户名已被占用，请重新设置。");
+                return;
             }
+
+            // 密码校验
+            ArrayList<String> errors = checkPassword(password);
+            if (!errors.isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, String.join("\n", errors));
+                return;
+            }
+
+            // 注册成功
+            showAlert(Alert.AlertType.INFORMATION, "注册成功！");
         });
-        return jtb;
-    }
-}
 
-class UserNameError extends JFrame{
-
-    public UserNameError(){
-        initFrame();
-        initJLabel();
-        initJButton();
-        this.setVisible(true);
+        Scene scene = new Scene(root, 400, 300);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private void initFrame(){
-        this.setSize(200,400);
-        this.setTitle("Error");
-        this.setLocationRelativeTo(null);
-        this.setLayout(null);
-    }
-
-    private void initJLabel(){
-        JLabel jLabel=new JLabel("Sorry! Your user name has already taken. Please reset it.");
-        jLabel.setFont(new Font("微软雅黑",Font.ITALIC,30));
-        jLabel.setForeground(Color.RED);
-        this.getContentPane().add(jLabel);
-    }
-
-    private void initJButton(){
-        JButton jButton=new JButton("Return");
-        jButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-        this.getContentPane().add(jButton);
-    }
-}
-
-class PasswordError extends JFrame{
-
-    private String password;
-
-    public PasswordError(String password){
-        this.password=password;
-        initFrame();
-        initJLabel();
-        initJButton();
-        this.setVisible(true);
-    }
-
-    private void initFrame(){
-        this.setSize(200,400);
-        this.setTitle("Error");
-        this.setLocationRelativeTo(null);
-        this.setLayout(null);
-    }
-
-    private void initJLabel(){
-        JLabel jLabel=new JLabel();
-        if(password.length()<8)
-            jLabel.setText("Sorry! Your password length must be bigger than 8.");
-        else{
-            ArrayList<String> errors=errors(password);
-            if(errors.size()==1)
-                jLabel.setText(errors.get(0));
-            else if(errors.size()==2)
-                jLabel.setText(errors.get(0)+'\n'+errors.get(1));
-            else if(errors.size()==3)
-                jLabel.setText(errors.get(0)+'\n'+errors.get(1)+'\n'+errors.get(2));
-            else if(errors.size()==4){
-                jLabel.setText(errors.get(0)+'\n'+errors.get(1)+'\n'+errors.get(2)+'\n'+errors.get(3));
-            }
+    private ArrayList<String> checkPassword(String password) {
+        ArrayList<String> errors = new ArrayList<>();
+        String specialChars = "!@#$%";
+        if (password.length() < 8)
+            errors.add("密码长度必须大于8位。");
+        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
+        for (char ch : password.toCharArray()) {
+            if (Character.isUpperCase(ch)) hasUpper = true;
+            else if (Character.isLowerCase(ch)) hasLower = true;
+            else if (Character.isDigit(ch)) hasDigit = true;
+            else if (specialChars.indexOf(ch) != -1) hasSpecial = true;
         }
-        this.getContentPane().add(jLabel);
-    }
-
-    private ArrayList<String> errors(String password){
-        String specialChars="!@#$%";
-        ArrayList<String> errors=new ArrayList<>();
-        boolean hasUpper=false;
-        boolean hasLower=false;
-        boolean hasDigit=false;
-        boolean hasSpecial=false;
-        for(char ch:password.toCharArray()){
-            if(Character.isUpperCase(ch))
-                hasUpper=true;
-            else if(Character.isLowerCase(ch))
-                hasLower=true;
-            else if(Character.isDigit(ch))
-                hasDigit=true;
-            else if(specialChars.indexOf(ch)!=-1)
-                hasSpecial=true;
-            if(hasUpper && hasLower && hasDigit && hasSpecial)
-                break;
-        }
-        if(!hasUpper)
-            errors.add("Sorry! Your password must have capital letters.");
-        if(!hasLower)
-            errors.add("Sorry! Your password must have lowercase letters.");
-        if(!hasDigit)
-            errors.add("Sorry! Your password must have digits.");
-        if(!hasSpecial)
-            errors.add("Sorry! Your password must include one or more than one special letters from !, @, #, $, %.");
+        if (!hasUpper) errors.add("密码必须包含大写字母。");
+        if (!hasLower) errors.add("密码必须包含小写字母。");
+        if (!hasDigit) errors.add("密码必须包含数字。");
+        if (!hasSpecial) errors.add("密码必须包含特殊字符 ! @ # $ %。");
         return errors;
     }
 
-    private void initJButton(){
-        JButton jButton=new JButton("Return");
-        jButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-        this.getContentPane().add(jButton);
+    private void showAlert(Alert.AlertType type, String msg) {
+        Alert alert = new Alert(type);
+        alert.setTitle(type == Alert.AlertType.ERROR ? "错误" : "提示");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
