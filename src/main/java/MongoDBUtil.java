@@ -1,9 +1,6 @@
 import com.mongodb.*;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -13,11 +10,7 @@ import java.util.List;
 public class MongoDBUtil {
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final ClientSessionOptions sessionOptions = ClientSessionOptions.builder()
-            .causallyConsistent(true)
-            .build();
 
-    // 初始化连接
     public MongoDBUtil() {
         String connectionString = ConfigReader.getProperty("mongo.uri");
         String dbName = ConfigReader.getProperty("mongo.database");
@@ -35,132 +28,51 @@ public class MongoDBUtil {
         this.database = mongoClient.getDatabase(dbName);
     }
 
-    // 获取集合
     public MongoCollection<Document> getCollection(String collectionName) {
         return database.getCollection(collectionName);
     }
-    //查询单个文档
+
+    // 查询单个文档
     public Document getDocument(String collectionName, Bson filter) {
-        // 1. 获取集合引用（如果集合不存在，MongoDB 会自动处理）
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-
-        // 2. 执行查询（find + filter + limit(1)）
-        return collection.find(filter).first(); // first() 如果没有结果会返回 null
-    }
-    // 示例1：查询 name = "张三" 的文档
-    //Document doc1 = getDocument("users", eq("name", "张三"));
-    // System.out.println(doc1); // 存在则打印文档，否则返回 null
-    // 插入单个文档
-    public void insertOne(String collectionName, Document document) {
-        getCollection(collectionName).insertOne(document);
+        return getCollection(collectionName).find(filter).first();
     }
 
-    // 插入多个文档
-    public void insertMany(String collectionName, List<Document> documents) {
-        getCollection(collectionName).insertMany(documents);
+    // 根据用户名获取用户文档
+    public Document getUserByUsername(String username) {
+        return getDocument("users", new Document("username", username));
     }
 
-    // 获取数据库
-    public MongoDatabase getDatabase() {
-        return this.database;
+    // 用户名是否已存在
+    public boolean userExists(String username) {
+        return getUserByUsername(username) != null;
     }
 
-    // 查询所有文档
-    public List<Document> findAll(String collectionName) {
+    // 校验用户名和密码
+    public boolean checkPassword(String username, String password) {
+        Document doc = getUserByUsername(username);
+        if (doc == null) return false;
+        return password.equals(doc.getString("password"));
+    }
+
+    // 注册新用户（返回true表示注册成功，false表示用户名已存在）
+    public boolean registerUser(String username, String password) {
+        if (userExists(username)) return false;
+        Document newUser = new Document("username", username)
+                .append("password", password);
+        getCollection("users").insertOne(newUser);
+        return true;
+    }
+
+    // 直接插入文档（用于注册界面）
+    public void insertOne(String collectionName, Document doc) {
+        getCollection(collectionName).insertOne(doc);
+    }
+
+    // 查询所有用户
+    public List<Document> findAllUsers() {
         List<Document> results = new ArrayList<>();
-        getCollection(collectionName).find().into(results);
+        getCollection("users").find().into(results);
         return results;
-    }
-
-    // 条件查询
-    public List<Document> find(String collectionName, Bson filter) {
-        List<Document> results = new ArrayList<>();
-        getCollection(collectionName).find(filter).into(results);
-        return results;
-    }
-
-    // 分页查询
-    public List<Document> findWithPagination(String collectionName, Bson filter,
-                                             int page, int size, Bson sort) {
-        List<Document> results = new ArrayList<>();
-        getCollection(collectionName)
-                .find(filter)
-                .sort(sort)
-                .skip((page - 1) * size)
-                .limit(size)
-                .into(results);
-        return results;
-    }
-
-    // 更新单个文档
-    public UpdateResult updateOne(String collectionName, Bson filter, Bson update) {
-        return getCollection(collectionName).updateOne(filter, update);
-    }
-
-    // 更新多个文档
-    public UpdateResult updateMany(String collectionName, Bson filter, Bson update) {
-        return getCollection(collectionName).updateMany(filter, update);
-    }
-
-    // 批量写入操作
-    public BulkWriteResult bulkWrite(String collectionName, List<WriteModel<Document>> operations) {
-        return getCollection(collectionName).bulkWrite(operations);
-    }
-
-    // 删除单个文档
-    public DeleteResult deleteOne(String collectionName, Bson filter) {
-        return getCollection(collectionName).deleteOne(filter);
-    }
-
-    // 删除多个文档
-    public DeleteResult deleteMany(String collectionName, Bson filter) {
-        return getCollection(collectionName).deleteMany(filter);
-    }
-
-    // 聚合查询
-    public List<Document> aggregate(String collectionName, List<Bson> pipeline) {
-        List<Document> results = new ArrayList<>();
-        getCollection(collectionName).aggregate(pipeline).into(results);
-        return results;
-    }
-
-    // 创建索引
-    public String createIndex(String collectionName, Bson keys, IndexOptions options) {
-        return getCollection(collectionName).createIndex(keys, options);
-    }
-
-    // 获取所有索引
-    public List<Document> listIndexes(String collectionName) {
-        List<Document> indexes = new ArrayList<>();
-        getCollection(collectionName).listIndexes().into(indexes);
-        return indexes;
-    }
-
-    // 文档计数
-    public long countDocuments(String collectionName, Bson filter) {
-        return getCollection(collectionName).countDocuments(filter);
-    }
-
-    // 估算文档数量
-    public long estimatedDocumentCount(String collectionName) {
-        return getCollection(collectionName).estimatedDocumentCount();
-    }
-
-    // 执行事务
-    public void executeTransaction(TransactionBody<String> transactionBody) {
-        try (ClientSession session = mongoClient.startSession()) {
-            session.withTransaction(transactionBody);
-        }
-    }
-
-    // 检查连接是否有效
-    public boolean isConnectionValid() {
-        try {
-            database.runCommand(new Document("ping", 1));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     // 关闭连接

@@ -52,159 +52,195 @@ public class BoardLayouts {
         return getLayout(layoutIndex);
     }
 
-    // 1. 横刀立马
+    //1.横刀立马
     public static List<GameFrame.Block> getLayout1() {
         List<GameFrame.Block> blocks = new ArrayList<>();
-        // 曹操
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        // 竖将
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        //
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        // 士兵
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
-        blocks.add(new GameFrame.Block(2, 4, 1, 1, Color.PURPLE, "紫兵1"));
+        //曹操
+        blocks.add(new GameFrame.Block(0, 1, 2, 2, Color.RED, "曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0, 0, 1, 2, Color.BLUE, "赵云"));
+        blocks.add(new GameFrame.Block(2, 0, 1, 2, Color.BLUE, "马超"));
+        blocks.add(new GameFrame.Block(0, 3, 1, 2, Color.BLUE, "黄忠"));
+        blocks.add(new GameFrame.Block(2, 3, 1, 2, Color.BLUE, "张飞"));
+        blocks.add(new GameFrame.Block(2, 1, 2, 1, Color.PURPLE, "关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(3, 1, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(3, 2, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(4, 0, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(4, 3, 1, 1, Color.GREEN, "卒"));
+
         return blocks;
     }
 
-    // 2. 指挥若定
-    public static List<GameFrame.Block> getLayout2() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(0, 3, 2, 1, Color.BLUE, "横将1"));
-        blocks.add(new GameFrame.Block(2, 3, 2, 1, Color.BLUE, "横将2"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(1, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(2, 4, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
+    //2.指挥若定
+    public static List<GameFrame.Block> getLayout2(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(3,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(0,3,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(3,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(2,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(2,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(2,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,1,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,2,1,1, Color.GREEN,"卒"));
+
         return blocks;
     }
+    //3.将拥曹营
+    public static List<GameFrame.Block> getLayout3(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(1,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,1,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(2,2,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(1,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(4,0,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(3,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(4,2,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(4,3,1,1, Color.GREEN,"卒"));
 
-    // 3. 将拥曹营
-    public static List<GameFrame.Block> getLayout3() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(0, 3, 2, 1, Color.BLUE, "横将1"));
-        blocks.add(new GameFrame.Block(2, 3, 2, 1, Color.BLUE, "横将2"));
-        blocks.add(new GameFrame.Block(1, 3, 1, 2, Color.BLUE, "竖将3"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(1, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(2, 4, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
         return blocks;
     }
+    //4.齐头并进
+    public static List<GameFrame.Block> getLayout4(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(3,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(0,3,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(3,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(3,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(2,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(2,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(2,1,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(2,2,1,1, Color.GREEN,"卒"));
 
-    // 4. 齐头并进
-    public static List<GameFrame.Block> getLayout4() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
-        blocks.add(new GameFrame.Block(1, 4, 2, 1, Color.PURPLE, "紫兵"));
         return blocks;
     }
+    //5.兵分三路
+    public static List<GameFrame.Block> getLayout5(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(1,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(3,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(1,3,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(3,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(2,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,1,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,2,1,1, Color.GREEN,"卒"));
 
-    // 5. 兵分三路
-    public static List<GameFrame.Block> getLayout5() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(0, 3, 2, 1, Color.BLUE, "横将1"));
-        blocks.add(new GameFrame.Block(2, 3, 2, 1, Color.BLUE, "横将2"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(1, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(2, 4, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
         return blocks;
     }
+    //6.雨声淅沥
+    public static List<GameFrame.Block> getLayout6(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(3,1,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(2,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(2,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(1,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(4,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(4,3,1,1, Color.GREEN,"卒"));
 
-    // 6. 雨声淅沥
-    public static List<GameFrame.Block> getLayout6() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 0, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 2, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 2, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(0, 3, 2, 1, Color.BLUE, "横将1"));
-        blocks.add(new GameFrame.Block(2, 3, 2, 1, Color.BLUE, "横将2"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(1, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(2, 4, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
-        blocks.add(new GameFrame.Block(1, 3, 1, 1, Color.PURPLE, "紫兵"));
         return blocks;
     }
+    //7.左右布兵
+    public static List<GameFrame.Block> getLayout7(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(2,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,1,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(2,2,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(2,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(4,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(1,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(1,3,1,1, Color.GREEN,"卒"));
 
-    // 7. 左右布兵
-    public static List<GameFrame.Block> getLayout7() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
-        blocks.add(new GameFrame.Block(1, 4, 2, 1, Color.PURPLE, "紫兵"));
         return blocks;
     }
+    //8.桃花园中
+    public static List<GameFrame.Block> getLayout8(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(1,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,1,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(2,2,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(1,3,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(4,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,0,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,3,1,1, Color.GREEN,"卒"));
 
-    // 8. 桃花园中
-    public static List<GameFrame.Block> getLayout8() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
-        blocks.add(new GameFrame.Block(1, 4, 2, 1, Color.PURPLE, "紫兵"));
         return blocks;
     }
+    //9.一路进军
+    public static List<GameFrame.Block> getLayout9(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(2,1,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(2,2,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(4,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(1,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(2,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,3,1,1, Color.GREEN,"卒"));
 
-    // 9. 一路进军
-    public static List<GameFrame.Block> getLayout9() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        blocks.add(new GameFrame.Block(2, 3, 1, 2, Color.BLUE, "竖将3"));
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
         return blocks;
     }
+    //10.一路顺风
+    public static List<GameFrame.Block> getLayout10(){
+        List<GameFrame.Block> blocks=new ArrayList<>();
+        //曹操
+        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        //五虎上将
+        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
+        blocks.add(new GameFrame.Block(2,0,1,2, Color.BLUE,"马超"));
+        blocks.add(new GameFrame.Block(2,3,1,2, Color.BLUE,"黄忠"));
+        blocks.add(new GameFrame.Block(3,2,1,2, Color.BLUE,"张飞"));
+        blocks.add(new GameFrame.Block(2,1,2,1, Color.PURPLE,"关羽"));
+        //卒
+        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(1,3,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(3,1,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(4,1,1,1, Color.GREEN,"卒"));
 
-    // 10. 一路顺风
-    public static List<GameFrame.Block> getLayout10() {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        blocks.add(new GameFrame.Block(1, 1, 2, 2, Color.RED, "曹操"));
-        blocks.add(new GameFrame.Block(0, 1, 1, 2, Color.BLUE, "竖将1"));
-        blocks.add(new GameFrame.Block(3, 1, 1, 2, Color.BLUE, "竖将2"));
-        blocks.add(new GameFrame.Block(1, 3, 2, 1, Color.BLUE, "横将"));
-        blocks.add(new GameFrame.Block(2, 3, 1, 2, Color.BLUE, "竖将3"));
-        blocks.add(new GameFrame.Block(0, 3, 1, 1, Color.GREEN, "士兵1"));
-        blocks.add(new GameFrame.Block(0, 4, 1, 1, Color.GREEN, "士兵2"));
-        blocks.add(new GameFrame.Block(3, 3, 1, 1, Color.GREEN, "士兵3"));
-        blocks.add(new GameFrame.Block(3, 4, 1, 1, Color.GREEN, "士兵4"));
         return blocks;
     }
 }
