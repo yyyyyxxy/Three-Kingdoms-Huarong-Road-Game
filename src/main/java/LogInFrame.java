@@ -179,7 +179,7 @@ public class LogInFrame {
             } else if (!PasswordUtil.hash(password).equals(userDoc.getString("password"))) {
                 showAlert(Alert.AlertType.ERROR, "密码错误！");
             } else {
-                showAlert(Alert.AlertType.INFORMATION, "登录成功！");
+                // 登录成功后直接进入主界面，不弹窗
                 primaryStage.close();
                 if (onLoginSuccess != null) onLoginSuccess.onLoginSuccess(username);
             }

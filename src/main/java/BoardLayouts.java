@@ -20,7 +20,7 @@ public class BoardLayouts {
                 "左右布兵",
                 "桃花园中",
                 "一路进军",
-                "一路顺风",
+                "一步通关",
                 "随机"
         );
     }
@@ -71,7 +71,6 @@ public class BoardLayouts {
 
         return blocks;
     }
-
     //2.指挥若定
     public static List<GameFrame.Block> getLayout2(){
         List<GameFrame.Block> blocks=new ArrayList<>();
@@ -224,22 +223,22 @@ public class BoardLayouts {
 
         return blocks;
     }
-    //10.一路顺风
-    public static List<GameFrame.Block> getLayout10(){
-        List<GameFrame.Block> blocks=new ArrayList<>();
+
+    public static List<GameFrame.Block> getLayout10() {
+        List<GameFrame.Block> blocks = new ArrayList<>();
         //曹操
-        blocks.add(new GameFrame.Block(0,1,2,2, Color.RED,"曹操"));
+        blocks.add(new GameFrame.Block(3, 1, 2, 2, Color.RED, "曹操"));
         //五虎上将
-        blocks.add(new GameFrame.Block(0,0,1,2, Color.BLUE,"赵云"));
-        blocks.add(new GameFrame.Block(2,0,1,2, Color.BLUE,"马超"));
-        blocks.add(new GameFrame.Block(2,3,1,2, Color.BLUE,"黄忠"));
-        blocks.add(new GameFrame.Block(3,2,1,2, Color.BLUE,"张飞"));
-        blocks.add(new GameFrame.Block(2,1,2,1, Color.PURPLE,"关羽"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 2, Color.BLUE, "赵云"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 2, Color.BLUE, "马超"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 2, Color.BLUE, "黄忠"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 2, Color.BLUE, "张飞"));
+        blocks.add(new GameFrame.Block(0, 0, 2, 1, Color.PURPLE, "关羽"));
         //卒
-        blocks.add(new GameFrame.Block(0,3,1,1, Color.GREEN,"卒"));
-        blocks.add(new GameFrame.Block(1,3,1,1, Color.GREEN,"卒"));
-        blocks.add(new GameFrame.Block(3,1,1,1, Color.GREEN,"卒"));
-        blocks.add(new GameFrame.Block(4,1,1,1, Color.GREEN,"卒"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 1, Color.GREEN, "卒"));
+        blocks.add(new GameFrame.Block(0, 0, 1, 1, Color.GREEN, "卒"));
 
         return blocks;
     }

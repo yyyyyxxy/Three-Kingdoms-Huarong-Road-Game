@@ -1,3 +1,4 @@
+import com.mongodb.client.model.Filters;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,19 +14,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 import org.bson.Document;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * 华容道游戏主窗口
- */
 public class GameFrame {
     private static final int BOARD_ROWS = 5;
     private static final int BOARD_COLS = 4;
@@ -38,23 +33,23 @@ public class GameFrame {
     private Block selectedBlock;
     private int moveCount;
     private Label moveCountLabel;
-    private Label layoutNameLabel; // 新增：布局名称标签
+    private Label layoutNameLabel;
     private Stage primaryStage;
     private boolean gameWon;
     private List<Button> directionButtons = new ArrayList<>();
     private int currentLayoutIndex = 0;
+    private String time = null;
+    private boolean watchable = false; // 是否允许观战
+    private String roomId = null;      // 观战房间号
 
-    // 撤销历史栈
     private Stack<List<Block>> historyStack = new Stack<>();
-
-    //新增：添加所用时间
     private Label timerLabel;
     private long startTime;
     private javafx.animation.Timeline timer;
-
     private String userName;
+    private volatile boolean pendingSync = false;
+    private javafx.animation.Timeline syncTimeline = null;
 
-    // 构造函数，初始化组件
     public GameFrame() {
         moveCountLabel = new Label("步数: 0");
         moveCountLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
@@ -62,64 +57,62 @@ public class GameFrame {
         layoutNameLabel = new Label();
         layoutNameLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: gold; -fx-font-weight: bold;");
         layoutNameLabel.setAlignment(Pos.CENTER);
+        this.time = null;
 
         timerLabel = new Label("用时：00：00");
         timerLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
 
-        // 初始化 gameBoard
         gameBoard = new GridPane();
+        // 启动定时同步（每300ms检查一次）
+        syncTimeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.millis(500), e -> {
+                    if (pendingSync && watchable && roomId != null) {
+                        pendingSync = false;
+                        uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
+                    }
+                })
+        );
+        syncTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        syncTimeline.play();
     }
 
-
-    public void show(Stage primaryStage, String userName, boolean showLayoutDialog) {
+    // 新增 parentStageToClose 参数
+    public void show(Stage primaryStage, String userName, boolean showLayoutDialog, Stage parentStageToClose) {
         this.primaryStage = primaryStage;
         this.userName = userName;
         primaryStage.setTitle("华容道游戏");
         primaryStage.setResizable(true);
 
-        // 创建主界面
         BorderPane root = createMainLayout();
-
-        // 初始化游戏数据
         initGameData();
 
-        // 设置场景
         double sceneWidth = BOARD_COLS * CELL_SIZE + 550;
         double sceneHeight = BOARD_ROWS * CELL_SIZE + 170;
         Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
 
-        // 设置最小宽高
         primaryStage.setMinWidth(BOARD_COLS * CELL_SIZE + 550);
         primaryStage.setMinHeight(BOARD_ROWS * CELL_SIZE + 180);
 
-        // 添加键盘事件处理
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress);
 
-        // 只在新开游戏时弹出布局选择
         if (showLayoutDialog) {
-            showLayoutSelectionDialog();
+            showLayoutSelectionDialog(parentStageToClose);
         }
+
+        // 关闭窗口时清理观战房间
+        primaryStage.setOnCloseRequest(e -> cleanOnlineRoom());
 
         primaryStage.show();
     }
 
-    private void showLayoutSelectionDialog() {
+    // 支持关闭上一个窗口
+    private void showLayoutSelectionDialog(Stage parentStageToClose) {
         List<String> layoutNames = BoardLayouts.getLayoutNames();
         ChoiceDialog<String> dialog = new ChoiceDialog<>(layoutNames.get(currentLayoutIndex), layoutNames);
         dialog.setTitle("选择布局");
         dialog.setHeaderText("请选择华容道布局");
         dialog.setContentText("布局:");
-
-        // 放大对话框并美化
-        DialogPane pane = dialog.getDialogPane();
-        pane.setPrefWidth(500);
-        pane.setPrefHeight(420);
-        pane.setStyle("-fx-font-size: 18px; -fx-background-color: linear-gradient(to bottom,#e0eafc,#cfdef3);");
-        Button okBtn = (Button) pane.lookupButton(ButtonType.OK);
-        if (okBtn != null) okBtn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
-        Button cancelBtn = (Button) pane.lookupButton(ButtonType.CANCEL);
-        if (cancelBtn != null) cancelBtn.setStyle("-fx-font-size: 16px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px;");
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(layoutName -> {
@@ -129,6 +122,10 @@ public class GameFrame {
             }
             initGameData();
             drawBlocks();
+            // 关闭上一个窗口
+            if (parentStageToClose != null) {
+                parentStageToClose.close();
+            }
         });
     }
 
@@ -148,16 +145,13 @@ public class GameFrame {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f0f0f0;");
 
-        // 顶部面板
         HBox topPanel = createTopPanel();
         root.setTop(topPanel);
 
-        // 游戏棋盘
         StackPane gameBoardPane = createGameBoard();
-        this.gameBoard = (GridPane) gameBoardPane.getChildren().get(1); // 方便后续drawBlocks
+        this.gameBoard = (GridPane) gameBoardPane.getChildren().get(1);
         root.setCenter(gameBoardPane);
 
-        // 右侧控制面板
         VBox controlPanel = createControlPanel();
         root.setRight(controlPanel);
 
@@ -174,17 +168,9 @@ public class GameFrame {
         titleLabel.setStyle("-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;");
         titleLabel.setAlignment(Pos.CENTER_LEFT);
 
-        // 优化：布局名称标签，居中、加粗、金色、字号与步数一致
         layoutNameLabel.setText(getCurrentLayoutName());
         layoutNameLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: gold; -fx-font-weight: bold;");
         layoutNameLabel.setAlignment(Pos.CENTER);
-
-        //moveCountLabel = new Label("步数: 0");
-        //moveCountLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
-
-        //新增：用时标签
-        //timerLabel = new Label("用时：00：00");
-        //timerLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
 
         Region spacer1 = new Region();
         Region spacer2 = new Region();
@@ -197,13 +183,34 @@ public class GameFrame {
 
         Button layoutButton = new Button("更换布局");
         layoutButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, #888, 2, 0, 0, 1);");
-        layoutButton.setOnAction(e -> showLayoutSelectionDialog());
+        layoutButton.setOnAction(e -> {
+            cleanOnlineRoom(); // 这里加上
+            showLayoutSelectionDialog(null);
+        });
 
         Button undoButton = new Button("撤销");
         undoButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, #888, 2, 0, 0, 1);");
         undoButton.setOnAction(e -> undoMove());
 
-        // 新增：存档按钮
+        Button watchableBtn = new Button("可观战");
+        watchableBtn.setStyle("-fx-font-size: 14px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
+        watchableBtn.setOnAction(e -> {
+            if (!watchable) {
+                watchable = true;
+                roomId = userName + "_" + System.currentTimeMillis();
+                watchableBtn.setText("结束观战");
+                // 立即上传一次初始状态
+                uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
+                showAlert("提示", "观战已开启", "现在其他用户可以观战你的对局。", Alert.AlertType.INFORMATION);
+            } else {
+                // 结束观战
+                cleanOnlineRoom();
+                watchableBtn.setText("可观战");
+                showAlert("提示", "观战已关闭", "你的对局已不再同步到观战列表。", Alert.AlertType.INFORMATION);
+            }
+        });
+        topPanel.getChildren().add(watchableBtn);
+
         Button saveButton = new Button("存档");
         saveButton.setStyle("-fx-font-size: 14px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
         saveButton.setOnAction(e -> {
@@ -214,17 +221,77 @@ public class GameFrame {
                 alert.showAndWait();
                 return;
             }
+            if (this.time != null) {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖之前的历史记录？", ButtonType.YES, ButtonType.NO);
+                confirm.setHeaderText("检测到本局为历史存档继续");
+                confirm.setTitle("覆盖提示");
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.YES) {
+                    try {
+                        MongoDBUtil db = new MongoDBUtil();
+                        db.getCollection("game_history").deleteOne(
+                                new org.bson.Document("username", userName)
+                                        .append("layout", getCurrentLayoutName())
+                                        .append("saveTime", this.time)
+                        );
+                        db.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    this.time = null;
+                } else {
+                    this.time = null;
+                    return;
+                }
+            }
+
             uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
             alert.setHeaderText(null);
             alert.setTitle("提示");
             alert.showAndWait();
             primaryStage.close();
+            cleanOnlineRoom();//关闭观战
             new MainInterfaceFrame().show(new Stage(), userName);
         });
 
-        // 使标题、棋局、步数三者居中对称分布
-        topPanel.getChildren().addAll(titleLabel, spacer1, layoutNameLabel, spacer2, moveCountLabel,timerLabel, restartButton, layoutButton, undoButton,saveButton);
+        Button backButton = new Button("返回主界面");
+        backButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px;");
+        backButton.setOnAction(e -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否存档当前进度？", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+            confirm.setHeaderText("返回主界面");
+            confirm.setTitle("提示");
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == ButtonType.YES) {
+                    if ("离线用户".equals(userName)) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
+                        alert.setHeaderText(null);
+                        alert.setTitle("提示");
+                        alert.showAndWait();
+                    } else {
+                        uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                        alert.setHeaderText(null);
+                        alert.setTitle("提示");
+                        alert.showAndWait();
+                    }
+                    primaryStage.close();
+                    cleanOnlineRoom();
+                    new MainInterfaceFrame().show(new Stage(), userName);
+                } else if (result.get() == ButtonType.NO) {
+                    primaryStage.close();
+                    cleanOnlineRoom();
+                    new MainInterfaceFrame().show(new Stage(), userName);
+                }
+                // 取消则什么都不做
+            }
+        });
+
+        topPanel.getChildren().addAll(
+                titleLabel, spacer1, layoutNameLabel, spacer2, moveCountLabel, timerLabel,
+                restartButton, layoutButton, undoButton, saveButton, backButton
+        );
 
         return topPanel;
     }
@@ -406,6 +473,10 @@ public class GameFrame {
             moveCountLabel.setText("步数: " + moveCount);
             drawBlocks();
             checkWinCondition();
+            // 仅在观战模式下同步
+            if (watchable && roomId != null) {
+                uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
+            }
         }
     }
 
@@ -418,6 +489,10 @@ public class GameFrame {
             drawBlocks();
             for (Button btn : directionButtons) {
                 btn.setDisable(true);
+            }
+            // 仅在观战模式下同步
+            if (watchable && roomId != null) {
+                uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
             }
         }
     }
@@ -469,8 +544,9 @@ public class GameFrame {
         String layoutName = getCurrentLayoutName();
 
         // 上传数据到云端
-        uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack());
-
+        if(!Objects.equals(userName, "离线用户")) {
+            uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack());
+        }
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("游戏胜利！");
         alert.setHeaderText("恭喜你完成了华容道！");
@@ -481,8 +557,16 @@ public class GameFrame {
         alert.getButtonTypes().setAll(restartButton, closeButton);
 
         alert.showAndWait().ifPresent(response -> {
+            // 观战结束时清理房间
+            cleanOnlineRoom();
             if (response == restartButton) {
                 restartGame();
+            } else if (response == closeButton) {
+                // 关闭当前窗口并返回主界面
+                if (primaryStage != null) {
+                    primaryStage.close();
+                }
+                new MainInterfaceFrame().show(new Stage(), userName);
             }
         });
     }
@@ -499,6 +583,10 @@ public class GameFrame {
             btn.setDisable(true);
         }
         startTimer();
+        // 仅在观战模式下同步
+        if (watchable && roomId != null) {
+            uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
+        }
     }
 
     /**
@@ -508,7 +596,7 @@ public class GameFrame {
      * @param savedElapsedTime 存档的用时
      * @param savedHistoryStack 存档的历史记录
      */
-    public void restoreGame(List<Block> savedBlocks, int savedMoveCount, String savedElapsedTime, List<String> savedHistoryStack) {
+    public void restoreGame(List<Block> savedBlocks, int savedMoveCount, String savedElapsedTime, List<String> savedHistoryStack,String time) {
         // 恢复方块状态
         if (savedBlocks != null && !savedBlocks.isEmpty()) {
             this.blocks = savedBlocks;
@@ -540,6 +628,8 @@ public class GameFrame {
         for (Button btn : directionButtons) {
             btn.setDisable(true);
         }
+        //设置记录时间
+        this.time = time;
     }
 
     private void restoreTimer(String savedElapsedTime) {
@@ -601,7 +691,8 @@ public class GameFrame {
                     .append("elapsedTime", elapsedTime)
                     .append("historyStack", historyStack)
                     .append("saveTime", saveTime) // 新增：存储时间字符串
-                    .append("timestamp", System.currentTimeMillis());
+                    .append("timestamp", System.currentTimeMillis())
+                    .append("gameWon",gameWon);
             db.getCollection("game_history").insertOne(record);
             db.close();
         } catch (Exception e) {
@@ -768,5 +859,54 @@ public class GameFrame {
 
         pane.getChildren().addAll(rect, label);
         return pane;
+    }
+    // 在GameFrame每次棋盘状态变化后调用
+    private void uploadOnlineGameState(String roomId, String username, List<GameFrame.Block> blocks, int moveCount, String elapsedTime) {
+        new Thread(() -> {
+            try {
+                MongoDBUtil db = new MongoDBUtil();
+                Document state = new Document("roomId", roomId)
+                        .append("host", username)
+                        .append("blocks", blocksToDocuments(blocks))
+                        .append("moveCount", moveCount)
+                        .append("elapsedTime", elapsedTime)
+                        .append("timestamp", System.currentTimeMillis());
+                db.getCollection("online_games").updateOne(
+                        Filters.eq("roomId", roomId),
+                        new Document("$set", state),
+                        new com.mongodb.client.model.UpdateOptions().upsert(true)
+                );
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    // 观战结束时清理房间
+    private void cleanOnlineRoom() {
+        if (watchable && roomId != null) {
+            try {
+                MongoDBUtil db = new MongoDBUtil();
+                db.getCollection("online_games").deleteOne(Filters.eq("roomId", roomId));
+                db.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            watchable = false;
+            roomId = null;
+        }
+        if (syncTimeline != null) {
+            syncTimeline.stop();
+        }
+    }
+
+    // 通用弹窗
+    private void showAlert(String title, String header, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
