@@ -172,18 +172,24 @@ public class LogInFrame {
                 return;
             }
 
-            MongoDBUtil db = new MongoDBUtil();
-            Document userDoc = db.getDocument("users", new org.bson.Document("username", username));
-            if (userDoc == null) {
-                showAlert(Alert.AlertType.ERROR, "用户名不存在！");
-            } else if (!PasswordUtil.hash(password).equals(userDoc.getString("password"))) {
-                showAlert(Alert.AlertType.ERROR, "密码错误！");
-            } else {
-                // 登录成功后直接进入主界面，不弹窗
-                primaryStage.close();
-                if (onLoginSuccess != null) onLoginSuccess.onLoginSuccess(username);
+            MongoDBUtil db = null;
+            try {
+                db = new MongoDBUtil();
+                Document userDoc = db.getDocument("users", new org.bson.Document("username", username));
+                if (userDoc == null) {
+                    showAlert(Alert.AlertType.ERROR, "用户名不存在！");
+                } else if (!PasswordUtil.hash(password).equals(userDoc.getString("password"))) {
+                    showAlert(Alert.AlertType.ERROR, "密码错误！");
+                } else {
+                    // 登录成功后直接进入主界面，不弹窗
+                    primaryStage.close();
+                    if (onLoginSuccess != null) onLoginSuccess.onLoginSuccess(username);
+                }
+            } catch (Exception ex) {
+                showAlert(Alert.AlertType.ERROR, "没有联网，无法登录！");
+            } finally {
+                if (db != null) db.close();
             }
-            db.close();
         });
 
         // 注册事件

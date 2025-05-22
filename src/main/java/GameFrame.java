@@ -50,6 +50,18 @@ public class GameFrame {
     private volatile boolean pendingSync = false;
     private javafx.animation.Timeline syncTimeline = null;
 
+    private boolean aiSolving = false;
+    private boolean aiPaused = false;
+    private List<List<Block>> aiSolution = null;
+    private int aiStepIndex = 0;
+    private Thread aiThread = null;
+    private VBox controlPanelRef;// 保存控制栏引用
+
+    private List<Button> topPanelButtons = new ArrayList<>();
+
+    private List<Block> aiBeforeBlocks = null;
+    private int aiBeforeMoveCount = 0;
+
     public GameFrame() {
         moveCountLabel = new Label("步数: 0");
         moveCountLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
@@ -86,12 +98,12 @@ public class GameFrame {
         BorderPane root = createMainLayout();
         initGameData();
 
-        double sceneWidth = BOARD_COLS * CELL_SIZE + 550;
+        double sceneWidth = BOARD_COLS * CELL_SIZE + 700;
         double sceneHeight = BOARD_ROWS * CELL_SIZE + 170;
         Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
 
-        primaryStage.setMinWidth(BOARD_COLS * CELL_SIZE + 550);
+        primaryStage.setMinWidth(BOARD_COLS * CELL_SIZE + 700);
         primaryStage.setMinHeight(BOARD_ROWS * CELL_SIZE + 180);
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress);
@@ -104,6 +116,28 @@ public class GameFrame {
         primaryStage.setOnCloseRequest(e -> cleanOnlineRoom());
 
         primaryStage.show();
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        if (aiSolving) return; // AI演示时禁用手动操作
+        if (selectedBlock == null || gameWon) {
+            return;
+        }
+
+        switch (event.getCode()) {
+            case UP:
+                moveSelectedBlock(Direction.UP);
+                break;
+            case DOWN:
+                moveSelectedBlock(Direction.DOWN);
+                break;
+            case LEFT:
+                moveSelectedBlock(Direction.LEFT);
+                break;
+            case RIGHT:
+                moveSelectedBlock(Direction.RIGHT);
+                break;
+        }
     }
 
     // 支持关闭上一个窗口
@@ -187,6 +221,11 @@ public class GameFrame {
             cleanOnlineRoom(); // 这里加上
             showLayoutSelectionDialog(null);
         });
+        Button aiSolveBtn = new Button(aiSolving ? "演示中" : "AI帮解");
+        aiSolveBtn.setDisable(aiSolving);
+        aiSolveBtn.setStyle("-fx-font-size: 14px; -fx-background-color: #f7b731; -fx-text-fill: white; -fx-background-radius: 8px;");
+        aiSolveBtn.setOnAction(e -> solveByAI());
+        topPanel.getChildren().add(aiSolveBtn);
 
         Button undoButton = new Button("撤销");
         undoButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, #888, 2, 0, 0, 1);");
@@ -269,13 +308,45 @@ public class GameFrame {
                         alert.setHeaderText(null);
                         alert.setTitle("提示");
                         alert.showAndWait();
-                    } else {
-                        uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
-                        alert.setHeaderText(null);
-                        alert.setTitle("提示");
-                        alert.showAndWait();
+                        primaryStage.close();
+                        cleanOnlineRoom();
+                        new MainInterfaceFrame().show(new Stage(), userName);
+                        return;
                     }
+                    // 如果是历史存档继续，弹出是否覆盖提示
+                    if (this.time != null) {
+                        Alert coverConfirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖上一次存档？", ButtonType.YES, ButtonType.NO);
+                        coverConfirm.setHeaderText("检测到本局为历史存档继续");
+                        coverConfirm.setTitle("覆盖提示");
+                        Optional<ButtonType> coverResult = coverConfirm.showAndWait();
+                        if (coverResult.isPresent() && coverResult.get() == ButtonType.YES) {
+                            try {
+                                MongoDBUtil db = new MongoDBUtil();
+                                db.getCollection("game_history").deleteOne(
+                                        new org.bson.Document("username", userName)
+                                                .append("layout", getCurrentLayoutName())
+                                                .append("saveTime", this.time)
+                                );
+                                db.close();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            this.time = null;
+                        } else {
+                            this.time = null;
+                            // 不覆盖则直接返回主界面，不存档
+                            primaryStage.close();
+                            cleanOnlineRoom();
+                            new MainInterfaceFrame().show(new Stage(), userName);
+                            return;
+                        }
+                    }
+                    // 存档
+                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                    alert.setHeaderText(null);
+                    alert.setTitle("提示");
+                    alert.showAndWait();
                     primaryStage.close();
                     cleanOnlineRoom();
                     new MainInterfaceFrame().show(new Stage(), userName);
@@ -287,6 +358,11 @@ public class GameFrame {
                 // 取消则什么都不做
             }
         });
+
+        topPanelButtons.clear();
+        topPanelButtons.add(undoButton);
+        topPanelButtons.add(saveButton);
+        topPanelButtons.add(backButton);
 
         topPanel.getChildren().addAll(
                 titleLabel, spacer1, layoutNameLabel, spacer2, moveCountLabel, timerLabel,
@@ -382,63 +458,79 @@ public class GameFrame {
         Label controlLabel = new Label("控制");
         controlLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        Button upButton = new Button("上");
-        Button downButton = new Button("下");
-        Button leftButton = new Button("左");
-        Button rightButton = new Button("右");
+        controlPanel.getChildren().add(controlLabel);
 
-        directionButtons.clear();
+        if (!aiSolving) {
+            // 普通控制栏
+            Button upButton = new Button("上");
+            Button downButton = new Button("下");
+            Button leftButton = new Button("左");
+            Button rightButton = new Button("右");
 
-        for (Button btn : new Button[]{upButton, downButton, leftButton, rightButton}) {
-            btn.setPrefSize(60, 35);
-            btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
-            btn.setDisable(true);
-            btn.setOnMouseEntered(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #3b8c7a; -fx-text-fill: white; -fx-background-radius: 8px;"));
-            btn.setOnMouseExited(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;"));
-            directionButtons.add(btn);
+            directionButtons.clear();
+            for (Button btn : new Button[]{upButton, downButton, leftButton, rightButton}) {
+                btn.setPrefSize(60, 35);
+                btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
+                btn.setDisable(true);
+                btn.setOnMouseEntered(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #3b8c7a; -fx-text-fill: white; -fx-background-radius: 8px;"));
+                btn.setOnMouseExited(e -> btn.setStyle("-fx-font-size: 16px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;"));
+                directionButtons.add(btn);
+            }
+            upButton.setOnAction(e -> moveSelectedBlock(Direction.UP));
+            downButton.setOnAction(e -> moveSelectedBlock(Direction.DOWN));
+            leftButton.setOnAction(e -> moveSelectedBlock(Direction.LEFT));
+            rightButton.setOnAction(e -> moveSelectedBlock(Direction.RIGHT));
+
+            HBox buttonRow1 = new HBox(10, upButton);
+            buttonRow1.setAlignment(Pos.CENTER);
+            HBox buttonRow2 = new HBox(10, leftButton, rightButton);
+            buttonRow2.setAlignment(Pos.CENTER);
+            HBox buttonRow3 = new HBox(10, downButton);
+            buttonRow3.setAlignment(Pos.CENTER);
+
+            VBox buttonLayout = new VBox(10, buttonRow1, buttonRow2, buttonRow3);
+            buttonLayout.setAlignment(Pos.CENTER);
+
+            Label instructionLabel = new Label("操作说明:\n\n1. 点击方块选择\n2. 使用方向键移动\n3. 或使用按钮移动");
+            instructionLabel.setStyle("-fx-font-size: 14px;");
+
+            controlPanel.getChildren().addAll(buttonLayout, instructionLabel);
+        } else {
+            // AI演示控制栏
+            Button pauseBtn = new Button(aiPaused ? "继续帮解" : "暂停帮解");
+            Button stopBtn = new Button("结束帮解");
+            Button prevBtn = new Button("上一步");
+            Button nextBtn = new Button("下一步");
+
+            pauseBtn.setPrefWidth(90);
+            stopBtn.setPrefWidth(90);
+            prevBtn.setPrefWidth(90);
+            nextBtn.setPrefWidth(90);
+
+            pauseBtn.setOnAction(e -> {
+                aiPaused = !aiPaused;
+                refreshControlPanel();
+            });
+            stopBtn.setOnAction(e -> stopAISolve());
+            prevBtn.setOnAction(e -> aiStepMove(-1));
+            nextBtn.setOnAction(e -> aiStepMove(1));
+
+            HBox btnRow1 = new HBox(10, pauseBtn, stopBtn);
+            btnRow1.setAlignment(Pos.CENTER);
+            HBox btnRow2 = new HBox(10, prevBtn, nextBtn);
+            btnRow2.setAlignment(Pos.CENTER);
+
+            controlPanel.getChildren().addAll(btnRow1, btnRow2);
         }
 
-        upButton.setOnAction(e -> moveSelectedBlock(Direction.UP));
-        downButton.setOnAction(e -> moveSelectedBlock(Direction.DOWN));
-        leftButton.setOnAction(e -> moveSelectedBlock(Direction.LEFT));
-        rightButton.setOnAction(e -> moveSelectedBlock(Direction.RIGHT));
-
-        HBox buttonRow1 = new HBox(10, upButton);
-        buttonRow1.setAlignment(Pos.CENTER);
-        HBox buttonRow2 = new HBox(10, leftButton, rightButton);
-        buttonRow2.setAlignment(Pos.CENTER);
-        HBox buttonRow3 = new HBox(10, downButton);
-        buttonRow3.setAlignment(Pos.CENTER);
-
-        VBox buttonLayout = new VBox(10, buttonRow1, buttonRow2, buttonRow3);
-        buttonLayout.setAlignment(Pos.CENTER);
-
-        Label instructionLabel = new Label("操作说明:\n\n1. 点击方块选择\n2. 使用方向键移动\n3. 或使用按钮移动");
-        instructionLabel.setStyle("-fx-font-size: 14px;");
-
-        controlPanel.getChildren().addAll(controlLabel, buttonLayout, instructionLabel);
+        controlPanelRef = controlPanel;
         return controlPanel;
     }
 
-    private void handleKeyPress(KeyEvent event) {
-        if (selectedBlock == null || gameWon) {
-            return;
-        }
-
-        switch (event.getCode()) {
-            case UP:
-                moveSelectedBlock(Direction.UP);
-                break;
-            case DOWN:
-                moveSelectedBlock(Direction.DOWN);
-                break;
-            case LEFT:
-                moveSelectedBlock(Direction.LEFT);
-                break;
-            case RIGHT:
-                moveSelectedBlock(Direction.RIGHT);
-                break;
-        }
+    private void refreshControlPanel() {
+        BorderPane root = (BorderPane) primaryStage.getScene().getRoot();
+        VBox newPanel = createControlPanel();
+        root.setRight(newPanel);
     }
 
     private void selectBlock(Block block) {
@@ -865,12 +957,15 @@ public class GameFrame {
         new Thread(() -> {
             try {
                 MongoDBUtil db = new MongoDBUtil();
+                List<String> friends = getFriendsOfUser(userName); // 你需要实现这个方法
+
                 Document state = new Document("roomId", roomId)
                         .append("host", username)
                         .append("blocks", blocksToDocuments(blocks))
                         .append("moveCount", moveCount)
                         .append("elapsedTime", elapsedTime)
-                        .append("timestamp", System.currentTimeMillis());
+                        .append("timestamp", System.currentTimeMillis())
+                        .append("friends", friends); // 新增
                 db.getCollection("online_games").updateOne(
                         Filters.eq("roomId", roomId),
                         new Document("$set", state),
@@ -881,6 +976,21 @@ public class GameFrame {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private List<String> getFriendsOfUser(String username) {
+        List<String> friends = new ArrayList<>();
+        try {
+            MongoDBUtil db = new MongoDBUtil();
+            Document userDoc = db.getUserByUsername(username);
+            if (userDoc != null && userDoc.get("friends") instanceof List) {
+                friends = new ArrayList<>((List<String>) userDoc.get("friends"));
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return friends;
     }
 
     // 观战结束时清理房间
@@ -898,6 +1008,99 @@ public class GameFrame {
         }
         if (syncTimeline != null) {
             syncTimeline.stop();
+        }
+    }
+
+    private void solveByAI() {
+        if (aiSolving) return;
+        aiBeforeBlocks = deepCopyBlocks(blocks);
+        aiBeforeMoveCount = moveCount;
+
+        aiSolving = true;
+        setAISolvingStatus(true); // ← AI帮解开始时上传状态
+        aiPaused = false;
+        aiSolution = AIHuarongSolver.solve(deepCopyBlocks(blocks), currentLayoutIndex);
+        aiStepIndex = 0;
+        refreshControlPanel();
+        // 禁用存档、返回主界面、撤销按钮
+        setTopPanelButtonsEnabled(false);
+
+        if (aiSolution == null || aiSolution.size() <= 1) {
+            aiSolving = false;
+            javafx.application.Platform.runLater(() -> {
+                showAlert("提示", "AI帮解", "未找到解法或已是终局", Alert.AlertType.INFORMATION);
+                refreshControlPanel();
+                setTopPanelButtonsEnabled(true);
+            });
+            return;
+        }
+
+        aiThread = new Thread(() -> {
+            while (aiSolving && aiStepIndex < aiSolution.size() - 1) {
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException ignored) {}
+                if (!aiSolving) break;
+                if (aiPaused) continue;
+                aiStepMove(1);
+            }
+            if (aiSolving && aiStepIndex == aiSolution.size() - 1) {
+                javafx.application.Platform.runLater(() -> showAlert("AI帮解", null, "AI已完成演示！", Alert.AlertType.INFORMATION));
+            }
+        });
+        aiThread.start();
+    }
+
+    private void aiStepMove(int delta) {
+        int newIndex = aiStepIndex + delta;
+        if (newIndex < 0 || newIndex >= aiSolution.size()) return;
+        aiStepIndex = newIndex;
+        List<Block> state = aiSolution.get(aiStepIndex);
+        javafx.application.Platform.runLater(() -> {
+            blocks = deepCopyBlocks(state);
+            drawBlocks();
+            moveCountLabel.setText("步数: " + aiStepIndex);
+        });
+    }
+
+    private void stopAISolve() {
+        setAISolvingStatus(false); // ← AI帮解结束时上传状态
+        aiSolving = false;
+        aiPaused = false;
+        aiSolution = null;
+        aiStepIndex = 0;
+        if (aiThread != null) aiThread.interrupt();
+        // 恢复AI前的棋盘和步数
+        if (aiBeforeBlocks != null) {
+            blocks = deepCopyBlocks(aiBeforeBlocks);
+            moveCount = aiBeforeMoveCount;
+            moveCountLabel.setText("步数: " + moveCount);
+            drawBlocks();
+        }
+        refreshControlPanel();
+        setTopPanelButtonsEnabled(true);
+    }
+
+    private void setTopPanelButtonsEnabled(boolean enabled) {
+        for (Button btn : topPanelButtons) {
+            btn.setDisable(!enabled);
+        }
+    }
+
+    private void setAISolvingStatus(boolean solving) {
+        if (watchable && roomId != null) {
+            new Thread(() -> {
+                try {
+                    MongoDBUtil db = new MongoDBUtil();
+                    db.getCollection("online_games").updateOne(
+                            Filters.eq("roomId", roomId),
+                            new Document("$set", new Document("aiSolving", solving))
+                    );
+                    db.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
     }
 
