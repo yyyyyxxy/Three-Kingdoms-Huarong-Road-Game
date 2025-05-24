@@ -62,6 +62,13 @@ public class GameFrame {
     private List<Block> aiBeforeBlocks = null;
     private int aiBeforeMoveCount = 0;
 
+    private boolean isTimed = false;
+    private int timeLimitSeconds = 300; // 5分钟
+    private int remainSeconds = 300;
+
+    // 新增：保存主界面Stage
+    private Stage parentStageToClose = null;
+
     public GameFrame() {
         moveCountLabel = new Label("步数: 0");
         moveCountLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
@@ -89,9 +96,12 @@ public class GameFrame {
     }
 
     // 新增 parentStageToClose 参数
-    public void show(Stage primaryStage, String userName, boolean showLayoutDialog, Stage parentStageToClose) {
+    // 新增 parentStageToClose 参数
+    public void show(Stage primaryStage, String userName, boolean showLayoutDialog, Stage parentStageToClose, boolean isTimed) {
         this.primaryStage = primaryStage;
         this.userName = userName;
+        this.isTimed = isTimed;
+        this.parentStageToClose = parentStageToClose;
         primaryStage.setTitle("华容道游戏");
         primaryStage.setResizable(true);
 
@@ -112,7 +122,6 @@ public class GameFrame {
             showLayoutSelectionDialog(parentStageToClose);
         }
 
-        // 关闭窗口时清理观战房间
         primaryStage.setOnCloseRequest(e -> cleanOnlineRoom());
 
         primaryStage.show();
@@ -218,9 +227,10 @@ public class GameFrame {
         Button layoutButton = new Button("更换布局");
         layoutButton.setStyle("-fx-font-size: 14px; -fx-background-color: #e07a5f; -fx-text-fill: white; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, #888, 2, 0, 0, 1);");
         layoutButton.setOnAction(e -> {
-            cleanOnlineRoom(); // 这里加上
+            cleanOnlineRoom();
             showLayoutSelectionDialog(null);
         });
+
         Button aiSolveBtn = new Button(aiSolving ? "演示中" : "AI帮解");
         aiSolveBtn.setDisable(aiSolving);
         aiSolveBtn.setStyle("-fx-font-size: 14px; -fx-background-color: #f7b731; -fx-text-fill: white; -fx-background-radius: 8px;");
@@ -238,11 +248,9 @@ public class GameFrame {
                 watchable = true;
                 roomId = userName + "_" + System.currentTimeMillis();
                 watchableBtn.setText("结束观战");
-                // 立即上传一次初始状态
                 uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
                 showAlert("提示", "观战已开启", "现在其他用户可以观战你的对局。", Alert.AlertType.INFORMATION);
             } else {
-                // 结束观战
                 cleanOnlineRoom();
                 watchableBtn.setText("可观战");
                 showAlert("提示", "观战已关闭", "你的对局已不再同步到观战列表。", Alert.AlertType.INFORMATION);
@@ -253,6 +261,15 @@ public class GameFrame {
         Button saveButton = new Button("存档");
         saveButton.setStyle("-fx-font-size: 14px; -fx-background-color: #52ab98; -fx-text-fill: white; -fx-background-radius: 8px;");
         saveButton.setOnAction(e -> {
+            if (isTimed) {
+                Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
+                failAlert.setHeaderText("限时模式存档提示");
+                failAlert.setTitle("提示");
+                Optional<ButtonType> failResult = failAlert.showAndWait();
+                if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
+                    return;
+                }
+            }
             if ("离线用户".equals(userName)) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
                 alert.setHeaderText(null);
@@ -278,20 +295,28 @@ public class GameFrame {
                         ex.printStackTrace();
                     }
                     this.time = null;
+                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                    alert.setHeaderText(null);
+                    alert.setTitle("提示");
+                    alert.showAndWait();
+                    cleanOnlineRoom();
+                    if (parentStageToClose != null) parentStageToClose.show();
+                    primaryStage.close();
+                    return;
                 } else {
                     this.time = null;
                     return;
                 }
             }
-
             uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
             alert.setHeaderText(null);
             alert.setTitle("提示");
             alert.showAndWait();
+            cleanOnlineRoom();
+            if (parentStageToClose != null) parentStageToClose.show();
             primaryStage.close();
-            cleanOnlineRoom();//关闭观战
-            new MainInterfaceFrame().show(new Stage(), userName);
         });
 
         Button backButton = new Button("返回主界面");
@@ -303,17 +328,25 @@ public class GameFrame {
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent()) {
                 if (result.get() == ButtonType.YES) {
+                    if (isTimed) {
+                        Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
+                        failAlert.setHeaderText("限时模式存档提示");
+                        failAlert.setTitle("提示");
+                        Optional<ButtonType> failResult = failAlert.showAndWait();
+                        if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
+                            return;
+                        }
+                    }
                     if ("离线用户".equals(userName)) {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
                         alert.setHeaderText(null);
                         alert.setTitle("提示");
                         alert.showAndWait();
-                        primaryStage.close();
                         cleanOnlineRoom();
-                        new MainInterfaceFrame().show(new Stage(), userName);
+                        if (parentStageToClose != null) parentStageToClose.show();
+                        primaryStage.close();
                         return;
                     }
-                    // 如果是历史存档继续，弹出是否覆盖提示
                     if (this.time != null) {
                         Alert coverConfirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖上一次存档？", ButtonType.YES, ButtonType.NO);
                         coverConfirm.setHeaderText("检测到本局为历史存档继续");
@@ -332,30 +365,36 @@ public class GameFrame {
                                 ex.printStackTrace();
                             }
                             this.time = null;
+                            uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                            alert.setHeaderText(null);
+                            alert.setTitle("提示");
+                            alert.showAndWait();
+                            cleanOnlineRoom();
+                            if (parentStageToClose != null) parentStageToClose.show();
+                            primaryStage.close();
+                            return;
                         } else {
                             this.time = null;
-                            // 不覆盖则直接返回主界面，不存档
-                            primaryStage.close();
                             cleanOnlineRoom();
-                            new MainInterfaceFrame().show(new Stage(), userName);
+                            if (parentStageToClose != null) parentStageToClose.show();
+                            primaryStage.close();
                             return;
                         }
                     }
-                    // 存档
                     uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
                     alert.setHeaderText(null);
                     alert.setTitle("提示");
                     alert.showAndWait();
-                    primaryStage.close();
                     cleanOnlineRoom();
-                    new MainInterfaceFrame().show(new Stage(), userName);
+                    if (parentStageToClose != null) parentStageToClose.show();
+                    primaryStage.close();
                 } else if (result.get() == ButtonType.NO) {
-                    primaryStage.close();
                     cleanOnlineRoom();
-                    new MainInterfaceFrame().show(new Stage(), userName);
+                    if (parentStageToClose != null) parentStageToClose.show();
+                    primaryStage.close();
                 }
-                // 取消则什么都不做
             }
         });
 
@@ -635,14 +674,39 @@ public class GameFrame {
         String elapsedTime = getElapsedTimeString();
         String layoutName = getCurrentLayoutName();
 
-        // 上传数据到云端
-        if(!Objects.equals(userName, "离线用户")) {
-            uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack());
+        // 异步上传数据到云端
+        if (!Objects.equals(userName, "离线用户")) {
+            new Thread(() -> uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack())).start();
         }
+
+        // 限时模式且在规定时间内通关，奖励金币（异步）
+        final boolean[] reward = {false};
+        Thread rewardThread = null;
+        if (isTimed && remainSeconds > 0 && !"离线用户".equals(userName)) {
+            rewardThread = new Thread(() -> {
+                try {
+                    MongoDBUtil db = new MongoDBUtil();
+                    db.getCollection("users").updateOne(
+                            new Document("username", userName),
+                            new Document("$inc", new Document("coins", 50))
+                    );
+                    db.close();
+                    reward[0] = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            rewardThread.start();
+        }
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("游戏胜利！");
         alert.setHeaderText("恭喜你完成了华容道！");
-        alert.setContentText("你用了 " + moveCount + " 步完成了游戏。\n总用时：" + elapsedTime);
+        String content = "你用了 " + moveCount + " 步完成了游戏。\n总用时：" + elapsedTime;
+        if (isTimed && remainSeconds > 0 && !"离线用户".equals(userName)) {
+            content += "\n限时模式奖励：金币+50！";
+        }
+        alert.setContentText(content);
 
         ButtonType restartButton = new ButtonType("重新开始");
         ButtonType closeButton = new ButtonType("关闭");
@@ -655,12 +719,17 @@ public class GameFrame {
                 restartGame();
             } else if (response == closeButton) {
                 // 关闭当前窗口并返回主界面
+                if (parentStageToClose != null) parentStageToClose.show();
                 if (primaryStage != null) {
                     primaryStage.close();
                 }
-                new MainInterfaceFrame().show(new Stage(), userName);
             }
         });
+
+        // 等待奖励线程结束，确保金币加完（可选，不等待也不会影响UI流畅）
+        if (rewardThread != null) {
+            try { rewardThread.join(100); } catch (InterruptedException ignored) {}
+        }
     }
 
     private void restartGame() {
@@ -688,7 +757,7 @@ public class GameFrame {
      * @param savedElapsedTime 存档的用时
      * @param savedHistoryStack 存档的历史记录
      */
-    public void restoreGame(List<Block> savedBlocks, int savedMoveCount, String savedElapsedTime, List<String> savedHistoryStack,String time) {
+    public void restoreGame(List<Block> savedBlocks, int savedMoveCount, String savedElapsedTime, List<String> savedHistoryStack, String time) {
         // 恢复方块状态
         if (savedBlocks != null && !savedBlocks.isEmpty()) {
             this.blocks = savedBlocks;
@@ -793,10 +862,22 @@ public class GameFrame {
     }
 
     private void updateTimer() {
-        long elapsed = (System.currentTimeMillis() - startTime) / 1000;
-        long minutes = elapsed / 60;
-        long seconds = elapsed % 60;
-        timerLabel.setText(String.format("用时: %02d:%02d", minutes, seconds));
+        if (isTimed) {
+            remainSeconds--;
+            int minutes = remainSeconds / 60;
+            int seconds = remainSeconds % 60;
+            timerLabel.setText(String.format("倒计时: %02d:%02d", minutes, seconds));
+            if (remainSeconds <= 0) {
+                timer.stop();
+                showAlert("时间到", "很遗憾，时间已用完！", "本局已超时。", Alert.AlertType.INFORMATION);
+                // 可在此处结束游戏或禁用操作
+            }
+        } else {
+            long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+            long minutes = elapsed / 60;
+            long seconds = elapsed % 60;
+            timerLabel.setText(String.format("用时: %02d:%02d", minutes, seconds));
+        }
     }
 
     // 获取当前用时字符串
@@ -828,22 +909,30 @@ public class GameFrame {
             timer.stop();
         }
         startTime = System.currentTimeMillis();
-        timerLabel.setText("用时: 00:00");
-        timer = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateTimer()));
-        timer.setCycleCount(javafx.animation.Animation.INDEFINITE);
-        timer.play();
+        if (isTimed) {
+            remainSeconds = timeLimitSeconds;
+            timerLabel.setText("倒计时: 05:00");
+            timer = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateTimer()));
+            timer.setCycleCount(javafx.animation.Animation.INDEFINITE);
+            timer.play();
+        } else {
+            timerLabel.setText("用时: 00:00");
+            timer = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateTimer()));
+            timer.setCycleCount(javafx.animation.Animation.INDEFINITE);
+            timer.play();
+        }
     }
 
     /**
      * 方块类
      */
     public static class Block {
-        private int row;
-        private int col;
-        private final int width;
-        private final int height;
-        private final Color color;
-        private final String name;
+        public int row;
+        public int col;
+        public final int width;
+        public final int height;
+        public final Color color;
+        public final String name;
 
         public Block(int row, int col, int width, int height, Color color, String name) {
             this.row = row;
@@ -1012,6 +1101,32 @@ public class GameFrame {
     }
 
     private void solveByAI() {
+        // 新增：AI帮解前弹窗并判断金币
+        int coins = getUserCoins(userName);
+        if (coins < 300) {
+            showAlert("金币不足", null, "金币余额不足，请充值", Alert.AlertType.WARNING);
+            return;
+        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否花费300金币使用AI帮解功能？", ButtonType.YES, ButtonType.NO);
+        confirm.setTitle("AI帮解");
+        confirm.setHeaderText("AI帮解功能");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.YES) {
+            return;
+        }
+        // 扣除金币
+        try {
+            MongoDBUtil db = new MongoDBUtil();
+            db.getCollection("users").updateOne(
+                    new org.bson.Document("username", userName),
+                    new org.bson.Document("$inc", new org.bson.Document("coins", -300))
+            );
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("错误", null, "扣除金币失败", Alert.AlertType.ERROR);
+            return;
+        }
         if (aiSolving) return;
         aiBeforeBlocks = deepCopyBlocks(blocks);
         aiBeforeMoveCount = moveCount;
@@ -1049,6 +1164,22 @@ public class GameFrame {
             }
         });
         aiThread.start();
+    }
+
+    // 新增：获取用户金币数量
+    private int getUserCoins(String username) {
+        int coins = 0;
+        try {
+            MongoDBUtil db = new MongoDBUtil();
+            org.bson.Document userDoc = db.getUserByUsername(username);
+            if (userDoc != null && userDoc.containsKey("coins")) {
+                coins = userDoc.getInteger("coins", 0);
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return coins;
     }
 
     private void aiStepMove(int delta) {

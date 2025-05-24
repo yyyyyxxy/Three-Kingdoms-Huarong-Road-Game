@@ -20,8 +20,7 @@ public class BoardLayouts {
                 "左右布兵",
                 "桃花园中",
                 "一路进军",
-                "一步通关",
-                "随机"
+                "一步通关"
         );
     }
 
@@ -37,7 +36,6 @@ public class BoardLayouts {
             case 7: return getLayout8();
             case 8: return getLayout9();
             case 9: return getLayout10();
-            case 10: return getRandomLayout();
             default: return getLayout1();
         }
     }

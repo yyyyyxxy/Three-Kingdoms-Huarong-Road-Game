@@ -8,7 +8,7 @@ public class Main extends Application {
         loginFrame.show(primaryStage, username -> {
             // 登录成功，打开主界面并传递用户名
             MainInterfaceFrame mainFrame = new MainInterfaceFrame();
-            mainFrame.show(new Stage(), username);
+            mainFrame.show(primaryStage, username);
         });
     }
 
