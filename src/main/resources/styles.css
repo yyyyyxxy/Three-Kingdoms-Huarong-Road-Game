@@ -1,0 +1,3152 @@
+/* ====================== 全局样式 ====================== */
+.root {
+    -fx-font-family: "微软雅黑";
+}
+
+/* ====================== 主界面样式 ====================== */
+.main-background {
+    -fx-background-color: linear-gradient(to bottom, #f0e6d6, #e0c3a3);
+}
+
+.main-title {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+.sub-title {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+/* ====================== ScrollPane 样式 ====================== */
+.main-scroll-pane {
+    -fx-background: linear-gradient(to bottom, #f0e6d6, #e0c3a3);
+    -fx-background-color: transparent;
+}
+
+/* ====================== 按钮样式 ====================== */
+.menu-button {
+    -fx-background-color: #a67c52;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.menu-button:hover {
+    -fx-background-color: #7d5a3a;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.layout-select-button {
+    -fx-background-color: #a67c52;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.layout-select-button:hover {
+    -fx-background-color: #7d5a3a;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.action-button-replay {
+    -fx-background-color: #f7b731;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.action-button-restore {
+    -fx-background-color: #52ab98;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.action-button-delete {
+    -fx-background-color: #e07a5f;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.action-button-watch {
+    -fx-background-color: #52ab98;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.action-button-chat {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.friend-request-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.friend-request-button:hover {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.private-chat-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.private-chat-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+}
+
+.send-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+}
+
+.send-button:hover {
+    -fx-background-color: #229954;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+}
+
+.friend-delete-button {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+}
+
+.friend-agree-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-font-size: 12px;
+}
+
+.friend-reject-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-font-size: 12px;
+}
+
+/* ====================== 布局容器样式 ====================== */
+.layout-container {
+    -fx-background-color: rgba(255,255,255,0.8);
+    -fx-background-radius: 15;
+    -fx-padding: 15;
+}
+
+.preview-board {
+    -fx-background-color: white;
+    -fx-border-color: #654321;
+    -fx-border-width: 1;
+}
+
+/* ====================== 其他样式 ====================== */
+.coin-label {
+    -fx-text-fill: #e6b800;
+    -fx-font-weight: bold;
+}
+
+.refresh-button {
+    -fx-background-color: transparent;
+    -fx-font-size: 18px;
+    -fx-text-fill: #e6b800;
+}
+
+.unread-message-label {
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}
+
+.ai-status-label {
+    -fx-text-fill: #d7263d;
+    -fx-font-weight: bold;
+}
+
+.elapsed-time-label {
+    -fx-text-fill: #235390;
+    -fx-font-weight: bold;
+}
+
+.step-label {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+.replay-board {
+    -fx-background-color: #f4f1e8;
+    -fx-border-color: #8b7355;
+    -fx-border-width: 2;
+}
+
+/* ====================== 聊天界面样式 ====================== */
+.chat-background {
+    -fx-background-color: #f5f5f5;
+}
+
+.chat-header {
+    -fx-background-color: #2c3e50;
+}
+
+.chat-header-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.chat-area {
+    -fx-background-color: #f5f5f5;
+}
+
+.chat-scroll-pane {
+    -fx-background: #f5f5f5;
+    -fx-background-color: #f5f5f5;
+}
+
+.chat-bottom-area {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1 0 0 0;
+}
+
+.chat-input {
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.message-bubble-sent {
+    -fx-background-color: #95ec69;
+    -fx-background-radius: 10px;
+    -fx-padding: 8 12 8 12;
+}
+
+.message-bubble-received {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 8 12 8 12;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 10px;
+}
+
+/* ====================== 对话框样式 ====================== */
+.dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #f0e6d6, #e0c3a3);
+    -fx-font-family: "微软雅黑";
+    -fx-font-size: 16px;
+}
+
+.dialog-pane > .header-panel {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane > .header-panel > .label {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+/* 排序选择容器样式 */
+.sort-option-container {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 15px;
+    -fx-border-color: #a67c52;
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 2);
+}
+
+.sort-option-container:hover {
+    -fx-background-color: rgba(240, 230, 214, 0.95);
+    -fx-border-color: #7d5a3a;
+    -fx-cursor: hand;
+}
+
+/* 排序选择描述文本 */
+.sort-description {
+    -fx-text-fill: #8b7355;
+    -fx-font-style: italic;
+}
+.loading-label {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-style: italic;
+}
+
+.no-data-label {
+    -fx-text-fill: #8b7355;
+    -fx-font-style: italic;
+}
+
+.error-label {
+    -fx-text-fill: #e74c3c;
+}
+
+.progress-indicator {
+    -fx-progress-color: #a67c52;
+}
+/* 聊天相关样式 */
+.loading-label {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-style: italic;
+}
+
+.no-message-label {
+    -fx-text-fill: #8b7355;
+    -fx-font-style: italic;
+    -fx-text-alignment: center;
+}
+
+.progress-indicator {
+    -fx-progress-color: #a67c52;
+}
+
+/* 消息气泡样式 */
+.message-bubble-sent {
+    -fx-background-color: #95c11f;
+    -fx-background-radius: 15px;
+    -fx-padding: 10px 15px;
+}
+
+.message-bubble-received {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 15px;
+    -fx-padding: 10px 15px;
+}
+
+.chat-area {
+    -fx-background-color: #f5f5f5;
+}
+
+.chat-input {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+}
+
+.send-button {
+    -fx-background-color: #007aff;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 16px;
+}
+
+.send-button:hover {
+    -fx-background-color: #0056b3;
+}
+/* 排行榜样式 */
+.rank-main-title {
+    -fx-text-fill: linear-gradient(to bottom, #d4af37, #b8860b);
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.rank-subtitle {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-style: italic;
+}
+
+.rank-progress-indicator {
+    -fx-progress-color: #d4af37;
+}
+
+/* 排行榜卡片样式 */
+.rank-card-gold {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+    -fx-border-color: #ffd700;
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 215, 0, 0.4), 8, 0, 0, 2);
+}
+
+.rank-card-silver {
+    -fx-background-color: linear-gradient(to bottom, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
+    -fx-border-color: #c0c0c0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(192, 192, 192, 0.4), 8, 0, 0, 2);
+}
+
+.rank-card-bronze {
+    -fx-background-color: linear-gradient(to bottom, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.05));
+    -fx-border-color: #cd7f32;
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(205, 127, 50, 0.4), 8, 0, 0, 2);
+}
+
+.rank-card-normal {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(245, 245, 245, 0.8));
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+
+.rank-card-hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 3);
+}
+
+.rank-badge {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, #f0f0f0, #e0e0e0);
+    -fx-background-radius: 25px;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 25px;
+}
+
+.rank-icon {
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+}
+
+.rank-number {
+    -fx-text-fill: #666;
+    -fx-font-weight: bold;
+}
+
+.rank-username {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.rank-stats {
+    -fx-text-fill: #7f8c8d;
+}
+
+.rank-metric-label {
+    -fx-text-fill: #95a5a6;
+    -fx-text-alignment: center;
+}
+
+.rank-metric-value {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+/* 空状态和错误状态样式 */
+.empty-state-title, .error-state-title {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+.empty-state-message, .error-state-message {
+    -fx-text-fill: #8b7355;
+    -fx-text-alignment: center;
+}
+
+.retry-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px 24px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.retry-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 6, 0, 0, 1);
+}
+
+.retry-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #1f618d);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 800px) {
+    .rank-card-gold, .rank-card-silver, .rank-card-bronze, .rank-card-normal {
+        -fx-pref-width: 500px;
+        -fx-max-width: 500px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .rank-card-gold, .rank-card-silver, .rank-card-bronze, .rank-card-normal {
+        -fx-pref-width: 400px;
+        -fx-max-width: 400px;
+    }
+}
+/* 信箱样式 */
+.mailbox-main-title {
+    -fx-text-fill: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.mailbox-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+.mailbox-progress {
+    -fx-progress-color: #3498db;
+}
+
+.mailbox-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 6, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.mailbox-card:hover, .mailbox-card-hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(240, 244, 248, 0.95));
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.3), 10, 0, 0, 3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.friend-request-card {
+    -fx-border-color: #e74c3c;
+}
+
+.friend-request-card:hover {
+    -fx-border-color: #c0392b;
+    -fx-effect: dropshadow(three-pass-box, rgba(231, 76, 60, 0.3), 10, 0, 0, 3);
+}
+
+.private-chat-card {
+    -fx-border-color: #2ecc71;
+}
+
+.private-chat-card:hover {
+    -fx-border-color: #27ae60;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 204, 113, 0.3), 10, 0, 0, 3);
+}
+
+.mailbox-card-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.mailbox-card-description {
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+}
+
+.mailbox-enter-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 20px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.mailbox-enter-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 6, 0, 0, 1);
+}
+
+.mailbox-enter-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #1f618d);
+}
+
+.unread-badge {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 2px 8px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.mailbox-status-active {
+    -fx-text-fill: #e67e22;
+    -fx-font-weight: bold;
+}
+
+.mailbox-status-empty {
+    -fx-text-fill: #27ae60;
+}
+
+.mailbox-status-error {
+    -fx-text-fill: #e74c3c;
+}
+
+/* 好友申请和聊天相关样式 */
+.friend-agree-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-cursor: hand;
+}
+
+.friend-agree-button:hover {
+    -fx-background-color: #2ecc71;
+}
+
+.friend-reject-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-cursor: hand;
+}
+
+.friend-reject-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+.action-button-chat {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-cursor: hand;
+}
+
+.action-button-chat:hover {
+    -fx-background-color: #2980b9;
+}
+/* 好友申请表格样式 */
+.friend-request-table {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.friend-request-table .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+}
+
+.friend-request-table .column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.friend-request-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.friend-request-table .table-row-cell:odd {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.friend-request-table .table-row-cell:hover {
+    -fx-background-color: rgba(52, 152, 219, 0.1);
+}
+
+.friend-request-table .table-cell {
+    -fx-text-fill: #2c3e50;
+    -fx-border-color: transparent;
+}
+
+/* 聊天列表表格样式 */
+.chat-list-table {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.chat-list-table .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+}
+
+.chat-list-table .column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.chat-list-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.chat-list-table .table-row-cell:odd {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-list-table .table-row-cell:hover {
+    -fx-background-color: rgba(46, 204, 113, 0.1);
+}
+
+.chat-list-table .table-cell {
+    -fx-text-fill: #2c3e50;
+    -fx-border-color: transparent;
+}
+
+/* 好友申请按钮样式 */
+.friend-agree-button {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.friend-agree-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-agree-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #229954, #1e8449);
+}
+
+.friend-reject-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.friend-reject-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-reject-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #c0392b, #a93226);
+}
+
+/* 聊天按钮样式 */
+.action-button-chat {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.action-button-chat:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.action-button-chat:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #1f618d);
+}
+
+/* 表格行悬停效果 */
+.table-row-cell:selected {
+    -fx-background-color: rgba(52, 152, 219, 0.3);
+    -fx-text-fill: #2c3e50;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #2c3e50;
+}
+/* 聊天卡片样式 */
+.chat-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+    -fx-border-color: rgba(189, 195, 199, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.chat-card:hover, .chat-card-hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(240, 244, 248, 0.95), rgba(230, 236, 240, 0.9));
+    -fx-border-color: rgba(52, 152, 219, 0.3);
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.15), 4, 0, 0, 1);
+}
+
+.chat-avatar {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-background-radius: 25px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+.chat-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.chat-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.chat-time {
+    -fx-text-fill: #95a5a6;
+}
+
+.chat-last-message {
+    -fx-text-fill: #7f8c8d;
+    -fx-opacity: 0.8;
+}
+
+.chat-unread-badge {
+    -fx-background-color: #e74c3c;
+    -fx-background-radius: 10px;
+    -fx-border-color: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.chat-unread-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.chat-list-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.chat-list-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-list-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(189, 195, 199, 0.3);
+    -fx-background-radius: 4px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(149, 165, 166, 0.6);
+    -fx-background-radius: 4px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(127, 140, 141, 0.8);
+}
+/* 空状态样式调整 */
+.empty-state-title, .error-state-title {
+    -fx-text-fill: #7d5a3a;
+    -fx-font-weight: bold;
+}
+
+.empty-state-message, .error-state-message {
+    -fx-text-fill: #8b7355;
+    -fx-text-alignment: center;
+}
+
+/* 聊天列表容器 */
+.chat-list-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+/* 聊天界面样式优化 */
+.chat-background {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+}
+
+.chat-header {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f1f3f4);
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 0 0 1 0;
+}
+
+.chat-header-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.chat-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.chat-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.chat-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: rgba(189, 195, 199, 0.3);
+    -fx-background-radius: 4px;
+}
+
+.chat-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(149, 165, 166, 0.6);
+    -fx-background-radius: 4px;
+}
+
+.chat-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(127, 140, 141, 0.8);
+}
+
+.chat-area {
+    -fx-background-color: transparent;
+}
+
+.chat-bottom-area {
+    -fx-background-color: linear-gradient(to bottom, #f1f3f4, #ffffff);
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1 0 0 0;
+}
+
+.chat-input {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+.chat-input:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.3), 4, 0, 0, 1);
+}
+
+.send-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 6, 0, 0, 1);
+}
+
+.send-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #1f618d);
+}
+
+/* 消息气泡样式 */
+.message-bubble-sent {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-background-radius: 15px 15px 5px 15px;
+    -fx-padding: 10px 15px;
+    -fx-text-fill: white;
+    -fx-alignment: center-right;
+}
+
+.message-bubble-received {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15px 15px 15px 5px;
+    -fx-padding: 10px 15px;
+    -fx-text-fill: #2c3e50;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px 15px 15px 5px;
+    -fx-alignment: center-left;
+}
+
+.no-message-label {
+    -fx-text-fill: #95a5a6;
+    -fx-font-style: italic;
+}
+/* 返回按钮样式 */
+.back-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.back-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #bdc3c7, #95a5a6);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.back-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+}
+
+/* 聊天界面头部优化 */
+.chat-header {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f1f3f4);
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.chat-header-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+/* 好友列表样式 */
+.friend-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+    -fx-border-color: rgba(189, 195, 199, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+}
+
+.friend-card:hover, .friend-card-hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(240, 244, 248, 0.95), rgba(230, 236, 240, 0.9));
+    -fx-border-color: rgba(52, 152, 219, 0.3);
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.15), 4, 0, 0, 1);
+}
+
+.friend-avatar {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+    -fx-background-radius: 22.5px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 22.5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+.friend-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.friend-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.friend-status {
+    -fx-text-fill: #95a5a6;
+    -fx-font-style: italic;
+}
+
+.friend-chat-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.friend-chat-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-delete-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.friend-delete-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-list-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.friend-list-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.friend-list-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(189, 195, 199, 0.3);
+    -fx-background-radius: 4px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(149, 165, 166, 0.6);
+    -fx-background-radius: 4px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(127, 140, 141, 0.8);
+}
+
+
+/* 聊天卡片样式 */
+.chat-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+    -fx-border-color: rgba(189, 195, 199, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.chat-card:hover, .chat-card-hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(240, 244, 248, 0.95), rgba(230, 236, 240, 0.9));
+    -fx-border-color: rgba(52, 152, 219, 0.3);
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.15), 4, 0, 0, 1);
+}
+
+.chat-avatar {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-background-radius: 25px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+/* 不同颜色的头像样式类 */
+.chat-avatar-red {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.chat-avatar-green {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+}
+
+.chat-avatar-orange {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+.chat-avatar-purple {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}
+
+.chat-avatar-blue {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.chat-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.chat-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.chat-time {
+    -fx-text-fill: #95a5a6;
+}
+
+.chat-last-message {
+    -fx-text-fill: #7f8c8d;
+    -fx-opacity: 0.8;
+}
+
+.chat-unread-badge {
+    -fx-background-color: #e74c3c;
+    -fx-background-radius: 10px;
+    -fx-border-color: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.chat-unread-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.chat-list-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.chat-list-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-list-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(189, 195, 199, 0.3);
+    -fx-background-radius: 4px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(149, 165, 166, 0.6);
+    -fx-background-radius: 4px;
+}
+
+.chat-list-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(127, 140, 141, 0.8);
+}
+
+/* 好友列表样式 */
+.friend-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+    -fx-border-color: rgba(189, 195, 199, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+}
+
+.friend-card:hover, .friend-card-hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(240, 244, 248, 0.95), rgba(230, 236, 240, 0.9));
+    -fx-border-color: rgba(52, 152, 219, 0.3);
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.15), 4, 0, 0, 1);
+}
+
+.friend-avatar {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+    -fx-background-radius: 22.5px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 22.5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+/* 好友头像颜色变化样式类 */
+.friend-avatar-red {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.friend-avatar-green {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+}
+
+.friend-avatar-orange {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+.friend-avatar-purple {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}
+
+.friend-avatar-blue {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.friend-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.friend-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.friend-status {
+    -fx-text-fill: #95a5a6;
+    -fx-font-style: italic;
+}
+
+.friend-chat-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.friend-chat-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-delete-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.friend-delete-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.friend-list-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.friend-list-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.friend-list-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(189, 195, 199, 0.3);
+    -fx-background-radius: 4px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(149, 165, 166, 0.6);
+    -fx-background-radius: 4px;
+}
+
+.friend-list-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(127, 140, 141, 0.8);
+}
+/* 主界面样式 */
+.main-background {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+}
+
+.welcome-label {
+    -fx-text-fill: #6c757d;
+}
+
+.username-label {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+.main-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.main-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+.section-title-small {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+/* 主要按钮样式 */
+.primary-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.primary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 次要按钮样式 */
+.secondary-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+}
+
+.secondary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.secondary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #c0392b, #a93226);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 社交功能按钮样式 */
+.social-button {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.social-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #f5b041, #f39c12);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+}
+
+.social-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #e67e22, #d68910);
+    -fx-scale-x: 0.99;
+    -fx-scale-y: 0.99;
+}
+
+/* 退出登录按钮样式 */
+.logout-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.logout-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+}
+
+.logout-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 0.99;
+    -fx-scale-y: 0.99;
+}
+
+/* 金币显示样式 */
+.coin-label {
+    -fx-background-color: linear-gradient(to right, #f1c40f, #f39c12);
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 8 15 8 15;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+/* 刷新按钮样式 */
+.refresh-button {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+    -fx-text-fill: white;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-pref-width: 35;
+    -fx-pref-height: 35;
+    -fx-font-size: 16;
+}
+
+.refresh-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #58d68d, #27ae60);
+    -fx-rotate: 90;
+}
+
+.refresh-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #229954, #1e8449);
+    -fx-rotate: 180;
+}
+
+/* 滚动面板样式 */
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.main-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-scroll-pane .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.main-scroll-pane .scroll-bar .track {
+    -fx-background-color: rgba(0,0,0,0.1);
+    -fx-background-radius: 5;
+}
+
+.main-scroll-pane .scroll-bar .thumb {
+    -fx-background-color: rgba(0,0,0,0.3);
+    -fx-background-radius: 5;
+}
+
+.main-scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(0,0,0,0.5);
+}
+/* 横向布局样式 */
+.section-title-large {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+/* 社交功能卡片样式 */
+.social-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.social-card:hover,
+.social-card-hover {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    -fx-border-color: #dee2e6;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 3);
+}
+
+.social-card-title {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+/* 调整主要按钮宽度 */
+.primary-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.primary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 次要按钮样式 */
+.secondary-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+}
+
+.secondary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.secondary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #c0392b, #a93226);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+/* 修改头像文字样式 - 区分文字和emoji */
+.chat-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.friend-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 新增：emoji图标样式类 - 保持原色 */
+.emoji-icon {
+    -fx-text-fill: inherit;
+    -fx-font-weight: normal;
+}
+
+/* 新增：彩色图标样式类 */
+.colored-icon {
+    -fx-text-fill: inherit;
+}
+
+/* 修改排行榜图标样式 */
+.rank-icon {
+    -fx-text-fill: inherit; /* 改为继承颜色，让emoji显示原色 */
+    -fx-font-weight: bold;
+}
+
+/* 标题图标应该保持原色 */
+.title-icon {
+    -fx-text-fill: inherit;
+}
+
+/* 状态图标应该保持原色 */
+.status-icon {
+    -fx-text-fill: inherit;
+}
+
+/* 功能图标应该保持原色 */
+.feature-icon {
+    -fx-text-fill: inherit;
+}
+/* 新增：彩色图标样式类 - 保持emoji原色 */
+.title-icon,
+.feature-icon,
+.status-icon,
+.emoji-icon {
+    -fx-text-fill: inherit;
+}
+
+/* 修改头像文字样式 - 保持文字为白色 */
+.chat-avatar-text,
+.friend-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 排行榜图标可以保持原色 */
+.rank-icon {
+    -fx-text-fill: inherit;
+    -fx-font-weight: bold;
+}
+
+/* 数字排名保持原有样式 */
+.rank-number {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+/* 添加好友界面样式 */
+.add-friend-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);
+}
+
+.input-label {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+.add-friend-input {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.add-friend-input:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
+}
+
+.cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.cancel-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.cancel-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 状态消息样式 */
+.status-title-success,
+.status-message-success {
+    -fx-text-fill: #27ae60;
+}
+
+.status-title-error,
+.status-message-error {
+    -fx-text-fill: #e74c3c;
+}
+
+.status-title-warning,
+.status-message-warning {
+    -fx-text-fill: #f39c12;
+}
+
+.status-title-info,
+.status-message-info {
+    -fx-text-fill: #3498db;
+}
+
+.status-title-loading,
+.status-message-loading {
+    -fx-text-fill: #7f8c8d;
+}
+
+/* 在线观战界面样式 */
+.online-game-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.online-game-card:hover,
+.online-game-card-hover {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    -fx-border-color: #dee2e6;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 3);
+}
+
+.host-avatar {
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+}
+
+.host-avatar-red {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.host-avatar-green {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+}
+
+.host-avatar-orange {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+.host-avatar-purple {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}
+
+.host-avatar-blue {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.host-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.host-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.game-layout,
+.game-time,
+.game-moves {
+    -fx-text-fill: #7f8c8d;
+}
+
+.watch-button {
+    -fx-background-color: linear-gradient(to bottom, #e67e22, #d35400);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+}
+
+.watch-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.watch-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #d35400, #bf6000);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.online-games-scroll {
+    -fx-background-color: transparent;
+}
+
+.online-games-scroll .viewport {
+    -fx-background-color: transparent;
+}
+/* 修复：信箱界面样式 */
+.mailbox-main-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.mailbox-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+/* 修复：信箱卡片样式 */
+.mailbox-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.mailbox-card:hover,
+.mailbox-card-hover {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    -fx-border-color: #dee2e6;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
+}
+
+.mailbox-card-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.mailbox-card-description {
+    -fx-text-fill: #7f8c8d;
+}
+
+.mailbox-enter-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+    -fx-pref-width: 120;
+    -fx-pref-height: 35;
+}
+
+.mailbox-enter-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.mailbox-enter-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* 修复：状态显示样式 */
+.mailbox-status-active {
+    -fx-text-fill: #e67e22;
+    -fx-font-weight: bold;
+}
+
+.mailbox-status-empty {
+    -fx-text-fill: #27ae60;
+    -fx-font-weight: bold;
+}
+
+.mailbox-status-error {
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}
+
+.loading-label {
+    -fx-text-fill: #7f8c8d;
+}
+
+.mailbox-progress {
+    -fx-progress-color: #3498db;
+}
+
+/* 修复：未读徽章样式 */
+.unread-badge {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-font-weight: bold;
+    -fx-min-width: 20;
+    -fx-min-height: 20;
+    -fx-alignment: center;
+    -fx-padding: 2 6 2 6;
+}
+
+/* 修复：返回按钮样式 */
+.back-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+    -fx-pref-width: 120;
+    -fx-pref-height: 35;
+}
+
+.back-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.back-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 修复：好友申请特定样式 */
+.friend-request-card {
+    -fx-border-color: #f39c12;
+}
+
+.friend-request-card:hover {
+    -fx-border-color: #e67e22;
+}
+
+/* 修复：私信聊天特定样式 */
+.private-chat-card {
+    -fx-border-color: #e74c3c;
+}
+
+.private-chat-card:hover {
+    -fx-border-color: #c0392b;
+}
+
+/* 确保图标显示原色 */
+.feature-icon,
+.title-icon,
+.status-icon,
+.emoji-icon {
+    -fx-text-fill: inherit !important;
+    -fx-effect: none;
+}
+/* 修复：确保所有emoji图标显示原色 */
+.feature-icon,
+.title-icon,
+.status-icon,
+.emoji-icon {
+    -fx-text-fill: inherit !important;
+    -fx-effect: none !important;
+}
+
+/* 修复：返回按钮样式 - 确保文字显示完整 */
+.back-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+    -fx-min-width: 120; /* 确保最小宽度 */
+    -fx-pref-width: 120;
+    -fx-pref-height: 40;
+    -fx-padding: 8 12 8 12; /* 增加内边距 */
+}
+
+.back-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.back-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 修复：信箱卡片样式 - 适配横向布局 */
+.mailbox-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);
+    -fx-cursor: hand;
+    -fx-min-width: 300; /* 确保最小宽度 */
+    -fx-pref-width: 300;
+    -fx-max-width: 300;
+}
+
+.mailbox-card:hover,
+.mailbox-card-hover {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    -fx-border-color: #dee2e6;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
+}
+
+/* 修复：空状态样式 */
+.empty-state-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.empty-state-message {
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+}
+
+/* 修复：确保所有文字类图标保持正确颜色 */
+.chat-avatar-text,
+.friend-avatar-text,
+.host-avatar-text {
+    -fx-text-fill: white !important;
+    -fx-font-weight: bold;
+}
+
+/* 确保其他功能性图标保持原色 */
+.section-title .feature-icon,
+.mailbox-main-title .feature-icon,
+.mailbox-subtitle .feature-icon {
+    -fx-text-fill: inherit !important;
+}
+/* 对话框样式 */
+.dialog-pane {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #e9ecef;
+    -fx-background-radius: 10 10 0 0;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane .content {
+    -fx-padding: 20;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-font-weight: bold;
+    -fx-min-width: 80;
+}
+
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.dialog-pane .button-bar .button:default {
+    -fx-background-color: #e74c3c;
+}
+
+.dialog-pane .button-bar .button:default:hover {
+    -fx-background-color: #c0392b;
+}
+/* 修复：确保主标题样式固定，不受焦点状态影响 */
+.main-title {
+    -fx-text-fill: #8b4513;
+    -fx-font-weight: bold;
+    -fx-font-size: 36px !important; /* 使用!important确保字体大小不变 */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 2, 2);
+}
+
+/* 确保窗口焦点状态不影响标题 */
+.main-title:focused,
+.main-title:hover {
+    -fx-font-size: 36px !important; /* 保持相同大小 */
+    -fx-text-fill: #8b4513 !important; /* 保持相同颜色 */
+}
+
+/* 确保根容器的焦点状态不影响子元素 */
+.main-background:focused .main-title,
+.main-background:focused .main-title {
+    -fx-font-size: 36px !important;
+}
+
+/* 修复：添加具体的窗口焦点状态处理 */
+.scene:focused .main-title,
+.scene .main-title {
+    -fx-font-size: 36px !important;
+    -fx-text-fill: #8b4513 !important;
+}
+/* 登录界面样式 */
+.login-background {
+    -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+}
+
+.login-scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.login-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.app-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.app-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+.login-form-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);
+}
+
+.form-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.input-label {
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+}
+
+.login-input {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.login-input:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
+}
+
+.login-input-error {
+    -fx-background-color: white;
+    -fx-border-color: #e74c3c;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.eye-button {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #ced4da;
+    -fx-border-width: 0 2 2 0;
+    -fx-border-radius: 0 8 8 0;
+    -fx-background-radius: 0 8 8 0;
+    -fx-text-fill: #6c757d;
+}
+
+.eye-button:hover {
+    -fx-background-color: #e9ecef;
+    -fx-text-fill: #495057;
+}
+
+.eye-button:pressed {
+    -fx-background-color: #dee2e6;
+}
+
+.strength-label {
+    -fx-text-fill: #6c757d;
+}
+
+.error-tip {
+    -fx-text-fill: #e74c3c;
+    -fx-font-size: 12px;
+}
+
+/* 登录界面按钮样式 */
+.login-form-card .primary-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 2);
+    -fx-font-weight: bold;
+}
+
+.login-form-card .primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.login-form-card .primary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.login-form-card .secondary-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: bold;
+}
+
+.login-form-card .secondary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.login-form-card .secondary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 修复：高级现代化对话框样式 */
+.dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 8);
+    -fx-padding: 0;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-background-radius: 15 15 0 0;
+    -fx-padding: 20 25 20 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-font-family: "微软雅黑";
+}
+
+.dialog-pane .content {
+    -fx-padding: 25;
+    -fx-font-size: 16px;
+    -fx-font-family: "微软雅黑";
+}
+
+.dialog-pane .content .label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 16px;
+    -fx-line-spacing: 2px;
+}
+
+.dialog-pane .button-bar {
+    -fx-padding: 0 25 25 25;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-font-family: "微软雅黑";
+    -fx-min-width: 90;
+    -fx-pref-height: 35;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 2);
+}
+
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5dade2, #3498db);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.dialog-pane .button-bar .button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* 取消按钮样式 */
+.dialog-pane .button-bar .button:cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+}
+
+.dialog-pane .button-bar .button:cancel-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #b2babb, #95a5a6);
+}
+
+/* 确认按钮样式 */
+.dialog-pane .button-bar .button:default {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.dialog-pane .button-bar .button:default:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+}
+
+/* 错误对话框特殊样式 */
+.error-dialog .header-panel {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+/* 警告对话框特殊样式 */
+.warning-dialog .header-panel {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+/* 信息对话框特殊样式 */
+.info-dialog .header-panel {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+}
+
+/* 确认对话框特殊样式 */
+.confirmation-dialog .header-panel {
+    -fx-background-color: linear-gradient(to bottom, #8e44ad, #7d3c98);
+}
+
+/* 登录界面横向布局样式 */
+.login-background {
+    -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+}
+
+/* 左侧标题区域样式 */
+.app-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 3, 0, 0, 2);
+}
+
+.app-subtitle {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+.welcome-text {
+    -fx-text-fill: #34495e;
+    -fx-font-weight: bold;
+}
+
+.game-description {
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+    -fx-line-spacing: 3px;
+}
+
+.feature-text {
+    -fx-text-fill: #5d6d7e;
+    -fx-font-weight: bold;
+}
+
+/* 右侧表单卡片保持原有样式 */
+.login-form-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);
+}
+
+.form-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+/* 特色功能卡片样式 */
+.feature-box {
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(233, 236, 239, 0.8);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 5, 0, 0, 2);
+    -fx-padding: 10;
+}
+
+.feature-box:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* 确保emoji图标正确显示 */
+.feature-icon {
+    -fx-text-fill: inherit !important;
+    -fx-effect: none !important;
+}
+
+/* 响应式布局调整 */
+@media (max-width: 800px) {
+    .login-background {
+        -fx-orientation: vertical;
+    }
+}
+/* 修改：响应式布局支持 */
+.login-background {
+    -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+    -fx-min-width: 600;
+    -fx-min-height: 400;
+}
+
+.main-background {
+    -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+    -fx-min-width: 600;
+    -fx-min-height: 400;
+}
+
+/* 修改：确保左右分栏在小窗口时也能正常显示 */
+.login-form-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);
+    -fx-min-width: 350;
+    -fx-max-width: 450;
+}
+
+/* 修改：社交功能卡片响应式调整 */
+.social-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-cursor: hand;
+    -fx-min-width: 130;
+    -fx-max-width: 160;
+}
+
+/* 修改：确保滚动面板在各种尺寸下都能正常工作 */
+.main-scroll-pane,
+.login-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+}
+
+.main-scroll-pane .viewport,
+.login-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* 修改：小窗口时的布局调整 */
+@media (max-width: 800px) {
+    .login-background,
+    .main-background {
+        -fx-padding: 20 30 20 30;
+    }
+
+    .login-form-card {
+        -fx-min-width: 300;
+        -fx-max-width: 380;
+    }
+
+    .social-card {
+        -fx-min-width: 120;
+        -fx-max-width: 140;
+    }
+}
+/* 修复：确保滚动面板样式正确 */
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: false;
+}
+
+.main-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #f1f1f1;
+    -fx-background-radius: 8;
+    -fx-pref-width: 12;
+}
+
+.main-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: #f1f1f1;
+    -fx-background-radius: 8;
+}
+
+.main-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #c1c1c1;
+    -fx-background-radius: 8;
+}
+
+.main-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a1a1a1;
+}
+
+/* 修复：确保布局容器样式正确 */
+.layout-container {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-alignment: center;
+    -fx-pref-width: 350;
+    -fx-max-width: 350;
+    -fx-pref-height: 280;
+    -fx-max-height: 280;
+}
+
+.layout-container:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f1f3f4);
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 12, 0, 0, 4);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+/* 修改：奖牌emoji样式 - 保持原色 */
+.rank-medal {
+    -fx-text-fill: inherit !important; /* 保持emoji原色 */
+    -fx-effect: none !important; /* 移除任何效果 */
+}
+
+/* 修改：数字排名样式 */
+.rank-number {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+/* 新增：排行榜卡片样式 */
+.rank-card-gold {
+    -fx-background-color: linear-gradient(to bottom, #fff9c4, #f1c40f);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #f39c12;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(241, 196, 15, 0.4), 12, 0, 0, 4);
+}
+
+.rank-card-silver {
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #ecf0f1);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(189, 195, 199, 0.4), 12, 0, 0, 4);
+}
+
+.rank-card-bronze {
+    -fx-background-color: linear-gradient(to bottom, #fdf2e9, #e67e22);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #d35400;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.4), 12, 0, 0, 4);
+}
+
+.rank-card-normal {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
+}
+
+.rank-card-hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
+}
+
+.rank-badge {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+}
+
+.rank-username {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.rank-performance {
+    -fx-text-fill: #7f8c8d;
+}
+
+.rank-number-large {
+    -fx-text-fill: #95a5a6;
+    -fx-font-weight: bold;
+}
+
+/* 确保所有emoji图标都保持原色 */
+.feature-icon {
+    -fx-text-fill: inherit !important;
+    -fx-effect: none !important;
+}
+/* 新增：历史记录卡片样式 */
+.history-card-won {
+    -fx-background-color: linear-gradient(to bottom, #d5f4e6, #ffffff);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #27ae60;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.3), 12, 0, 0, 4);
+}
+
+.history-card-saved {
+    -fx-background-color: linear-gradient(to bottom, #fff3cd, #ffffff);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #f39c12;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.3), 12, 0, 0, 4);
+}
+
+.history-card-hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
+}
+
+.history-status-icon {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 2;
+}
+
+.history-status-won {
+    -fx-text-fill: #27ae60;
+    -fx-font-weight: bold;
+}
+
+.history-status-saved {
+    -fx-text-fill: #f39c12;
+    -fx-font-weight: bold;
+}
+
+.history-data-label {
+    -fx-text-fill: #7f8c8d;
+}
+
+.history-replay-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.history-replay-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.history-restore-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.history-restore-button:hover {
+    -fx-background-color: #219a52;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.history-delete-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.history-delete-button:hover {
+    -fx-background-color: #c0392b;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.history-cards-scroll {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.history-cards-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+/* 新增：排行榜选项容器样式 */
+.rank-option-container {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);
+    -fx-padding: 25;
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+.rank-option-container:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f1f3f4);
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 15, 0, 0, 5);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.rank-option-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.rank-option-description {
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+}
+
+.rank-option-button {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.4), 8, 0, 0, 3);
+}
+
+.rank-option-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.6), 12, 0, 0, 4);
+}
+
+.rank-option-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #21618c, #1b4f72);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* 新增：排行榜卡片滚动区域样式 */
+.rank-cards-scroll {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.rank-cards-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.rank-cards-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.rank-cards-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 5px;
+}
+
+.rank-cards-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #bdc3c7;
+    -fx-background-radius: 5px;
+}
+
+.rank-cards-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #95a5a6;
+}
+
+/* 好友申请卡片样式 */
+.friend-request-card-pending {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12px;
+    -fx-border-color: #3498db;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.2), 8, 0, 0, 2);
+}
+
+.friend-request-card-agreed {
+    -fx-background-color: linear-gradient(to bottom, #d4edda, #c3e6cb);
+    -fx-background-radius: 12px;
+    -fx-border-color: #27ae60;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.2), 8, 0, 0, 2);
+}
+
+.friend-request-card-rejected {
+    -fx-background-color: linear-gradient(to bottom, #f8d7da, #f1b0b7);
+    -fx-background-radius: 12px;
+    -fx-border-color: #e74c3c;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.2), 8, 0, 0, 2);
+}
+
+.friend-request-card-default {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(189, 195, 199, 0.2), 8, 0, 0, 2);
+}
+
+.friend-request-card-hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 12, 0, 0, 4);
+}
+
+/* 状态指示器样式 */
+.friend-request-status-indicator {
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+}
+
+.status-indicator-pending {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+    -fx-border-color: #d68910;
+    -fx-border-width: 2px;
+}
+
+.status-indicator-agreed {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+    -fx-border-color: #1e8449;
+    -fx-border-width: 2px;
+}
+
+.status-indicator-rejected {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-border-color: #a93226;
+    -fx-border-width: 2px;
+}
+
+.status-indicator-default {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-border-color: #6c7b7d;
+    -fx-border-width: 2px;
+}
+
+/* 用户头像样式 */
+.friend-request-avatar {
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-border-width: 2px;
+    -fx-border-color: #ecf0f1;
+}
+
+.request-avatar-red {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.request-avatar-green {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+}
+
+.request-avatar-orange {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+.request-avatar-purple {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}
+
+.request-avatar-blue {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.friend-request-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 文本样式 */
+.friend-request-username {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.friend-request-text {
+    -fx-text-fill: #7f8c8d;
+}
+
+.friend-request-status-pending {
+    -fx-text-fill: #f39c12;
+    -fx-font-weight: bold;
+}
+
+.friend-request-status-agreed {
+    -fx-text-fill: #27ae60;
+    -fx-font-weight: bold;
+}
+
+.friend-request-status-rejected {
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}
+
+.friend-request-status-default {
+    -fx-text-fill: #95a5a6;
+}
+
+.friend-request-time {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-style: italic;
+}
+
+/* 按钮样式 */
+.friend-request-agree-button {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.3), 4, 0, 0, 2);
+}
+
+.friend-request-agree-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.friend-request-reject-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.3), 4, 0, 0, 2);
+}
+
+.friend-request-reject-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* 滚动区域样式 */
+.friend-request-cards-scroll {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.friend-request-cards-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.friend-request-cards-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.friend-request-cards-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 5px;
+}
+
+.friend-request-cards-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #bdc3c7;
+    -fx-background-radius: 5px;
+}
+
+.friend-request-cards-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #95a5a6;
+}
+/* 私信聊天卡片样式 */
+.chat-card-unread {
+    -fx-background-color: linear-gradient(to bottom, #fff3cd, #ffeaa7);
+    -fx-background-radius: 12px;
+    -fx-border-color: #f39c12;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.3), 8, 0, 0, 2);
+}
+
+.chat-card-read {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12px;
+    -fx-border-color: #74b9ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(116, 185, 255, 0.2), 8, 0, 0, 2);
+}
+
+.chat-card-hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 12, 0, 0, 4);
+}
+
+/* 聊天头像指示器样式 */
+.chat-avatar-indicator {
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-border-width: 2px;
+    -fx-border-color: #ecf0f1;
+}
+
+.chat-avatar-red {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.chat-avatar-green {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+}
+
+.chat-avatar-orange {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+.chat-avatar-purple {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}
+
+.chat-avatar-blue {
+    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.chat-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 聊天信息文本样式 */
+.chat-username {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.chat-status-text {
+    -fx-text-fill: #7f8c8d;
+}
+
+.chat-message-preview-unread {
+    -fx-text-fill: #f39c12;
+    -fx-font-weight: bold;
+}
+
+.chat-message-preview-read {
+    -fx-text-fill: #74b9ff;
+}
+
+.chat-time-label {
+    -fx-text-fill: #95a5a6;
+    -fx-font-style: italic;
+}
+
+/* 未读消息徽章样式 */
+.chat-unread-badge-large {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.4), 4, 0, 0, 2);
+}
+
+.chat-unread-count {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 聊天按钮样式 */
+.chat-enter-button-unread {
+    -fx-background-color: linear-gradient(to bottom, #f39c12, #e67e22);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.3), 4, 0, 0, 2);
+}
+
+.chat-enter-button-unread:hover {
+    -fx-background-color: linear-gradient(to bottom, #f1c40f, #f39c12);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.chat-enter-button-read {
+    -fx-background-color: linear-gradient(to bottom, #74b9ff, #0984e3);
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(116, 185, 255, 0.3), 4, 0, 0, 2);
+}
+
+.chat-enter-button-read:hover {
+    -fx-background-color: linear-gradient(to bottom, #81ecec, #74b9ff);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* 聊天列表滚动区域样式 */
+.chat-list-cards-scroll {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.chat-list-cards-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-list-cards-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.chat-list-cards-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 5px;
+}
+
+.chat-list-cards-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #74b9ff;
+    -fx-background-radius: 5px;
+}
+
+.chat-list-cards-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #0984e3;
+}

@@ -1,12 +1,10 @@
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.bson.Document;
@@ -16,6 +14,7 @@ import com.mongodb.client.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Optional;
 
 public class LogInFrame {
 
@@ -24,7 +23,8 @@ public class LogInFrame {
     }
 
     private boolean isRegisterMode = false;
-    private GridPane grid;
+    private VBox mainContainer;
+    private VBox formCard;
     private Label title;
     private Label confirmLabel;
     private PasswordField confirmField;
@@ -34,8 +34,7 @@ public class LogInFrame {
     private Label passStrengthIcon;
     private Button actionBtn; // 登录/注册按钮
     private Button offlineBtn;
-    private HBox btnBox;
-
+    private VBox btnBox; // 修复：确保这里是VBox类型，不是HBox
     // 本地用户名缓存
     private Set<String> existingUsers = new HashSet<>();
     private boolean userListLoaded = false;
@@ -47,69 +46,265 @@ public class LogInFrame {
     // 延迟检查的 Timeline
     private javafx.animation.Timeline checkTimeline = null;
 
-
     public void show(Stage primaryStage, LoginSuccessListener onLoginSuccess) {
-        primaryStage.setTitle("登录界面");
+        primaryStage.setTitle("华容道 - 登录");
 
         // 异步加载用户列表
         loadUserListAsync();
 
-        // 棕色渐变背景
-        LinearGradient brownGradient = new LinearGradient(
-                0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#c79050")),
-                new Stop(1, Color.web("#7d5a3a"))
-        );
-        BorderPane root = new BorderPane();
-        root.setBackground(new Background(new BackgroundFill(brownGradient, CornerRadii.EMPTY, Insets.EMPTY)));
+        // 主容器 - 使用现代化的渐变背景
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("login-scroll-pane");
 
-        // 卡片式表单
-        grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(18);
-        grid.setPadding(new Insets(40, 40, 40, 40));
-        grid.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.97);"
-                        + "-fx-background-radius: 18;"
-                        + "-fx-effect: dropshadow(gaussian, #b0a18a, 16, 0.2, 0, 4);"
-        );
-        // 让 grid 自动调整大小
-        grid.setMaxWidth(Region.USE_COMPUTED_SIZE);
-        grid.setMaxHeight(Region.USE_COMPUTED_SIZE);
+        // 修改：使用横向布局 - 左右分栏
+        HBox mainLayout = new HBox(50); // 增加间距以适应横向布局
+        mainLayout.setPadding(new Insets(40, 60, 40, 60));
+        mainLayout.setAlignment(Pos.CENTER);
+        mainLayout.getStyleClass().add("login-background");
 
-        // 标题
+        // 修改：左侧标题区域
+        VBox leftSection = new VBox(20);
+        leftSection.setAlignment(Pos.CENTER);
+        leftSection.setPrefWidth(350); // 设置左侧区域宽度
+        leftSection.setMaxWidth(400);
+        leftSection.setPadding(new Insets(20, 0, 20, 0));
+
+        // 华容道标题区域
+        VBox titleSection = createTitleSection();
+
+        // 添加一些装饰性内容到左侧
+        VBox decorativeSection = new VBox(15);
+        decorativeSection.setAlignment(Pos.CENTER);
+        decorativeSection.setPadding(new Insets(30, 0, 0, 0));
+
+        Label welcomeText = new Label("欢迎来到华容道世界");
+        welcomeText.setFont(javafx.scene.text.Font.font("微软雅黑", 18));
+        welcomeText.getStyleClass().add("welcome-text");
+
+        Label gameDescription = new Label("挑战经典解谜游戏\n训练逻辑思维能力\n享受策略游戏乐趣");
+        gameDescription.setFont(javafx.scene.text.Font.font("微软雅黑", 14));
+        gameDescription.getStyleClass().add("game-description");
+        gameDescription.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        // 添加一些游戏特色图标
+        HBox featuresBox = new HBox(20);
+        featuresBox.setAlignment(Pos.CENTER);
+        featuresBox.setPadding(new Insets(20, 0, 0, 0));
+
+        VBox feature1 = createFeatureBox("🧩", "策略思考");
+        VBox feature2 = createFeatureBox("🏆", "排行竞技");
+        VBox feature3 = createFeatureBox("👥", "社交互动");
+
+        featuresBox.getChildren().addAll(feature1, feature2, feature3);
+
+        decorativeSection.getChildren().addAll(welcomeText, gameDescription, featuresBox);
+
+        leftSection.getChildren().addAll(titleSection, decorativeSection);
+
+        // 修改：右侧登录表单区域
+        VBox rightSection = new VBox(20);
+        rightSection.setAlignment(Pos.CENTER);
+        rightSection.setPrefWidth(420); // 保持表单宽度
+        rightSection.setMaxWidth(450);
+
+        // 表单卡片
+        formCard = new VBox(20);
+        formCard.setAlignment(Pos.CENTER);
+        formCard.setPadding(new Insets(30, 40, 30, 40));
+        formCard.setPrefWidth(420);
+        formCard.setMaxWidth(450);
+        formCard.getStyleClass().add("login-form-card");
+
+        // 表单标题
         title = new Label("用户登录");
-        title.setStyle("-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #7d5a3a;");
-        VBox titleBox = new VBox(title, new Separator());
-        titleBox.setAlignment(Pos.CENTER);
-        titleBox.setSpacing(8);
-        root.setTop(titleBox);
-        BorderPane.setMargin(titleBox, new Insets(0, 0, 20, 0));
+        title.setFont(javafx.scene.text.Font.font("微软雅黑", 22));
+        title.getStyleClass().add("form-title");
 
-        Label userLabel = new Label("用户名:");
-        TextField userField = new TextField();
-        userField.setPrefWidth(320);
-        userField.setMaxWidth(Double.MAX_VALUE);
-        userField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
+        // 输入字段
+        VBox fieldsContainer = new VBox(15);
+        fieldsContainer.setAlignment(Pos.CENTER);
 
-        Label passLabel = new Label("密码:");
+        // 用户名输入
+        VBox userContainer = createInputField("用户名", "请输入用户名");
+        TextField userField = (TextField) ((VBox) userContainer.getChildren().get(1)).getChildren().get(0);
+
+        // 密码输入
+        VBox passContainer = createPasswordField("密码", "请输入密码");
+        HBox passInputBox = (HBox) ((VBox) passContainer.getChildren().get(1)).getChildren().get(0);
+        PasswordField passField = (PasswordField) passInputBox.getChildren().get(0);
+        TextField passVisibleField = (TextField) passInputBox.getChildren().get(1);
+        Button eyeButton = (Button) passInputBox.getChildren().get(2);
+
+        // 确认密码输入（注册模式）
+        confirmLabel = new Label("确认密码");
+        confirmLabel.setFont(javafx.scene.text.Font.font("微软雅黑", 14));
+        confirmLabel.getStyleClass().add("input-label");
+
+        VBox confirmContainer = new VBox(8);
+        confirmContainer.setAlignment(Pos.CENTER_LEFT);
+
+        confirmField = new PasswordField();
+        confirmField.setPromptText("请再次输入密码");
+        confirmField.setPrefHeight(45);
+        confirmField.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        confirmField.getStyleClass().add("login-input");
+
+        confirmContainer.getChildren().addAll(confirmLabel, confirmField);
+
+        // 密码不匹配提示
+        mismatchTip = new Label("两次密码不一致");
+        mismatchTip.getStyleClass().add("error-tip");
+        mismatchTip.setVisible(false);
+        mismatchTip.setManaged(false);
+
+        // 密码强度指示器
+        strengthBox = createPasswordStrengthBox();
+
+        fieldsContainer.getChildren().addAll(userContainer, passContainer);
+
+        // 按钮区域
+        VBox buttonArea = createButtonArea(onLoginSuccess);
+        btnBox = buttonArea;
+
+        // 初始设置为登录模式
+        formCard.getChildren().addAll(title, fieldsContainer, btnBox);
+
+        rightSection.getChildren().add(formCard);
+
+        // 修改：将左右两栏添加到主布局
+        mainLayout.getChildren().addAll(leftSection, rightSection);
+
+        // 设置事件监听器
+        setupEventListeners(userField, passField, passVisibleField, eyeButton, confirmField, onLoginSuccess, primaryStage);
+
+        scrollPane.setContent(mainLayout);
+
+        // 创建场景并应用样式
+        Scene scene = new Scene(scrollPane);
+        loadCSS(scene);
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(true);
+
+        // 修改：移除固定比例限制，允许自由调整大小
+        primaryStage.setMinWidth(600);   // 设置合理的最小宽度
+        primaryStage.setMinHeight(400);  // 设置合理的最小高度
+
+        // 修改：设置默认窗口大小，但不限制比例
+        primaryStage.setWidth(900);
+        primaryStage.setHeight(600);
+
+        primaryStage.show();
+
+        // 自动聚焦到用户名输入框
+        Platform.runLater(() -> userField.requestFocus());
+    }
+
+    // 修改：更新标题区域 - 适应左侧布局
+    private VBox createTitleSection() {
+        VBox titleSection = new VBox(15);
+        titleSection.setAlignment(Pos.CENTER);
+
+        Label appIcon = new Label("🏯");
+        appIcon.setFont(javafx.scene.text.Font.font("微软雅黑", 56)); // 增大图标
+        appIcon.getStyleClass().add("feature-icon");
+
+        Label appTitle = new Label("华容道");
+        appTitle.setFont(javafx.scene.text.Font.font("微软雅黑", 42)); // 增大标题
+        appTitle.getStyleClass().add("app-title");
+
+        Label appSubtitle = new Label("经典益智解谜游戏");
+        appSubtitle.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        appSubtitle.getStyleClass().add("app-subtitle");
+
+        titleSection.getChildren().addAll(appIcon, appTitle, appSubtitle);
+        return titleSection;
+    }
+
+    // 新增：创建特色功能小卡片
+    private VBox createFeatureBox(String icon, String text) {
+        VBox featureBox = new VBox(8);
+        featureBox.setAlignment(Pos.CENTER);
+        featureBox.setPrefWidth(80);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setFont(javafx.scene.text.Font.font("微软雅黑", 24));
+        iconLabel.getStyleClass().add("feature-icon");
+
+        Label textLabel = new Label(text);
+        textLabel.setFont(javafx.scene.text.Font.font("微软雅黑", 12));
+        textLabel.getStyleClass().add("feature-text");
+        textLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        featureBox.getChildren().addAll(iconLabel, textLabel);
+        return featureBox;
+    }
+
+    // 创建输入字段
+    private VBox createInputField(String labelText, String placeholder) {
+        VBox container = new VBox(8);
+        container.setAlignment(Pos.CENTER_LEFT);
+
+        Label label = new Label(labelText);
+        label.setFont(javafx.scene.text.Font.font("微软雅黑", 14));
+        label.getStyleClass().add("input-label");
+
+        VBox inputContainer = new VBox();
+        inputContainer.setAlignment(Pos.CENTER);
+
+        TextField textField = new TextField();
+        textField.setPromptText(placeholder);
+        textField.setPrefHeight(45);
+        textField.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        textField.getStyleClass().add("login-input");
+
+        inputContainer.getChildren().add(textField);
+        container.getChildren().addAll(label, inputContainer);
+
+        return container;
+    }
+
+    // 创建密码输入字段
+    private VBox createPasswordField(String labelText, String placeholder) {
+        VBox container = new VBox(8);
+        container.setAlignment(Pos.CENTER_LEFT);
+
+        Label label = new Label(labelText);
+        label.setFont(javafx.scene.text.Font.font("微软雅黑", 14));
+        label.getStyleClass().add("input-label");
+
+        VBox inputContainer = new VBox();
+        inputContainer.setAlignment(Pos.CENTER);
+
+        HBox passInputBox = new HBox(0);
+        passInputBox.setAlignment(Pos.CENTER_LEFT);
+
         PasswordField passField = new PasswordField();
-        passField.setPrefWidth(320);
-        passField.setMaxWidth(Double.MAX_VALUE);
-        passField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
+        passField.setPromptText(placeholder);
+        passField.setPrefHeight(45);
+        passField.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        passField.getStyleClass().add("login-input");
+        HBox.setHgrow(passField, Priority.ALWAYS);
 
-        // 密码可见切换
         TextField passVisibleField = new TextField();
-        passVisibleField.setManaged(false);
+        passVisibleField.setPromptText(placeholder);
+        passVisibleField.setPrefHeight(45);
+        passVisibleField.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        passVisibleField.getStyleClass().add("login-input");
         passVisibleField.setVisible(false);
-        passVisibleField.setPrefWidth(320);
-        passVisibleField.setMaxWidth(Double.MAX_VALUE);
-        passVisibleField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
+        passVisibleField.setManaged(false);
+        HBox.setHgrow(passVisibleField, Priority.ALWAYS);
 
-        Button eyeButton = new Button("\uD83D\uDC41");
+        Button eyeButton = new Button("👁");
+        eyeButton.setPrefWidth(45);
+        eyeButton.setPrefHeight(45);
+        eyeButton.getStyleClass().add("eye-button");
         eyeButton.setFocusTraversable(false);
-        eyeButton.setStyle("-fx-background-radius: 8; -fx-font-size: 14px;");
+
+        // 眼睛按钮事件
         eyeButton.setOnAction(e -> {
             if (passVisibleField.isVisible()) {
                 passField.setText(passVisibleField.getText());
@@ -117,170 +312,240 @@ public class LogInFrame {
                 passVisibleField.setManaged(false);
                 passField.setVisible(true);
                 passField.setManaged(true);
-                eyeButton.setText("\uD83D\uDC41");
+                eyeButton.setText("👁");
             } else {
                 passVisibleField.setText(passField.getText());
                 passVisibleField.setVisible(true);
                 passVisibleField.setManaged(true);
                 passField.setVisible(false);
                 passField.setManaged(false);
-                eyeButton.setText("◯");
+                eyeButton.setText("🙈");
             }
         });
 
-        // 新增：密码框回车键监听
-        passField.setOnAction(e -> {
-            actionBtn.fire();
-        });
-        passVisibleField.setOnAction(e -> {
-            actionBtn.fire();
-        });
+        passInputBox.getChildren().addAll(passField, passVisibleField, eyeButton);
 
-        // 注册模式专用组件
-        confirmLabel = new Label("确认密码:");
-        confirmField = new PasswordField();
-        confirmField.setPrefWidth(320);
-        confirmField.setMaxWidth(Double.MAX_VALUE);
-        confirmField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
+        inputContainer.getChildren().add(passInputBox);
+        container.getChildren().addAll(label, inputContainer);
 
-        confirmField.setOnAction(e -> {
-            actionBtn.fire();
-        });
+        return container;
+    }
 
-        passField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                String username = userField.getText().trim();
-                if (username.isEmpty()) return;
-                boolean shouldBeRegisterMode = !lastUserExists;
-                if (shouldBeRegisterMode && !isRegisterMode) {
-                    switchToRegisterMode(userField, passField, passVisibleField, eyeButton);
-                } else if (!shouldBeRegisterMode && isRegisterMode) {
-                    switchToLoginMode(userField, passField, passVisibleField, eyeButton);
-                }
+    // 创建密码强度指示器
+    private HBox createPasswordStrengthBox() {
+        HBox strengthContainer = new HBox(8);
+        strengthContainer.setAlignment(Pos.CENTER_LEFT);
+        strengthContainer.setVisible(false);
+        strengthContainer.setManaged(false);
+
+        Label strengthLabel = new Label("密码强度：");
+        strengthLabel.setFont(javafx.scene.text.Font.font("微软雅黑", 12));
+        strengthLabel.getStyleClass().add("strength-label");
+
+        HBox strengthBar = new HBox(3);
+        rect1 = new Rectangle(25, 4, Color.web("#e9ecef"));
+        rect2 = new Rectangle(25, 4, Color.web("#e9ecef"));
+        rect3 = new Rectangle(25, 4, Color.web("#e9ecef"));
+        rect1.setArcWidth(4); rect1.setArcHeight(4);
+        rect2.setArcWidth(4); rect2.setArcHeight(4);
+        rect3.setArcWidth(4); rect3.setArcHeight(4);
+        strengthBar.getChildren().addAll(rect1, rect2, rect3);
+
+        passStrengthIcon = new Label();
+        passStrengthIcon.setFont(javafx.scene.text.Font.font("微软雅黑", 14));
+
+        strengthContainer.getChildren().addAll(strengthLabel, strengthBar, passStrengthIcon);
+
+        return strengthContainer;
+    }
+
+    // 创建按钮区域
+    private VBox createButtonArea(LoginSuccessListener onLoginSuccess) {
+        VBox buttonArea = new VBox(15);
+        buttonArea.setAlignment(Pos.CENTER);
+
+        actionBtn = new Button("登录");
+        actionBtn.setPrefWidth(340);
+        actionBtn.setPrefHeight(50);
+        actionBtn.setFont(javafx.scene.text.Font.font("微软雅黑", 18));
+        actionBtn.getStyleClass().add("primary-button");
+
+        offlineBtn = new Button("🎮 离线游玩");
+        offlineBtn.setPrefWidth(340);
+        offlineBtn.setPrefHeight(45);
+        offlineBtn.setFont(javafx.scene.text.Font.font("微软雅黑", 16));
+        offlineBtn.getStyleClass().add("secondary-button");
+
+        // 修改：离线游玩事件 - 删除弹窗，直接进入游戏
+        offlineBtn.setOnAction(e -> {
+            if (onLoginSuccess != null) {
+                onLoginSuccess.onLoginSuccess("离线用户");
             }
         });
 
+        buttonArea.getChildren().addAll(actionBtn, offlineBtn);
+        return buttonArea; // 返回VBox类型
+    }
+
+    // 设置事件监听器
+    private void setupEventListeners(TextField userField, PasswordField passField, TextField passVisibleField,
+                                     Button eyeButton, PasswordField confirmField,
+                                     LoginSuccessListener onLoginSuccess, Stage primaryStage) {
+
+        // 密码字段同步
         passField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (!passVisibleField.isVisible()) {
                 passVisibleField.setText(newVal);
             }
+            if (isRegisterMode) {
+                updatePasswordStrength(newVal);
+            }
         });
+
         passVisibleField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (passVisibleField.isVisible()) {
                 passField.setText(newVal);
             }
         });
 
-        confirmLabel = new Label("确认密码:");
-        confirmField = new PasswordField();
-        confirmField.setPrefWidth(320);
-        confirmField.setMaxWidth(Double.MAX_VALUE);
-        confirmField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
+        // 修复：Enter键事件 - 检查模式状态
+        userField.setOnAction(e -> {
+            // 用户名输入完成后，检查是否需要切换模式
+            String username = userField.getText().trim();
+            if (!username.isEmpty()) {
+                boolean userExists = checkUserExistsLocal(username);
+                lastCheckedUsername = username;
+                lastUserExists = userExists;
 
-        mismatchTip = new Label("两次密码不一致");
-        mismatchTip.setStyle("-fx-text-fill: red; -fx-font-size: 13px;");
-        mismatchTip.setVisible(false);
-
-        HBox strengthBar = new HBox(3);
-        rect1 = new Rectangle(28, 6, Color.LIGHTGRAY);
-        rect2 = new Rectangle(28, 6, Color.LIGHTGRAY);
-        rect3 = new Rectangle(28, 6, Color.LIGHTGRAY);
-        rect1.setArcWidth(6); rect1.setArcHeight(6);
-        rect2.setArcWidth(6); rect2.setArcHeight(6);
-        rect3.setArcWidth(6); rect3.setArcHeight(6);
-        strengthBar.getChildren().addAll(rect1, rect2, rect3);
-        strengthBar.setAlignment(Pos.CENTER_LEFT);
-
-        passStrengthIcon = new Label();
-        passStrengthIcon.setStyle("-fx-font-size: 16px; -fx-padding: 0 0 0 6px;");
-        strengthBox = new HBox(4, strengthBar, passStrengthIcon);
-        strengthBox.setAlignment(Pos.CENTER_LEFT);
-
-        actionBtn = new Button("登录");
-        actionBtn.setStyle(
-                "-fx-background-color: #a67c52; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 16px;"
-        );
-        actionBtn.setOnMouseEntered(e -> actionBtn.setStyle(
-                "-fx-background-color: #7d5a3a; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 16px;"
-        ));
-        actionBtn.setOnMouseExited(e -> actionBtn.setStyle(
-                "-fx-background-color: #a67c52; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 16px;"
-        ));
-
-        offlineBtn = new Button("离线游玩");
-        offlineBtn.setStyle(
-                "-fx-background-color: #d2b48c; -fx-text-fill: #7d5a3a; -fx-background-radius: 8; -fx-font-size: 16px;"
-        );
-        offlineBtn.setOnMouseEntered(e -> offlineBtn.setStyle(
-                "-fx-background-color: #e6cfa7; -fx-text-fill: #7d5a3a; -fx-background-radius: 8; -fx-font-size: 16px;"
-        ));
-        offlineBtn.setOnMouseExited(e -> offlineBtn.setStyle(
-                "-fx-background-color: #d2b48c; -fx-text-fill: #7d5a3a; -fx-background-radius: 8; -fx-font-size: 16px;"
-        ));
-        offlineBtn.setOnAction(e -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("离线游玩提示");
-            alert.setHeaderText(null);
-            alert.setContentText("离线游玩将不会保存游玩记录，是否继续？");
-            ButtonType okBtn = new ButtonType("继续", ButtonBar.ButtonData.OK_DONE);
-            ButtonType cancelBtn = new ButtonType("取消", ButtonBar.ButtonData.CANCEL_CLOSE);
-            alert.getButtonTypes().setAll(okBtn, cancelBtn);
-            alert.showAndWait().ifPresent(type -> {
-                if (type == okBtn) {
-                    if (onLoginSuccess != null) onLoginSuccess.onLoginSuccess("离线用户");
+                // 根据用户是否存在切换到正确的模式
+                if (userExists && isRegisterMode) {
+                    switchToLoginMode(userField, passField, passVisibleField, eyeButton, confirmField);
+                } else if (!userExists && !isRegisterMode) {
+                    switchToRegisterMode(userField, passField, passVisibleField, eyeButton, confirmField);
                 }
-            });
+            }
+            // 聚焦到密码字段
+            passField.requestFocus();
         });
 
-        btnBox = new HBox(20, offlineBtn, actionBtn);
-        btnBox.setAlignment(Pos.CENTER);
+        passField.setOnAction(e -> {
+            // 修复：根据当前实际模式决定下一步操作
+            if (isRegisterMode && confirmField.isVisible()) {
+                confirmField.requestFocus();
+            } else {
+                actionBtn.fire();
+            }
+        });
 
-        setupLoginMode(userField, passField, passVisibleField, eyeButton);
-        root.setCenter(grid);
+        passVisibleField.setOnAction(e -> {
+            // 修复：根据当前实际模式决定下一步操作
+            if (isRegisterMode && confirmField.isVisible()) {
+                confirmField.requestFocus();
+            } else {
+                actionBtn.fire();
+            }
+        });
 
+        confirmField.setOnAction(e -> actionBtn.fire());
+
+        // 修复：用户名变化监听 - 优化逻辑，避免频繁切换
         userField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (checkTimeline != null) {
                 checkTimeline.stop();
             }
+
             String username = newVal.trim();
             if (username.isEmpty()) {
                 lastCheckedUsername = "";
                 lastUserExists = false;
+                // 清空用户名时，如果是注册模式则切换回登录模式
                 if (isRegisterMode) {
-                    switchToLoginMode(userField, passField, passVisibleField, eyeButton);
+                    switchToLoginMode(userField, passField, passVisibleField, eyeButton, confirmField);
                 }
                 return;
             }
+
+            // 修复：延迟检查用户存在性，但不立即切换模式
             checkTimeline = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(javafx.util.Duration.seconds(0.5), ev -> {
+                    new javafx.animation.KeyFrame(javafx.util.Duration.seconds(0.8), ev -> {
                         boolean userExists = checkUserExistsLocal(username);
                         lastCheckedUsername = username;
                         lastUserExists = userExists;
+
+                        // 只在用户名输入框失去焦点或者用户明确按回车时才切换模式
+                        // 这里只是缓存结果，不切换模式
                     })
             );
             checkTimeline.play();
         });
 
-        userField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal) {
+        // 修复：密码框焦点监听 - 只在必要时切换模式
+        passField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) { // 密码框获得焦点时
                 String username = userField.getText().trim();
-                if (username.isEmpty()) {
-                    lastCheckedUsername = "";
-                    lastUserExists = false;
-                    if (isRegisterMode) {
-                        switchToLoginMode(userField, passField, passVisibleField, eyeButton);
-                    }
-                    return;
+                if (username.isEmpty()) return;
+
+                // 确保用户存在性检查已完成
+                if (!username.equals(lastCheckedUsername)) {
+                    boolean userExists = checkUserExistsLocal(username);
+                    lastCheckedUsername = username;
+                    lastUserExists = userExists;
                 }
-                if (checkTimeline != null) {
-                    checkTimeline.stop();
+
+                // 根据用户是否存在，切换到正确的模式
+                boolean shouldBeRegisterMode = !lastUserExists;
+                if (shouldBeRegisterMode && !isRegisterMode) {
+                    switchToRegisterMode(userField, passField, passVisibleField, eyeButton, confirmField);
+                } else if (!shouldBeRegisterMode && isRegisterMode) {
+                    switchToLoginMode(userField, passField, passVisibleField, eyeButton, confirmField);
                 }
-                boolean userExists = checkUserExistsLocal(username);
-                lastCheckedUsername = username;
-                lastUserExists = userExists;
             }
         });
 
+        // 修复：可见密码框焦点监听
+        passVisibleField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) { // 可见密码框获得焦点时
+                String username = userField.getText().trim();
+                if (username.isEmpty()) return;
+
+                // 确保用户存在性检查已完成
+                if (!username.equals(lastCheckedUsername)) {
+                    boolean userExists = checkUserExistsLocal(username);
+                    lastCheckedUsername = username;
+                    lastUserExists = userExists;
+                }
+
+                // 根据用户是否存在，切换到正确的模式
+                boolean shouldBeRegisterMode = !lastUserExists;
+                if (shouldBeRegisterMode && !isRegisterMode) {
+                    switchToRegisterMode(userField, passField, passVisibleField, eyeButton, confirmField);
+                } else if (!shouldBeRegisterMode && isRegisterMode) {
+                    switchToLoginMode(userField, passField, passVisibleField, eyeButton, confirmField);
+                }
+            }
+        });
+
+        // 确认密码匹配检查
+        Runnable checkMatch = () -> {
+            if (isRegisterMode && confirmField.isVisible()) {
+                if (!passField.getText().equals(confirmField.getText())) {
+                    confirmField.getStyleClass().removeAll("login-input");
+                    confirmField.getStyleClass().add("login-input-error");
+                    mismatchTip.setVisible(true);
+                    mismatchTip.setManaged(true);
+                } else {
+                    confirmField.getStyleClass().removeAll("login-input-error");
+                    confirmField.getStyleClass().add("login-input");
+                    mismatchTip.setVisible(false);
+                    mismatchTip.setManaged(false);
+                }
+            }
+        };
+
+        passField.textProperty().addListener((obs, oldVal, newVal) -> checkMatch.run());
+        confirmField.textProperty().addListener((obs, oldVal, newVal) -> checkMatch.run());
+
+        // 主按钮事件
         actionBtn.setOnAction(e -> {
             if (isRegisterMode) {
                 handleRegister(userField, passField, confirmField, onLoginSuccess, primaryStage);
@@ -288,36 +553,120 @@ public class LogInFrame {
                 handleLogin(userField, passField, passVisibleField, onLoginSuccess, primaryStage);
             }
         });
-
-        passField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (isRegisterMode) {
-                updatePasswordStrength(newVal);
-            }
-        });
-
-        Runnable checkMatch = () -> {
-            if (isRegisterMode && confirmField.isVisible()) {
-                if (!passField.getText().equals(confirmField.getText())) {
-                    confirmField.setStyle("-fx-border-color: red; -fx-background-radius: 8; -fx-border-radius: 8;");
-                    mismatchTip.setVisible(true);
-                } else {
-                    confirmField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
-                    mismatchTip.setVisible(false);
-                }
-            }
-        };
-        passField.textProperty().addListener((obs, oldVal, newVal) -> checkMatch.run());
-        confirmField.textProperty().addListener((obs, oldVal, newVal) -> checkMatch.run());
-
-        Scene scene = new Scene(root, 550, 450);
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(true);
-        primaryStage.setMinWidth(400);
-        primaryStage.setMinHeight(350);
-        primaryStage.show();
     }
 
-    // 异步加载用户列表
+    // 切换到登录模式
+    private void switchToLoginMode(TextField userField, PasswordField passField, TextField passVisibleField,
+                                   Button eyeButton, PasswordField confirmField) {
+        if (!isRegisterMode) return;
+
+        isRegisterMode = false;
+        title.setText("用户登录");
+        actionBtn.setText("登录");
+
+        // 重建表单内容
+        VBox fieldsContainer = new VBox(15);
+        fieldsContainer.setAlignment(Pos.CENTER);
+
+        // 修复：获取现有容器的方式
+        VBox currentFieldsContainer = (VBox) formCard.getChildren().get(1);
+        VBox userContainer = (VBox) currentFieldsContainer.getChildren().get(0);
+        VBox passContainer = (VBox) currentFieldsContainer.getChildren().get(1);
+
+        fieldsContainer.getChildren().addAll(userContainer, passContainer);
+
+        formCard.getChildren().clear();
+        formCard.getChildren().addAll(title, fieldsContainer, btnBox);
+
+        // 隐藏密码强度指示器
+        strengthBox.setVisible(false);
+        strengthBox.setManaged(false);
+    }
+
+    // 切换到注册模式
+    private void switchToRegisterMode(TextField userField, PasswordField passField, TextField passVisibleField,
+                                      Button eyeButton, PasswordField confirmField) {
+        if (isRegisterMode) return;
+
+        isRegisterMode = true;
+        title.setText("用户注册");
+        actionBtn.setText("注册");
+
+        // 重建表单内容
+        VBox fieldsContainer = new VBox(15);
+        fieldsContainer.setAlignment(Pos.CENTER);
+
+        // 修复：获取已有的输入容器
+        VBox currentFieldsContainer = (VBox) formCard.getChildren().get(1);
+        VBox userContainer = (VBox) currentFieldsContainer.getChildren().get(0);
+        VBox passContainer = (VBox) currentFieldsContainer.getChildren().get(1);
+
+        // 确认密码容器
+        VBox confirmContainer = new VBox(8);
+        confirmContainer.setAlignment(Pos.CENTER_LEFT);
+        confirmContainer.getChildren().addAll(confirmLabel, confirmField);
+
+        fieldsContainer.getChildren().addAll(userContainer, passContainer, confirmContainer, mismatchTip, strengthBox);
+
+        formCard.getChildren().clear();
+        formCard.getChildren().addAll(title, fieldsContainer, btnBox);
+
+        // 显示密码强度指示器
+        strengthBox.setVisible(true);
+        strengthBox.setManaged(true);
+
+        // 重置确认密码字段
+        confirmField.clear();
+        confirmField.getStyleClass().removeAll("login-input-error");
+        confirmField.getStyleClass().add("login-input");
+        mismatchTip.setVisible(false);
+        mismatchTip.setManaged(false);
+
+        // 更新密码强度显示
+        updatePasswordStrength(passField.getText());
+    }
+
+    // 加载CSS样式
+    private void loadCSS(Scene scene) {
+        try {
+            String css = this.getClass().getResource("/styles.css").toExternalForm();
+            scene.getStylesheets().add(css);
+        } catch (Exception e) {
+            System.out.println("无法加载CSS文件: " + e.getMessage());
+        }
+    }
+
+    // 更新密码强度显示
+    private void updatePasswordStrength(String password) {
+        if (!isRegisterMode) return;
+
+        int strength = getPasswordStrength(password);
+        rect1.setFill(Color.web("#e9ecef"));
+        rect2.setFill(Color.web("#e9ecef"));
+        rect3.setFill(Color.web("#e9ecef"));
+        passStrengthIcon.setText("");
+
+        if (password.isEmpty()) {
+            // 保持灰色
+        } else if (strength <= 1) {
+            rect1.setFill(Color.web("#e74c3c")); // 红色 - 弱
+            passStrengthIcon.setText("弱");
+            passStrengthIcon.setTextFill(Color.web("#e74c3c"));
+        } else if (strength == 2) {
+            rect1.setFill(Color.web("#f39c12")); // 橙色 - 中
+            rect2.setFill(Color.web("#f39c12"));
+            passStrengthIcon.setText("中");
+            passStrengthIcon.setTextFill(Color.web("#f39c12"));
+        } else {
+            rect1.setFill(Color.web("#27ae60")); // 绿色 - 强
+            rect2.setFill(Color.web("#27ae60"));
+            rect3.setFill(Color.web("#27ae60"));
+            passStrengthIcon.setText("强");
+            passStrengthIcon.setTextFill(Color.web("#27ae60"));
+        }
+    }
+
+    // 其他方法保持不变...
     private void loadUserListAsync() {
         new Thread(() -> {
             MongoDBUtil db = null;
@@ -325,7 +674,6 @@ public class LogInFrame {
                 db = new MongoDBUtil();
                 MongoCollection<Document> collection = db.getCollection("users");
 
-                // 只获取用户名字段，减少数据传输量
                 FindIterable<Document> docs = collection.find()
                         .projection(Projections.include("username"));
 
@@ -333,11 +681,10 @@ public class LogInFrame {
                 for (Document doc : docs) {
                     String username = doc.getString("username");
                     if (username != null && !username.trim().isEmpty()) {
-                        userList.add(username.toLowerCase()); // 转小写统一比较
+                        userList.add(username.toLowerCase());
                     }
                 }
 
-                // 更新本地缓存
                 synchronized (this) {
                     existingUsers = userList;
                     userListLoaded = true;
@@ -357,20 +704,16 @@ public class LogInFrame {
         }).start();
     }
 
-    // 本地检查用户是否存在
     private boolean checkUserExistsLocal(String username) {
         synchronized (this) {
             if (userListLoaded) {
-                // 使用本地缓存检查
                 return existingUsers.contains(username.toLowerCase());
             } else {
-                // 如果用户列表还未加载完成，回退到在线检查
                 return checkUserExistsOnline(username);
             }
         }
     }
 
-    // 在线检查用户是否存在（回退方案）
     private boolean checkUserExistsOnline(String username) {
         MongoDBUtil db = null;
         try {
@@ -378,14 +721,12 @@ public class LogInFrame {
             Document userDoc = db.getUserByUsername(username);
             return userDoc != null;
         } catch (Exception e) {
-            // 网络异常时默认返回true（假设用户存在，保持登录模式）
             return true;
         } finally {
             if (db != null) db.close();
         }
     }
 
-    // 刷新用户列表（在注册成功后调用）
     private void refreshUserList(String newUsername) {
         synchronized (this) {
             if (userListLoaded && newUsername != null) {
@@ -394,100 +735,35 @@ public class LogInFrame {
         }
     }
 
-    private void setupLoginMode(TextField userField, PasswordField passField, TextField passVisibleField, Button eyeButton) {
-        grid.getChildren().clear();
-
-        Label userLabel = new Label("用户名:");
-        Label passLabel = new Label("密码:");
-
-        // 设置GridPane列约束，确保输入框能够充分扩展
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setHgrow(Priority.NEVER);
-        col1.setPrefWidth(80);
-
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setHgrow(Priority.ALWAYS);
-        col2.setFillWidth(true);
-
-        ColumnConstraints col3 = new ColumnConstraints();
-        col3.setHgrow(Priority.NEVER);
-        col3.setPrefWidth(40);
-
-        grid.getColumnConstraints().setAll(col1, col2, col3);
-
-        grid.add(userLabel, 0, 0);
-        grid.add(userField, 1, 0, 2, 1);
-        grid.add(passLabel, 0, 1);
-        grid.add(passField, 1, 1);
-        grid.add(passVisibleField, 1, 1);
-        grid.add(eyeButton, 2, 1);
-        grid.add(btnBox, 0, 2, 3, 1);
-
-        isRegisterMode = false;
-        title.setText("用户登录");
-        actionBtn.setText("登录");
+    private int getPasswordStrength(String password) {
+        int strength = 0;
+        if (password.length() >= 8) strength++;
+        if (password.matches(".*[A-Z].*") && password.matches(".*[a-z].*")) strength++;
+        if (password.matches(".*\\d.*") && password.matches(".*[!@#$%].*")) strength++;
+        return strength;
     }
 
-    private void switchToLoginMode(TextField userField, PasswordField passField, TextField passVisibleField, Button eyeButton) {
-        setupLoginMode(userField, passField, passVisibleField, eyeButton);
+    private ArrayList<String> checkPassword(String password) {
+        ArrayList<String> errors = new ArrayList<>();
+        String specialChars = "!@#$%";
+        if (password.length() < 8)
+            errors.add("密码长度必须大于8位。");
+        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
+        for (char ch : password.toCharArray()) {
+            if (Character.isUpperCase(ch)) hasUpper = true;
+            else if (Character.isLowerCase(ch)) hasLower = true;
+            else if (Character.isDigit(ch)) hasDigit = true;
+            else if (specialChars.indexOf(ch) != -1) hasSpecial = true;
+        }
+        if (!hasUpper) errors.add("密码必须包含大写字母。");
+        if (!hasLower) errors.add("密码必须包含小写字母。");
+        if (!hasDigit) errors.add("密码必须包含数字。");
+        if (!hasSpecial) errors.add("密码必须包含特殊字符 ! @ # $ %。");
+        return errors;
     }
 
-    private void switchToRegisterMode(TextField userField, PasswordField passField, TextField passVisibleField, Button eyeButton) {
-        grid.getChildren().clear();
-
-        // 确保密码框在注册模式下是可见且参与布局的
-        passField.setVisible(true);
-        passField.setManaged(true);
-        passVisibleField.setVisible(false);
-        passVisibleField.setManaged(false);
-
-        Label userLabel = new Label("用户名:");
-        Label passLabel = new Label("密码:");
-
-        // 设置GridPane列约束，确保输入框能够充分扩展
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setHgrow(Priority.NEVER);
-        col1.setPrefWidth(80);
-
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setHgrow(Priority.ALWAYS);
-        col2.setFillWidth(true);
-
-        grid.getColumnConstraints().setAll(col1, col2);
-
-        // 密码输入框和强度条放在同一行
-        HBox passBox = new HBox(8, passField, strengthBox);
-        passBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(passField, Priority.ALWAYS); // 让密码框占据剩余空间
-
-        // 确保 confirmField 清空内容并重置样式
-        confirmField.clear();
-        confirmField.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d2b48c;");
-
-        grid.add(userLabel, 0, 0);
-        grid.add(userField, 1, 0);
-        grid.add(passLabel, 0, 1);
-        grid.add(passBox, 1, 1); // 密码输入框和强度条同一行
-        grid.add(confirmLabel, 0, 2);
-        grid.add(confirmField, 1, 2);
-        grid.add(mismatchTip, 1, 3);
-        grid.add(btnBox, 0, 4, 2, 1);
-
-        isRegisterMode = true;
-        title.setText("用户注册");
-        actionBtn.setText("注册");
-
-        // 重置密码强度显示
-        updatePasswordStrength(passField.getText());
-        // 确保mismatchTip初始不可见
-        mismatchTip.setVisible(false);
-    }
-
-    private void handleLogin(TextField userField,
-                             PasswordField passField,
-                             TextField passVisibleField,
-                             LoginSuccessListener onLoginSuccess,
-                             Stage primaryStage) {
+    private void handleLogin(TextField userField, PasswordField passField, TextField passVisibleField,
+                             LoginSuccessListener onLoginSuccess, Stage primaryStage) {
         String username = userField.getText().trim();
         String password = passField.isVisible() ? passField.getText() : passVisibleField.getText();
 
@@ -505,7 +781,6 @@ public class LogInFrame {
             } else if (!PasswordUtil.hash(password).equals(userDoc.getString("password"))) {
                 showAlert(Alert.AlertType.ERROR, "密码错误！");
             } else {
-                // 1. 登录成功回调
                 if (onLoginSuccess != null) {
                     onLoginSuccess.onLoginSuccess(username);
                 }
@@ -548,83 +823,52 @@ public class LogInFrame {
                 return;
             }
 
-            // 存储哈希后的密码，并分配400金币
             Document newUser = new Document("username", username)
                     .append("password", PasswordUtil.hash(password))
                     .append("coins", 400);
             db.insertOne("users", newUser);
             db.close();
 
-            // 注册成功后更新本地用户列表
             refreshUserList(username);
 
             showAlert(Alert.AlertType.INFORMATION, "注册成功！正在登录...");
             if (onLoginSuccess != null) onLoginSuccess.onLoginSuccess(username);
-            // 不要关闭窗口，让主界面复用这个窗口
         } catch (Exception ex) {
             ex.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "注册失败：" + ex.getMessage());
         }
     }
 
-    private void updatePasswordStrength(String password) {
-        if (!isRegisterMode) return;
-
-        int strength = getPasswordStrength(password);
-        rect1.setFill(Color.LIGHTGRAY);
-        rect2.setFill(Color.LIGHTGRAY);
-        rect3.setFill(Color.LIGHTGRAY);
-        passStrengthIcon.setText("");
-
-        if (password.isEmpty()) {
-            // 保持灰色
-        } else if (strength <= 1) {
-            rect1.setFill(Color.web("#c0392b")); // 红色
-        } else if (strength == 2) {
-            rect1.setFill(Color.web("#e67e22")); // 橙色
-            rect2.setFill(Color.web("#e67e22"));
-        } else {
-            rect1.setFill(Color.web("#27ae60")); // 绿色
-            rect2.setFill(Color.web("#27ae60"));
-            rect3.setFill(Color.web("#27ae60"));
-            passStrengthIcon.setText("✔");
-            passStrengthIcon.setTextFill(Color.web("#27ae60"));
-        }
-    }
-
-    // 密码强度：1=弱，2=中，3=强
-    private int getPasswordStrength(String password) {
-        int strength = 0;
-        if (password.length() >= 8) strength++;
-        if (password.matches(".*[A-Z].*") && password.matches(".*[a-z].*")) strength++;
-        if (password.matches(".*\\d.*") && password.matches(".*[!@#$%].*")) strength++;
-        return strength;
-    }
-
-    private ArrayList<String> checkPassword(String password) {
-        ArrayList<String> errors = new ArrayList<>();
-        String specialChars = "!@#$%";
-        if (password.length() < 8)
-            errors.add("密码长度必须大于8位。");
-        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
-        for (char ch : password.toCharArray()) {
-            if (Character.isUpperCase(ch)) hasUpper = true;
-            else if (Character.isLowerCase(ch)) hasLower = true;
-            else if (Character.isDigit(ch)) hasDigit = true;
-            else if (specialChars.indexOf(ch) != -1) hasSpecial = true;
-        }
-        if (!hasUpper) errors.add("密码必须包含大写字母。");
-        if (!hasLower) errors.add("密码必须包含小写字母。");
-        if (!hasDigit) errors.add("密码必须包含数字。");
-        if (!hasSpecial) errors.add("密码必须包含特殊字符 ! @ # $ %。");
-        return errors;
-    }
-
     private void showAlert(Alert.AlertType type, String msg) {
         Alert alert = new Alert(type);
         alert.setTitle(type == Alert.AlertType.ERROR ? "错误" : "提示");
-        alert.setHeaderText(null);
+        alert.setHeaderText(type == Alert.AlertType.ERROR ? "登录/注册错误" : "系统提示");
         alert.setContentText(msg);
+
+        // 修复：为对话框应用高级样式
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStyleClass().add("dialog-pane");
+
+        // 根据类型添加特殊样式
+        switch (type) {
+            case ERROR:
+                dialogPane.getStyleClass().add("error-dialog");
+                break;
+            case WARNING:
+                dialogPane.getStyleClass().add("warning-dialog");
+                break;
+            case INFORMATION:
+                dialogPane.getStyleClass().add("info-dialog");
+                break;
+            case CONFIRMATION:
+                dialogPane.getStyleClass().add("confirmation-dialog");
+                break;
+        }
+
+        // 设置对话框的最小尺寸
+        dialogPane.setMinWidth(400);
+        dialogPane.setPrefWidth(400);
+
         alert.showAndWait();
     }
 }
