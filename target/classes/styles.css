@@ -4222,3 +4222,10 @@
 .volume-button:hover {
     -fx-background-color: linear-gradient(to bottom, #64b5f6, #2196f3);
 }
+.auto-refresh-hint {
+    -fx-text-fill: #666666; /* 设置为深灰色 */
+    /* 或者其他你想要的颜色 */
+}
+
+
+

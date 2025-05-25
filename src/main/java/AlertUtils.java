@@ -1,8 +1,6 @@
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import java.util.Optional;
 
 public class AlertUtils {
 
@@ -10,24 +8,6 @@ public class AlertUtils {
         showAlert(title, header, content, Alert.AlertType.ERROR);
     }
 
-    public static void showInfo(String title, String header, String content) {
-        showAlert(title, header, content, Alert.AlertType.INFORMATION);
-    }
-
-    public static void showWarning(String title, String header, String content) {
-        showAlert(title, header, content, Alert.AlertType.WARNING);
-    }
-
-    public static Optional<ButtonType> showConfirmation(String title, String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-
-        applyDialogStyle(alert.getDialogPane());
-
-        return alert.showAndWait();
-    }
 
     private static void showAlert(String title, String header, String content, Alert.AlertType type) {
         Alert alert = new Alert(type);

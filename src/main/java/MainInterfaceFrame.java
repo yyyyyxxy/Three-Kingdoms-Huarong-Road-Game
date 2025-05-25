@@ -1,6 +1,8 @@
 import javafx.application.Platform;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -34,7 +36,7 @@ public class MainInterfaceFrame {
     // 在类的开头添加音乐管理器引用
     private MusicManager musicManager = MusicManager.getInstance();
 
-    // 新增：预加载数据缓存
+    // 预加载数据缓存
     private java.util.Map<String, List<ChatListRecord>> preloadedChatData = new java.util.HashMap<>();
     private java.util.Map<String, List<MailRecord>> preloadedFriendRequestData = new java.util.HashMap<>();
 
@@ -70,7 +72,7 @@ public class MainInterfaceFrame {
         }
     };
 
-    // 新增：聊天列表记录类 - 增强版
+    // 聊天列表记录类 - 增强版
     public static class ChatListRecord {
         private String friendName;
         private String lastMessage;
@@ -100,7 +102,7 @@ public class MainInterfaceFrame {
     public void show(Stage loginStage, String username) {
         this.currentUsername = username; // 保存用户名
 
-        // 新增：启动主界面音乐
+        // 启动主界面音乐
         try {
             musicManager.playMusic(MusicManager.MAIN_MENU);
         } catch (Exception e) {
@@ -134,7 +136,7 @@ public class MainInterfaceFrame {
         leftSection.setPrefWidth(400);
         leftSection.setMaxWidth(450);
 
-        // 修改：顶部用户信息区域 - 新布局
+        // 顶部用户信息区域 - 新布局
         HBox topSection = new HBox(15);
         topSection.setAlignment(Pos.CENTER_LEFT);
         topSection.setPadding(new Insets(0, 0, 20, 0));
@@ -153,7 +155,7 @@ public class MainInterfaceFrame {
 
         userInfoBox.getChildren().addAll(welcomeLabel, usernameLabel);
 
-        // 修改：退出登录按钮 - 放在用户名右边
+        // 退出登录按钮 - 放在用户名右边
         Button logoutBtn = new Button("🚪 退出登录");
         logoutBtn.setFont(Font.font("微软雅黑", 10));
         logoutBtn.setPrefWidth(70);
@@ -183,7 +185,7 @@ public class MainInterfaceFrame {
                 } catch (Exception ex) {
                     System.err.println("停止音乐失败: " + ex.getMessage());
                 }
-                // 修改：精确记录当前主界面的所有窗口状态
+                // 精确记录当前主界面的所有窗口状态
                 double currentX = this.mainStage.getX();
                 double currentY = this.mainStage.getY();
                 double currentWidth = this.mainStage.getWidth();
@@ -199,7 +201,7 @@ public class MainInterfaceFrame {
                         LogInFrame loginFrame = new LogInFrame();
                         Stage newLoginStage = new Stage();
 
-                        // 修改：完全恢复主界面的窗口状态
+                        // 完全恢复主界面的窗口状态
                         newLoginStage.setX(currentX);
                         newLoginStage.setY(currentY);
                         newLoginStage.setWidth(currentWidth);
@@ -256,7 +258,7 @@ public class MainInterfaceFrame {
 
         coinArea.getChildren().addAll(coinLabel);
 
-        // 修改：新的顶部布局 - 用户信息、退出按钮、弹性空间、金币区域
+        // 新的顶部布局 - 用户信息、退出按钮、弹性空间、金币区域
         topSection.getChildren().addAll(userInfoBox, logoutBtn, spacer1, coinArea);
 
         // 标题区域
@@ -384,7 +386,7 @@ public class MainInterfaceFrame {
         socialGrid.add(addFriendCard, 0, 1);
         socialGrid.add(watchCard, 1, 1);
 
-        // 新增：音乐控制卡片
+        // 音乐控制卡片
         VBox musicCard = createMusicControlCard();
         socialGrid.add(musicCard, 0, 2); // 添加到第三行第一列
 
@@ -407,11 +409,11 @@ public class MainInterfaceFrame {
         this.mainStage.setScene(scene);
         this.mainStage.setResizable(true);
 
-        // 修改：移除固定比例限制，设置与登录界面相同的最小尺寸
+        // 移除固定比例限制，设置与登录界面相同的最小尺寸
         this.mainStage.setMinWidth(600);   // 与登录界面保持一致的最小宽度
         this.mainStage.setMinHeight(400);  // 与登录界面保持一致的最小高度
 
-        // 修改：在主界面窗口设置中添加关闭事件处理
+        // 在主界面窗口设置中添加关闭事件处理
         this.mainStage.setOnCloseRequest(e -> {
             // 程序关闭时释放音乐资源
             try {
@@ -422,7 +424,7 @@ public class MainInterfaceFrame {
             Platform.exit();
         });
 
-        // 修改：完全继承登录窗口的位置和大小，不进行任何比例调整
+        // 完全继承登录窗口的位置和大小，不进行任何比例调整
         if (loginStage.isShowing()) {
             // 精确复制登录窗口的所有尺寸属性
             this.mainStage.setX(loginStage.getX());
@@ -537,7 +539,7 @@ public class MainInterfaceFrame {
         return btn;
     }
 
-    // 新增：创建社交功能卡片
+    // 创建社交功能卡片
     private VBox createSocialCard(String icon, String title, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
         VBox card = new VBox(8);
         card.setAlignment(Pos.CENTER);
@@ -572,7 +574,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 修改：在 createSocialCard 方法后添加音乐控制卡片创建方法
+    // 在 createSocialCard 方法后添加音乐控制卡片创建方法
     private VBox createMusicControlCard() {
         VBox card = new VBox(8);
         card.setAlignment(Pos.CENTER);
@@ -603,7 +605,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 新增：音乐控制对话框
+    // 音乐控制对话框
     private void showMusicControlDialog() {
         Stage musicStage = new Stage();
         musicStage.setTitle("音乐控制");
@@ -643,7 +645,7 @@ public class MainInterfaceFrame {
         musicStage.show();
     }
 
-    // 新增：创建音乐控制面板
+    // 创建音乐控制面板
     private VBox createMusicControlPanel() {
         VBox musicPanel = new VBox(20);
         musicPanel.setAlignment(Pos.CENTER);
@@ -729,7 +731,7 @@ public class MainInterfaceFrame {
         return musicPanel;
     }
 
-    // 修改：startGame 方法 - 添加返回主界面按钮
+    // startGame 方法 - 添加返回主界面按钮
     private void startGame(Stage parent, String username) {
         // 停止主界面音乐
         try {
@@ -799,7 +801,7 @@ public class MainInterfaceFrame {
         root.setMaxHeight(Region.USE_COMPUTED_SIZE);
         root.setPrefHeight(Region.USE_COMPUTED_SIZE);
 
-        // 新增：返回按钮区域
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 15, 0));
@@ -823,7 +825,7 @@ public class MainInterfaceFrame {
 
         headerBox.getChildren().addAll(backBtn, spacer);
 
-        // 修改：标题区域 - 增加图标和描述
+        // 标题区域 - 增加图标和描述
         VBox titleArea = new VBox(12);
         titleArea.setAlignment(Pos.CENTER);
 
@@ -891,7 +893,7 @@ public class MainInterfaceFrame {
 
                 // 使用Platform.runLater确保UI更新在JavaFX应用线程中执行
                 javafx.application.Platform.runLater(() -> {
-                    // 修改：只显示新的模式选择界面，移除旧的Alert对话框
+                    // 只显示新的模式选择界面，移除旧的Alert对话框
                     showGameModeSelection(layoutIndex, username, layoutStage);
                 });
             });
@@ -899,14 +901,14 @@ public class MainInterfaceFrame {
             infoBox.getChildren().addAll(layoutNameLabel, selectBtn);
             layoutContainer.getChildren().addAll(previewBoard, infoBox);
 
-            // 修改：计算行列位置，实现两列布局
+            // 计算行列位置，实现两列布局
             int row = i / 2; // 行号
             int col = i % 2; // 列号（0或1）
 
             layoutGrid.add(layoutContainer, col, row);
         }
 
-        // 修改：将返回按钮添加到根容器的最前面
+        // 将返回按钮添加到根容器的最前面
         root.getChildren().addAll(headerBox, titleArea, layoutGrid);
 
         // 修复：使用 ScrollPane 包装内容，确保正确的滚动配置
@@ -929,21 +931,6 @@ public class MainInterfaceFrame {
 
         layoutStage.setScene(scene);
         layoutStage.show();
-    }
-
-    // 修改：在游戏返回主界面时恢复音乐
-// 在各种返回主界面的事件处理中添加音乐恢复
-    private void returnToMainWithMusic() {
-        try {
-            musicManager.playMusic(MusicManager.MAIN_MENU);
-        } catch (Exception e) {
-            System.err.println("恢复主界面音乐失败: " + e.getMessage());
-        }
-
-        if (!mainStage.isShowing()) {
-            mainStage.show();
-        }
-        mainStage.toFront();
     }
 
     private void showGameModeSelection(int layoutIndex, String username, Stage previousStage) {
@@ -1087,7 +1074,7 @@ public class MainInterfaceFrame {
         normalModeBtn.getStyleClass().add("layout-select-button"); // 复用布局选择按钮样式
 
         normalModeBtn.setOnAction(e -> {
-            // 修改：先打开游戏，再关闭模式选择窗口，减少卡顿
+            // 先打开游戏，再关闭模式选择窗口，减少卡顿
             Platform.runLater(() -> {
                 // 打开普通模式游戏
                 GameFrame gameFrame = new GameFrame();
@@ -1123,7 +1110,7 @@ public class MainInterfaceFrame {
         timedModeLabel.setFont(Font.font("微软雅黑", 24));
         timedModeLabel.getStyleClass().add("sub-title");
 
-        // 修改：将限时模式提示直接集成到描述中，不再弹窗
+        // 将限时模式提示直接集成到描述中，不再弹窗
         Label timedModeDesc = new Label("挑战时间限制，体验刺激感\n⏰ 在规定时间内通关可获得金币奖励\n⚡ 适合有经验的玩家挑战");
         timedModeDesc.setFont(Font.font("微软雅黑", 14));
         timedModeDesc.getStyleClass().add("mailbox-subtitle");
@@ -1137,7 +1124,7 @@ public class MainInterfaceFrame {
         timedModeBtn.getStyleClass().add("layout-select-button"); // 复用布局选择按钮样式
 
         timedModeBtn.setOnAction(e -> {
-            // 修改：移除弹窗提示，直接打开游戏，减少卡顿
+            // 移除弹窗提示，直接打开游戏，减少卡顿
             Platform.runLater(() -> {
                 // 打开限时模式游戏
                 GameFrame gameFrame = new GameFrame();
@@ -1155,33 +1142,13 @@ public class MainInterfaceFrame {
 
         timedModeContainer.getChildren().addAll(timedIcon, timedModeLabel, timedModeDesc, timedModeBtn);
 
-        // 新增：添加限时模式的奖励说明区域
-        VBox rewardInfoArea = new VBox(8);
-        rewardInfoArea.setAlignment(Pos.CENTER);
-        rewardInfoArea.setPadding(new Insets(15, 30, 0, 30));
-        rewardInfoArea.getStyleClass().add("reward-info-area");
 
-        Label rewardIcon = new Label("💰");
-        rewardIcon.setFont(Font.font("微软雅黑", 24));
-        rewardIcon.getStyleClass().add("feature-icon");
-
-        Label rewardTitle = new Label("限时模式奖励提示");
-        rewardTitle.setFont(Font.font("微软雅黑", 16));
-        rewardTitle.getStyleClass().add("reward-title");
-
-        Label rewardDetail = new Label("选择限时模式后，您将有机会在规定时间内完成挑战，成功通关将获得额外的金币奖励！");
-        rewardDetail.setFont(Font.font("微软雅黑", 13));
-        rewardDetail.getStyleClass().add("reward-detail");
-        rewardDetail.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        rewardDetail.setWrapText(true);
-
-        rewardInfoArea.getChildren().addAll(rewardIcon, rewardTitle, rewardDetail);
 
         // 将两个选项添加到水平布局中
         modeOptionsBox.getChildren().addAll(normalModeContainer, timedModeContainer);
 
         // 将所有组件添加到根容器
-        root.getChildren().addAll(headerBox, titleArea, modeOptionsBox, rewardInfoArea);
+        root.getChildren().addAll(headerBox, titleArea, modeOptionsBox);
 
         // 使用 ScrollPane 包装内容 - 与布局选择界面一致
         ScrollPane scrollPane = new ScrollPane();
@@ -1377,7 +1344,7 @@ public class MainInterfaceFrame {
             infoBox.getChildren().addAll(layoutNameLabel, selectBtn);
             layoutContainer.getChildren().addAll(previewBoard, infoBox);
 
-            // 修改：计算行列位置，实现两列布局
+            // 计算行列位置，实现两列布局
             int row = i / 2; // 行号
             int col = i % 2; // 列号（0或1）
 
@@ -1408,7 +1375,7 @@ public class MainInterfaceFrame {
         historyStage.show();
     }
 
-    // 修改：showRankLayoutSelectionAndClose 方法 - 添加返回按钮
+    // showRankLayoutSelectionAndClose 方法 - 添加返回按钮
     private void showRankLayoutSelectionAndClose(String sortType, Stage previousStage) {
         Stage layoutStage = new Stage();
         layoutStage.setTitle("排行榜 - 选择布局");
@@ -1478,7 +1445,7 @@ public class MainInterfaceFrame {
         root.setMaxHeight(Region.USE_COMPUTED_SIZE);
         root.setPrefHeight(Region.USE_COMPUTED_SIZE);
 
-        // 新增：返回按钮区域
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 15, 0));
@@ -1499,7 +1466,7 @@ public class MainInterfaceFrame {
 
         headerBox.getChildren().addAll(backBtn, spacer);
 
-        // 修改：标题 - 包含排序类型信息
+        // 标题 - 包含排序类型信息
         Label title = new Label("请选择棋盘样式 - " + sortType);
         title.setFont(Font.font("微软雅黑", 24));
         title.getStyleClass().add("section-title");
@@ -1564,14 +1531,14 @@ public class MainInterfaceFrame {
             infoBox.getChildren().addAll(layoutNameLabel, selectBtn);
             layoutContainer.getChildren().addAll(previewBoard, infoBox);
 
-            // 修改：计算行列位置，实现两列布局
+            // 计算行列位置，实现两列布局
             int row = i / 2; // 行号
             int col = i % 2; // 列号（0或1）
 
             layoutGrid.add(layoutContainer, col, row);
         }
 
-        // 修改：将返回按钮添加到根容器的最前面
+        // 将返回按钮添加到根容器的最前面
         root.getChildren().addAll(headerBox, titleArea, layoutGrid);
 
         // 修复：使用 ScrollPane 包装内容，确保正确滚动
@@ -1665,13 +1632,13 @@ public class MainInterfaceFrame {
             stage.setHeight(mainStage.getHeight());
         }
 
-        // 修改：使用现代化的布局设计
+        // 使用现代化的布局设计
         VBox root = new VBox(25);
         root.setPadding(new Insets(30, 40, 30, 40));
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("main-background");
 
-        // 修改：返回按钮区域
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 15, 0));
@@ -1692,7 +1659,7 @@ public class MainInterfaceFrame {
 
         headerBox.getChildren().addAll(backBtn, spacer);
 
-        // 修改：现代化的标题区域
+        // 现代化的标题区域
         VBox titleArea = new VBox(12);
         titleArea.setAlignment(Pos.CENTER);
 
@@ -1710,7 +1677,7 @@ public class MainInterfaceFrame {
 
         titleArea.getChildren().addAll(titleIcon, title, subtitle);
 
-        // 修改：加载状态显示
+        // 加载状态显示
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setPrefSize(50, 50);
         progressIndicator.getStyleClass().add("mailbox-progress");
@@ -1729,7 +1696,7 @@ public class MainInterfaceFrame {
         // 异步加载历史数据
         loadHistoryDataAsync(username, layoutName, root, loadingBox, stage, parentStage);
 
-        // 修改：使用ScrollPane包装，保持与其他界面一致
+        // 使用ScrollPane包装，保持与其他界面一致
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -1743,7 +1710,7 @@ public class MainInterfaceFrame {
         stage.show();
     }
 
-    // 新增：创建历史记录空状态
+    // 创建历史记录空状态
     private VBox createHistoryEmptyState(String layoutName) {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
@@ -1766,14 +1733,14 @@ public class MainInterfaceFrame {
         return emptyBox;
     }
 
-    // 新增：创建历史记录卡片列表
+    // 创建历史记录卡片列表
     private VBox createHistoryCards(String username, String layoutName, List<HistoryRecord> data, Stage currentStage, Stage parentStage) {
         VBox cardsContainer = new VBox(12);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
         cardsContainer.setPadding(new Insets(10));
 
         for (HistoryRecord record : data) {
-            // 修改：传递容器引用
+            // 传递容器引用
             HBox historyCard = createHistoryCard(username, layoutName, record, currentStage, parentStage, cardsContainer);
             cardsContainer.getChildren().add(historyCard);
         }
@@ -1781,7 +1748,7 @@ public class MainInterfaceFrame {
         return cardsContainer;
     }
 
-    // 新增：创建单个历史记录卡片
+    // 创建单个历史记录卡片
     private HBox createHistoryCard(String username, String layoutName, HistoryRecord record, Stage currentStage, Stage parentStage, VBox cardsContainer) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -1901,7 +1868,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 新增：带UI更新的删除游戏记录方法
+    // 带UI更新的删除游戏记录方法
     private void deleteGameRecordWithUI(String username, String layoutName, HistoryRecord record, HBox card, VBox container) {
         Thread deleteThread = new Thread(() -> {
             try {
@@ -2026,7 +1993,7 @@ public class MainInterfaceFrame {
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("main-background");
 
-        // 新增：返回按钮区域
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 20, 0)); // 增加底部边距
@@ -2038,7 +2005,7 @@ public class MainInterfaceFrame {
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> {
             // 关闭当前窗口
-            rankStage.close(); // 修改：使用 rankStage 而不是 currentStage
+            rankStage.close(); // 使用 rankStage 而不是 currentStage
 
             // 恢复主界面音乐
             try {
@@ -2077,7 +2044,7 @@ public class MainInterfaceFrame {
 
         titleArea.getChildren().addAll(titleIcon, title, subtitle);
 
-        // 修改：改为水平布局 - 左右对称分布
+        // 改为水平布局 - 左右对称分布
         HBox rankOptionsBox = new HBox(50); // 增加间距到50
         rankOptionsBox.setAlignment(Pos.CENTER);
         rankOptionsBox.setPadding(new Insets(30, 0, 30, 0));
@@ -2157,7 +2124,7 @@ public class MainInterfaceFrame {
         // 将两个选项添加到水平布局中
         rankOptionsBox.getChildren().addAll(stepRankContainer, timeRankContainer);
 
-        // 修改：将返回按钮添加到根容器的最前面
+        // 将返回按钮添加到根容器的最前面
         root.getChildren().addAll(headerBox, titleArea, rankOptionsBox);
 
         // 使用 ScrollPane 包装内容
@@ -2175,7 +2142,7 @@ public class MainInterfaceFrame {
         rankStage.show();
     }
 
-    // 修改：showRankTable 方法 - 添加返回按钮
+    // showRankTable 方法 - 添加返回按钮
     private void showRankTable(String sortType, String layoutName, Stage previousStage) {
         Stage rankStage = new Stage();
         rankStage.setTitle("排行榜 - " + layoutName + "（" + sortType + "）");
@@ -2241,7 +2208,7 @@ public class MainInterfaceFrame {
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("main-background");
 
-        // 新增：返回按钮区域
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 15, 0));
@@ -2262,7 +2229,7 @@ public class MainInterfaceFrame {
 
         headerBox.getChildren().addAll(backBtn, spacer);
 
-        // 修改：标题区域 - 增加图标和描述
+        // 标题区域 - 增加图标和描述
         VBox titleArea = new VBox(12);
         titleArea.setAlignment(Pos.CENTER);
 
@@ -2298,7 +2265,7 @@ public class MainInterfaceFrame {
         loadingBox.setPadding(new Insets(60));
         loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
 
-        // 修改：初始显示返回按钮、标题和加载指示器
+        // 初始显示返回按钮、标题和加载指示器
         root.getChildren().addAll(headerBox, titleArea, loadingBox);
 
         // 使用 ScrollPane 包装内容
@@ -2325,7 +2292,7 @@ public class MainInterfaceFrame {
         loadRankDataWithCustomDesign(sortType, layoutName, root, loadingBox, new VBox());
     }
 
-    // 修改：loadRankDataWithCustomDesign 方法 - 更新UI时保留返回按钮
+    // loadRankDataWithCustomDesign 方法 - 更新UI时保留返回按钮
     private void loadRankDataWithCustomDesign(String sortType, String layoutName, VBox root, VBox loadingBox, VBox rankContentArea) {
         Thread loadThread = new Thread(() -> {
             try {
@@ -2425,8 +2392,8 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 新增：创建排行榜卡片
-    // 新增：创建排行榜卡片列表
+    // 创建排行榜卡片
+    // 创建排行榜卡片列表
     private VBox createRankCards(List<Document> rankList, String sortType) {
         VBox cardsContainer = new VBox(12);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
@@ -2446,7 +2413,7 @@ public class MainInterfaceFrame {
         return cardsContainer;
     }
 
-    // 修改：创建单个排行榜卡片 - 修复奖牌显示问题
+    // 创建单个排行榜卡片 - 修复奖牌显示问题
     private HBox createRankCard(int rank, String username, int moveCount, String elapsedTime, String sortType) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -2470,19 +2437,19 @@ public class MainInterfaceFrame {
         rankBadge.setPrefSize(50, 50);
         rankBadge.getStyleClass().add("rank-badge");
 
-        // 修改：排名图标 - 区分emoji和数字的样式
+        // 排名图标 - 区分emoji和数字的样式
         Label rankIcon = new Label();
         rankIcon.setFont(Font.font("微软雅黑", 20));
 
         if (rank == 1) {
             rankIcon.setText("🥇");
-            rankIcon.getStyleClass().add("rank-medal"); // 修改：使用专门的奖牌样式
+            rankIcon.getStyleClass().add("rank-medal"); // 使用专门的奖牌样式
         } else if (rank == 2) {
             rankIcon.setText("🥈");
-            rankIcon.getStyleClass().add("rank-medal"); // 修改：使用专门的奖牌样式
+            rankIcon.getStyleClass().add("rank-medal"); // 使用专门的奖牌样式
         } else if (rank == 3) {
             rankIcon.setText("🥉");
-            rankIcon.getStyleClass().add("rank-medal"); // 修改：使用专门的奖牌样式
+            rankIcon.getStyleClass().add("rank-medal"); // 使用专门的奖牌样式
         } else {
             rankIcon.setText(String.valueOf(rank));
             rankIcon.getStyleClass().add("rank-number"); // 保持：数字排名的样式
@@ -2528,7 +2495,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 新增：创建空状态框
+    // 创建空状态框
     private VBox createEmptyStateBox(String layoutName, String sortType) {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
@@ -2550,7 +2517,7 @@ public class MainInterfaceFrame {
         return emptyBox;
     }
 
-    // 新增：创建错误状态框
+    // 创建错误状态框
     private VBox createErrorStateBox(String errorMessage, Runnable retryAction) {
         VBox errorBox = new VBox(20);
         errorBox.setAlignment(Pos.CENTER);
@@ -2591,7 +2558,7 @@ public class MainInterfaceFrame {
         }
     }
 
-    // 修改：好友列表 - 添加聊天功能
+    // 好友列表 - 添加聊天功能
     private void showFriends(String username) {
         try {
             MongoDBUtil db = new MongoDBUtil();
@@ -2720,7 +2687,7 @@ public class MainInterfaceFrame {
         }
     }
 
-    // 新增：创建好友卡片列表
+    // 创建好友卡片列表
     private VBox createFriendCards(String username, List<String> friendUsernames, Stage parentStage) {
         VBox cardsContainer = new VBox(8);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
@@ -2946,7 +2913,7 @@ public class MainInterfaceFrame {
         statusArea.setManaged(true);
     }
 
-    // 新增：异步添加好友的方法
+    // 异步添加好友的方法
     private void addFriendAsync(String username, String friendUsername, Stage stage, VBox statusArea, Button addBtn, TextField usernameField) {
         Thread addThread = new Thread(() -> {
             try {
@@ -3033,7 +3000,7 @@ public class MainInterfaceFrame {
         watchStage.setTitle("在线观战");
         watchStage.setResizable(true);
 
-        // 窗口同步绑定（与主界面保持一致）
+        // 窗口同步绑定代码保持不变...
         watchStage.widthProperty().addListener((obs, oldVal, newVal) -> {
             if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
                 mainStage.setWidth(newVal.doubleValue());
@@ -3086,6 +3053,22 @@ public class MainInterfaceFrame {
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("main-background");
 
+        // 修复：将手动刷新按钮改为返回按钮
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(0, 0, 15, 0));
+
+        Button backBtn = new Button("← 返回");
+        backBtn.setFont(Font.font("微软雅黑", 14));
+        backBtn.setPrefWidth(120);
+        backBtn.setPrefHeight(35);
+        backBtn.getStyleClass().add("back-button");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer);
+
         // 标题区域
         VBox titleArea = new VBox(12);
         titleArea.setAlignment(Pos.CENTER);
@@ -3104,6 +3087,13 @@ public class MainInterfaceFrame {
 
         titleArea.getChildren().addAll(titleIcon, titleLabel, subtitleLabel);
 
+        // 修复：更新自动刷新提示为1分钟
+        Label autoRefreshLabel = new Label("🔄 每1分钟自动刷新一次");
+        autoRefreshLabel.setFont(Font.font("微软雅黑", 12));
+        autoRefreshLabel.getStyleClass().add("auto-refresh-hint");
+        // 修复：确保自动刷新提示文字颜色正确显示
+        autoRefreshLabel.setStyle("-fx-text-fill: #666666; -fx-opacity: 0.8;");
+
         // 加载指示器
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setPrefSize(50, 50);
@@ -3118,10 +3108,94 @@ public class MainInterfaceFrame {
         loadingBox.setPadding(new Insets(40));
         loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
 
-        root.getChildren().addAll(titleArea, loadingBox);
+        root.getChildren().addAll(headerBox, titleArea, autoRefreshLabel, loadingBox);
 
-        // 异步加载在线对局数据
-        loadOnlineGamesAsync(username, root, loadingBox);
+        // 修复：优化数据加载逻辑，移除手动刷新按钮的依赖
+        final VBox[] gameCardsContainer = {null};
+        final javafx.animation.Timeline[] autoRefreshTimeline = {null}; // 修复：只保留一个声明
+
+        // 数据加载方法（移除refreshBtn参数）
+        Runnable loadData = () -> {
+            // 显示加载状态
+            Platform.runLater(() -> {
+                if (gameCardsContainer[0] != null) {
+                    root.getChildren().remove(gameCardsContainer[0]);
+                    gameCardsContainer[0] = null;
+                }
+                if (!root.getChildren().contains(loadingBox)) {
+                    root.getChildren().add(loadingBox);
+                }
+            });
+
+            loadOnlineGamesAsync(username, root, loadingBox, gameCardsContainer);
+        };
+
+        // 修复：返回按钮事件处理
+        backBtn.setOnAction(e -> {
+            // 停止自动刷新
+            if (autoRefreshTimeline[0] != null) {
+                autoRefreshTimeline[0].stop();
+            }
+
+            // 关闭观战窗口
+            watchStage.close();
+
+            // 返回主界面
+            if (!mainStage.isShowing()) {
+                mainStage.show();
+            }
+            mainStage.toFront();
+
+            // 恢复主界面音乐
+            try {
+                musicManager.playMusic(MusicManager.MAIN_MENU);
+            } catch (Exception ex) {
+                System.err.println("恢复主界面音乐失败: " + ex.getMessage());
+            }
+        });
+
+        // 修复：启动自动刷新（改为每1分钟，即60秒）
+        autoRefreshTimeline[0] = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(60), e -> {
+                    loadData.run();
+                })
+        );
+        autoRefreshTimeline[0].setCycleCount(javafx.animation.Animation.INDEFINITE);
+
+        // 首次加载
+        loadData.run();
+
+        // 窗口显示后启动自动刷新
+        watchStage.setOnShown(e -> {
+            if (autoRefreshTimeline[0] != null) {
+                autoRefreshTimeline[0].play();
+            }
+        });
+
+        // 窗口关闭时停止自动刷新
+        watchStage.setOnCloseRequest(e -> {
+            if (autoRefreshTimeline[0] != null) {
+                autoRefreshTimeline[0].stop();
+            }
+
+            // 返回主界面
+            mainStage.setX(watchStage.getX());
+            mainStage.setY(watchStage.getY());
+            mainStage.setWidth(watchStage.getWidth());
+            mainStage.setHeight(watchStage.getHeight());
+
+            if (!mainStage.isShowing()) {
+                mainStage.show();
+            }
+            mainStage.toFront();
+
+            // 恢复主界面音乐
+            try {
+                musicManager.playMusic(MusicManager.MAIN_MENU);
+            } catch (Exception ex) {
+                System.err.println("恢复主界面音乐失败: " + ex.getMessage());
+            }
+        });
 
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.setFitToWidth(true);
@@ -3136,67 +3210,174 @@ public class MainInterfaceFrame {
         watchStage.show();
     }
 
-    // 新增：异步加载在线对局数据
-    private void loadOnlineGamesAsync(String username, VBox root, VBox loadingBox) {
+    private void loadOnlineGamesAsync(String username, VBox root, VBox loadingBox, VBox[] gameCardsContainer) {
         Thread loadThread = new Thread(() -> {
             try {
                 MongoDBUtil db = new MongoDBUtil();
                 MongoCollection<Document> col = db.getCollection("online_games");
-                FindIterable<Document> docs = col.find().sort(Sorts.descending("timestamp"));
+
+                // 修复：首先清理过期的在线游戏记录（超过10分钟的记录）
+                long tenMinutesAgo = System.currentTimeMillis() - (10 * 60 * 1000);
+                long deletedCount = col.deleteMany(Filters.lt("timestamp", tenMinutesAgo)).getDeletedCount();
+                System.out.println("清理了 " + deletedCount + " 条过期的在线游戏记录");
+
+                // 修复：获取当前用户的好友列表用于调试
+                MongoCollection<Document> usersCol = db.getCollection("users");
+                Document currentUserDoc = usersCol.find(Filters.eq("username", username)).first();
+                List<String> myFriends = new ArrayList<>();
+                if (currentUserDoc != null && currentUserDoc.get("friends") instanceof List) {
+                    myFriends = (List<String>) currentUserDoc.get("friends");
+                }
+                System.out.println("当前用户 " + username + " 的好友列表: " + myFriends);
+
+                // 修复：获取所有在线游戏记录并进行详细分析
+                FindIterable<Document> allDocs = col.find().sort(Sorts.descending("timestamp"));
+                List<Document> allGamesList = new ArrayList<>();
+                allDocs.into(allGamesList);
+                System.out.println("总共找到 " + allGamesList.size() + " 条在线游戏记录");
 
                 List<OnlineGameRecord> availableGames = new ArrayList<>();
+                List<OnlineGameRecord> debugAllGames = new ArrayList<>(); // 用于调试的所有游戏列表
 
-                for (Document doc : docs) {
-                    List<String> friends = (List<String>) doc.get("friends");
-                    // 只显示自己是房主好友的房间
-                    if (friends != null && friends.contains(username)) {
-                        String roomId = doc.getString("roomId");
-                        String host = doc.getString("host");
-                        String layoutName = doc.getString("layout");
-                        String elapsedTime = doc.getString("elapsedTime");
-                        int moveCount = doc.getInteger("moveCount", 0);
-                        availableGames.add(new OnlineGameRecord(roomId, host, layoutName, elapsedTime, moveCount));
+                for (Document doc : allGamesList) {
+                    String roomId = doc.getString("roomId");
+                    String host = doc.getString("host");
+                    String layoutName = doc.getString("layoutName");
+                    String elapsedTime = doc.getString("elapsedTime");
+                    Integer moveCount = doc.getInteger("moveCount");
+                    Long timestamp = doc.getLong("timestamp");
+                    List<String> roomFriends = (List<String>) doc.get("friends");
+
+                    // 修复：创建游戏记录用于调试
+                    OnlineGameRecord gameRecord = new OnlineGameRecord(
+                            roomId != null ? roomId : "unknown",
+                            host != null ? host : "unknown",
+                            layoutName != null ? layoutName : "未知布局",
+                            elapsedTime != null ? elapsedTime : "00:00",
+                            moveCount != null ? moveCount : 0
+                    );
+                    debugAllGames.add(gameRecord);
+
+                    // 修复：详细的调试信息
+                    System.out.println("检查游戏记录:");
+                    System.out.println("  房间ID: " + roomId);
+                    System.out.println("  房主: " + host);
+                    System.out.println("  布局: " + layoutName);
+                    System.out.println("  房主好友列表: " + roomFriends);
+                    System.out.println("  时间戳: " + timestamp + " (距离现在: " + (System.currentTimeMillis() - (timestamp != null ? timestamp : 0)) / 1000 + "秒)");
+
+                    // 修复：多重检查条件
+                    boolean isValidGame = true;
+                    String skipReason = "";
+
+                    // 检查基本字段完整性
+                    if (roomId == null || host == null || layoutName == null) {
+                        isValidGame = false;
+                        skipReason = "基本字段缺失";
                     }
+
+                    // 检查是否是自己的游戏
+                    if (isValidGame && host.equals(username)) {
+                        isValidGame = false;
+                        skipReason = "是自己的游戏";
+                    }
+
+                    // 修复：检查好友关系（双向检查）
+                    if (isValidGame) {
+                        boolean isFriend = false;
+
+                        // 方法1：检查我是否在房主的好友列表中
+                        if (roomFriends != null && roomFriends.contains(username)) {
+                            isFriend = true;
+                            System.out.println("  ✓ 通过房主好友列表验证");
+                        }
+
+                        // 方法2：检查房主是否在我的好友列表中
+                        if (!isFriend && myFriends.contains(host)) {
+                            isFriend = true;
+                            System.out.println("  ✓ 通过我的好友列表验证");
+                        }
+
+                        // 方法3：从数据库重新验证好友关系
+                        if (!isFriend) {
+                            Document hostDoc = usersCol.find(Filters.eq("username", host)).first();
+                            if (hostDoc != null && hostDoc.get("friends") instanceof List) {
+                                List<String> hostFriendsList = (List<String>) hostDoc.get("friends");
+                                if (hostFriendsList.contains(username)) {
+                                    isFriend = true;
+                                    System.out.println("  ✓ 通过数据库重新验证好友关系");
+                                }
+                            }
+                        }
+
+                        if (!isFriend) {
+                            isValidGame = false;
+                            skipReason = "不是好友关系";
+                        }
+                    }
+
+                    if (isValidGame) {
+                        availableGames.add(gameRecord);
+                        System.out.println("  ✓ 游戏记录有效，已添加到可观战列表");
+                    } else {
+                        System.out.println("  ✗ 跳过游戏记录，原因: " + skipReason);
+                    }
+                    System.out.println();
                 }
+
                 db.close();
 
+                System.out.println("最终结果:");
+                System.out.println("  总游戏数: " + debugAllGames.size());
+                System.out.println("  可观战游戏数: " + availableGames.size());
+                System.out.println("  当前用户好友数: " + myFriends.size());
+
                 // 在JavaFX应用线程中更新UI
+                List<String> finalMyFriends = myFriends;
                 Platform.runLater(() -> {
                     // 移除加载指示器
-                    root.getChildren().remove(loadingBox);
+                    if (root.getChildren().contains(loadingBox)) {
+                        root.getChildren().remove(loadingBox);
+                    }
 
                     if (availableGames.isEmpty()) {
-                        // 显示空状态
-                        VBox emptyStateBox = createWatchEmptyState();
+                        // 修复：显示更详细的空状态信息
+                        VBox emptyStateBox = createDetailedWatchEmptyState(debugAllGames.size(), finalMyFriends.size());
+                        gameCardsContainer[0] = emptyStateBox;
                         root.getChildren().add(emptyStateBox);
                     } else {
-                        // 创建对局卡片列表
+                        // 显示可观战的游戏
                         VBox gameCards = createOnlineGameCards(availableGames);
+                        gameCardsContainer[0] = gameCards;
+                        root.getChildren().add(gameCards);
 
-                        ScrollPane cardsScrollPane = new ScrollPane(gameCards);
-                        cardsScrollPane.setFitToWidth(true);
-                        cardsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                        cardsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                        cardsScrollPane.getStyleClass().add("online-games-scroll");
-                        cardsScrollPane.setPrefHeight(400);
-
-                        root.getChildren().add(cardsScrollPane);
+                        System.out.println("UI更新完成，显示了 " + availableGames.size() + " 个可观战游戏");
                     }
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
+                System.err.println("加载在线游戏数据失败: " + e.getMessage());
                 Platform.runLater(() -> {
                     // 移除加载指示器
-                    root.getChildren().remove(loadingBox);
+                    if (root.getChildren().contains(loadingBox)) {
+                        root.getChildren().remove(loadingBox);
+                    }
 
                     // 显示错误状态
-                    VBox errorStateBox = createErrorStateBox("加载在线对局失败", () -> {
-                        root.getChildren().clear();
-                        VBox titleArea = (VBox) root.getChildren().get(0); // 保留标题
-                        root.getChildren().addAll(titleArea, loadingBox);
-                        loadOnlineGamesAsync(username, root, loadingBox);
+                    VBox errorStateBox = createErrorStateBox("加载在线对局失败: " + e.getMessage(), () -> {
+                        Platform.runLater(() -> {
+                            if (gameCardsContainer[0] != null) {
+                                root.getChildren().remove(gameCardsContainer[0]);
+                                gameCardsContainer[0] = null;
+                            }
+                            if (!root.getChildren().contains(loadingBox)) {
+                                root.getChildren().add(loadingBox);
+                            }
+                        });
+                        loadOnlineGamesAsync(username, root, loadingBox, gameCardsContainer);
                     });
+                    gameCardsContainer[0] = errorStateBox;
                     root.getChildren().add(errorStateBox);
                 });
             }
@@ -3206,8 +3387,8 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 新增：创建观战空状态
-    private VBox createWatchEmptyState() {
+    // 修复：创建更详细的观战空状态，显示调试信息
+    private VBox createDetailedWatchEmptyState(int totalGames, int friendCount) {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
         emptyBox.setPadding(new Insets(60));
@@ -3220,16 +3401,47 @@ public class MainInterfaceFrame {
         emptyTitle.setFont(Font.font("微软雅黑", 20));
         emptyTitle.getStyleClass().add("empty-state-title");
 
-        Label emptyMessage = new Label("目前没有好友在线游戏\n当好友开始游戏时，您就可以在这里观战了");
+        // 修复：添加详细的状态信息
+        String detailMessage;
+        if (friendCount == 0) {
+            detailMessage = "您还没有添加好友\n先去添加一些好友吧！";
+        } else if (totalGames == 0) {
+            detailMessage = "当前没有人在线游戏\n有 " + friendCount + " 个好友，等待他们开始游戏";
+        } else {
+            detailMessage = "发现 " + totalGames + " 个在线游戏，但都不是好友的游戏\n" +
+                    "您有 " + friendCount + " 个好友，邀请他们一起玩吧！";
+        }
+
+        Label emptyMessage = new Label(detailMessage);
         emptyMessage.setFont(Font.font("微软雅黑", 14));
         emptyMessage.getStyleClass().add("empty-state-message");
         emptyMessage.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-        emptyBox.getChildren().addAll(emptyIcon, emptyTitle, emptyMessage);
+        // 修复：添加调试按钮（可选）
+        Button debugBtn = new Button("🔍 查看详细信息");
+        debugBtn.setFont(Font.font("微软雅黑", 12));
+        debugBtn.getStyleClass().add("debug-button");
+        debugBtn.setOnAction(e -> {
+            Alert debugAlert = new Alert(Alert.AlertType.INFORMATION);
+            debugAlert.setTitle("调试信息");
+            debugAlert.setHeaderText("在线观战调试信息");
+            debugAlert.setContentText(
+                    "总在线游戏数: " + totalGames + "\n" +
+                            "您的好友数: " + friendCount + "\n" +
+                            "可观战游戏数: 0\n\n" +
+                            "建议：\n" +
+                            "1. 检查好友是否正在游戏中\n" +
+                            "2. 确认好友关系是否正常\n" +
+                            "3. 尝试刷新页面"
+            );
+            debugAlert.showAndWait();
+        });
+
+        emptyBox.getChildren().addAll(emptyIcon, emptyTitle, emptyMessage, debugBtn);
         return emptyBox;
     }
 
-    // 新增：创建在线对局卡片列表
+    // 创建在线对局卡片列表
     private VBox createOnlineGameCards(List<OnlineGameRecord> games) {
         VBox cardsContainer = new VBox(12);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
@@ -3243,7 +3455,7 @@ public class MainInterfaceFrame {
         return cardsContainer;
     }
 
-    // 新增：创建单个在线对局卡片
+    // 创建单个在线对局卡片
     private HBox createOnlineGameCard(OnlineGameRecord game) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -3316,6 +3528,315 @@ public class MainInterfaceFrame {
         card.setOnMouseEntered(e -> card.getStyleClass().add("online-game-card-hover"));
         card.setOnMouseExited(e -> card.getStyleClass().remove("online-game-card-hover"));
 
+        return card;
+    }
+
+    private void openWatchWindow(String roomId) {
+        Stage stage = new Stage();
+        stage.setTitle("观战 - " + roomId);
+
+        BorderPane root = new BorderPane();
+        root.getStyleClass().add("main-background");
+
+        // 顶部信息区域保持不变...
+        VBox topArea = new VBox(12);
+        topArea.setPadding(new Insets(20, 25, 15, 25));
+        topArea.setAlignment(Pos.CENTER);
+
+        Label title = new Label("观战中...");
+        title.setFont(Font.font("微软雅黑", 22));
+        title.getStyleClass().add("section-title");
+
+        Label connectionStatus = new Label("🔄 连接中...");
+        connectionStatus.setFont(Font.font("微软雅黑", 14));
+        connectionStatus.getStyleClass().add("connection-status-label");
+
+        Label aiStatusLabel = new Label("");
+        aiStatusLabel.setFont(Font.font("微软雅黑", 16));
+        aiStatusLabel.getStyleClass().add("ai-status-label");
+        aiStatusLabel.setVisible(false);
+
+        topArea.getChildren().addAll(title, connectionStatus, aiStatusLabel);
+        root.setTop(topArea);
+
+        // 中央棋盘区域
+        HBox centerArea = new HBox(20);
+        centerArea.setPadding(new Insets(10, 25, 20, 25));
+        centerArea.setAlignment(Pos.CENTER);
+
+        // 左侧信息面板保持不变...
+        VBox gameInfoPanel = new VBox(15);
+        gameInfoPanel.setPrefWidth(180);
+        gameInfoPanel.setMaxWidth(180);
+        gameInfoPanel.setMinWidth(180);
+        gameInfoPanel.setPadding(new Insets(20, 15, 20, 15));
+        gameInfoPanel.getStyleClass().add("game-info-panel");
+        gameInfoPanel.setAlignment(Pos.TOP_CENTER);
+
+        VBox timeCard = createInfoCard("⏰", "用时", "--:--");
+        VBox moveCard = createInfoCard("👣", "步数", "--");
+        VBox statusCard = createInfoCard("🎮", "状态", "观战中");
+
+        gameInfoPanel.getChildren().addAll(timeCard, moveCard, statusCard);
+
+        // 修复：中央棋盘 - 确保正确的5行4列尺寸
+        ReplayBoardPane boardPane = new ReplayBoardPane(new ArrayList<>(), new ArrayList<>(), null);
+        boardPane.setPrefSize(320, 400); // 修复：4列×80=320，5行×80=400
+        boardPane.setMaxSize(320, 400);
+        boardPane.setMinSize(320, 400);
+
+        // 右侧操作面板保持不变...
+        VBox operationPanel = new VBox(15);
+        operationPanel.setPrefWidth(180);
+        operationPanel.setMaxWidth(180);
+        operationPanel.setMinWidth(180);
+        operationPanel.setPadding(new Insets(20, 15, 20, 15));
+        operationPanel.getStyleClass().add("operation-panel");
+        operationPanel.setAlignment(Pos.TOP_CENTER);
+
+        VBox controlCard = createControlCard();
+        VBox infoCard = createWatchInfoCard();
+
+        operationPanel.getChildren().addAll(controlCard, infoCard);
+
+        centerArea.getChildren().addAll(gameInfoPanel, boardPane, operationPanel);
+        root.setCenter(centerArea);
+
+        // 修复：调整窗口大小以适应新的棋盘尺寸
+        Scene scene = new Scene(root, 720, 600); // 减少宽度：180+320+180+40=720
+        loadCSS(scene);
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.show();
+
+        // 修复：优化刷新逻辑 - 改为2秒刷新一次（观战窗口内保持较快刷新）
+        final javafx.animation.Timeline[] timeline = new javafx.animation.Timeline[1];
+        final boolean[] aiTipShown = {false};
+        final boolean[] isConnected = {false};
+        final long[] lastUpdateTime = {0};
+        final int[] failedAttempts = {0};
+
+        timeline[0] = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(2), e -> {
+                    // 异步获取数据，避免阻塞UI
+                    Thread updateThread = new Thread(() -> {
+                        try {
+                            MongoDBUtil db = new MongoDBUtil();
+                            MongoCollection<Document> col = db.getCollection("online_games");
+                            Document doc = col.find(Filters.eq("roomId", roomId)).first();
+                            db.close();
+
+                            if (doc != null) {
+                                long docTimestamp = doc.getLong("timestamp");
+
+                                Platform.runLater(() -> {
+                                    if (docTimestamp > lastUpdateTime[0]) {
+                                        lastUpdateTime[0] = docTimestamp;
+
+                                        // 更新连接状态
+                                        if (!isConnected[0]) {
+                                            isConnected[0] = true;
+                                            connectionStatus.setText("🟢 已连接");
+                                            connectionStatus.getStyleClass().remove("connection-status-disconnected");
+                                            connectionStatus.getStyleClass().add("connection-status-connected");
+                                        }
+                                        failedAttempts[0] = 0;
+
+                                        // 更新棋盘
+                                        try {
+                                            List<Document> blockDocs = (List<Document>) doc.get("blocks");
+                                            List<GameFrame.Block> blocks = convertToBlockList(blockDocs);
+                                            boardPane.setBlocks(blocks);
+                                        } catch (Exception ex) {
+                                            System.err.println("更新棋盘失败: " + ex.getMessage());
+                                        }
+
+                                        // 更新游戏信息 - 使用新的信息卡片
+                                        String elapsedTime = doc.getString("elapsedTime");
+                                        Integer moveCount = doc.getInteger("moveCount", 0);
+
+                                        updateInfoCard(timeCard, elapsedTime != null ? elapsedTime : "--:--");
+                                        updateInfoCard(moveCard, moveCount.toString());
+
+                                        // 检查AI帮解状态
+                                        Boolean aiSolving = doc.getBoolean("aiSolving", false);
+                                        if (aiSolving != null && aiSolving) {
+                                            if (!aiTipShown[0]) {
+                                                aiTipShown[0] = true;
+                                                aiStatusLabel.setText("🤖 AI正在帮助解题...");
+                                                aiStatusLabel.getStyleClass().add("ai-status-active");
+                                            } else {
+                                                aiStatusLabel.setText("🤖 AI帮解中");
+                                                aiStatusLabel.getStyleClass().add("ai-status-working");
+                                            }
+                                            aiStatusLabel.setVisible(true);
+                                        } else {
+                                            aiTipShown[0] = false;
+                                            aiStatusLabel.setVisible(false);
+                                            aiStatusLabel.getStyleClass().removeAll("ai-status-active", "ai-status-working");
+                                        }
+                                    } else {
+                                        if (!isConnected[0]) {
+                                            isConnected[0] = true;
+                                            connectionStatus.setText("🟡 等待更新...");
+                                            connectionStatus.getStyleClass().remove("connection-status-disconnected");
+                                            connectionStatus.getStyleClass().add("connection-status-waiting");
+                                        }
+                                    }
+                                });
+
+                            } else {
+                                // 房间已不存在
+                                Platform.runLater(() -> {
+                                    timeline[0].stop();
+
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                    alert.setTitle("观战结束");
+                                    alert.setHeaderText("对局已结束");
+                                    alert.setContentText("该对局已结束，观战窗口将自动关闭。");
+
+                                    DialogPane dialogPane = alert.getDialogPane();
+                                    dialogPane.getStyleClass().add("dialog-pane");
+                                    dialogPane.getStyleClass().add("info-dialog");
+
+                                    alert.showAndWait();
+                                    stage.close();
+                                });
+                            }
+
+                        } catch (Exception ex) {
+                            // 网络异常处理
+                            Platform.runLater(() -> {
+                                failedAttempts[0]++;
+                                isConnected[0] = false;
+
+                                if (failedAttempts[0] <= 3) {
+                                    connectionStatus.setText("🔄 重连中... (" + failedAttempts[0] + "/3)");
+                                    connectionStatus.getStyleClass().removeAll("connection-status-connected", "connection-status-waiting");
+                                    connectionStatus.getStyleClass().add("connection-status-reconnecting");
+                                } else if (failedAttempts[0] <= 6) {
+                                    connectionStatus.setText("⚠️ 网络异常");
+                                    connectionStatus.getStyleClass().removeAll("connection-status-connected", "connection-status-waiting", "connection-status-reconnecting");
+                                    connectionStatus.getStyleClass().add("connection-status-error");
+                                } else {
+                                    timeline[0].stop();
+
+                                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                                    alert.setTitle("连接失败");
+                                    alert.setHeaderText("无法连接到对局");
+                                    alert.setContentText("网络连接出现问题，无法继续观战。");
+
+                                    DialogPane dialogPane = alert.getDialogPane();
+                                    dialogPane.getStyleClass().add("dialog-pane");
+                                    dialogPane.getStyleClass().add("warning-dialog");
+
+                                    alert.showAndWait();
+                                    stage.close();
+                                }
+                            });
+
+                            System.err.println("观战数据获取失败: " + ex.getMessage());
+                        }
+                    });
+
+                    updateThread.setDaemon(true);
+                    updateThread.start();
+                })
+        );
+
+        timeline[0].setCycleCount(javafx.animation.Animation.INDEFINITE);
+        timeline[0].play();
+
+        // 窗口关闭时停止刷新
+        stage.setOnCloseRequest(e -> {
+            if (timeline[0] != null) {
+                timeline[0].stop();
+            }
+        });
+    }
+
+    // 创建游戏信息卡片
+    private VBox createInfoCard(String icon, String title, String value) {
+        VBox card = new VBox(8);
+        card.setPadding(new Insets(12, 10, 12, 10));
+        card.setAlignment(Pos.CENTER);
+        card.getStyleClass().add("watch-info-card");
+        card.setPrefWidth(150);
+        card.setMaxWidth(150);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setFont(Font.font("微软雅黑", 20));
+        iconLabel.getStyleClass().add("feature-icon");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setFont(Font.font("微软雅黑", 12));
+        titleLabel.getStyleClass().add("info-card-title");
+
+        Label valueLabel = new Label(value);
+        valueLabel.setFont(Font.font("微软雅黑", 16));
+        valueLabel.getStyleClass().add("info-card-value");
+
+        card.getChildren().addAll(iconLabel, titleLabel, valueLabel);
+        return card;
+    }
+
+    // 更新信息卡片
+    private void updateInfoCard(VBox card, String newValue) {
+        Label valueLabel = (Label) card.getChildren().get(2);
+        valueLabel.setText(newValue);
+    }
+
+    // 创建观战控制卡片
+    private VBox createControlCard() {
+        VBox card = new VBox(12);
+        card.setPadding(new Insets(15, 10, 15, 10));
+        card.setAlignment(Pos.CENTER);
+        card.getStyleClass().add("watch-control-card");
+        card.setPrefWidth(150);
+        card.setMaxWidth(150);
+
+        Label iconLabel = new Label("🎮");
+        iconLabel.setFont(Font.font("微软雅黑", 24));
+        iconLabel.getStyleClass().add("feature-icon");
+
+        Label titleLabel = new Label("观战控制");
+        titleLabel.setFont(Font.font("微软雅黑", 14));
+        titleLabel.getStyleClass().add("control-card-title");
+
+        Button refreshBtn = new Button("🔄 刷新");
+        refreshBtn.setPrefWidth(120);
+        refreshBtn.setPrefHeight(30);
+        refreshBtn.setFont(Font.font("微软雅黑", 12));
+        refreshBtn.getStyleClass().add("watch-refresh-button");
+
+        card.getChildren().addAll(iconLabel, titleLabel, refreshBtn);
+        return card;
+    }
+
+    // 创建观战信息卡片
+    private VBox createWatchInfoCard() {
+        VBox card = new VBox(10);
+        card.setPadding(new Insets(15, 10, 15, 10));
+        card.setAlignment(Pos.CENTER);
+        card.getStyleClass().add("watch-info-card");
+        card.setPrefWidth(150);
+        card.setMaxWidth(150);
+
+        Label iconLabel = new Label("ℹ️");
+        iconLabel.setFont(Font.font("微软雅黑", 20));
+        iconLabel.getStyleClass().add("feature-icon");
+
+        Label titleLabel = new Label("观战说明");
+        titleLabel.setFont(Font.font("微软雅黑", 12));
+        titleLabel.getStyleClass().add("info-card-title");
+
+        Label infoLabel = new Label("实时观看好友\n的游戏进度");
+        infoLabel.setFont(Font.font("微软雅黑", 10));
+        infoLabel.getStyleClass().add("watch-info-text");
+        infoLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        infoLabel.setWrapText(true);
+
+        card.getChildren().addAll(iconLabel, titleLabel, infoLabel);
         return card;
     }
 
@@ -3405,7 +3926,6 @@ public class MainInterfaceFrame {
         }
     }
 
-    // 3. 添加数据验证方法
     private List<GameFrame.Block> validateAndParseBlocks(Document gameDoc) throws DataCorruptionException {
         try {
             List<Document> blockDocs = (List<Document>) gameDoc.get("blocks");
@@ -3747,118 +4267,268 @@ public class MainInterfaceFrame {
         stage.show();
     }
 
-    private void openWatchWindow(String roomId) {
-        Stage stage = new Stage();
-        stage.setTitle("观战 - " + roomId);
+    // 修复：在 showWeChatStyleChat 方法中添加本地消息跟踪
+    private void showWeChatStyleChat(String currentUser, String otherUser, String sourceType) {
+        Stage chatStage = new Stage();
+        chatStage.setTitle("与 " + otherUser + " 的聊天");
+        chatStage.setResizable(true);
 
-        VBox root = new VBox(16);
-        root.setPadding(new Insets(24, 32, 24, 32));
-        root.setAlignment(Pos.CENTER);
-        // 使用CSS类替代内联样式
-        root.getStyleClass().add("main-background");
+        // 窗口同步绑定代码保持不变...
+        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
+                mainStage.setWidth(newVal.doubleValue());
+            }
+        });
+        mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getWidth()) > 2) {
+                chatStage.setWidth(newVal.doubleValue());
+            }
+        });
+        chatStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
+                mainStage.setHeight(newVal.doubleValue());
+            }
+        });
+        mainStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getHeight()) > 2) {
+                chatStage.setHeight(newVal.doubleValue());
+            }
+        });
+        chatStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
+                mainStage.setX(newVal.doubleValue());
+            }
+        });
+        mainStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getX()) > 2) {
+                chatStage.setX(newVal.doubleValue());
+            }
+        });
+        chatStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
+                mainStage.setY(newVal.doubleValue());
+            }
+        });
+        mainStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getY()) > 2) {
+                chatStage.setY(newVal.doubleValue());
+            }
+        });
 
-        Label aiStatusLabel = new Label("");
-        aiStatusLabel.setFont(Font.font("微软雅黑", 16));
-        // 使用CSS类替代内联样式
-        aiStatusLabel.getStyleClass().add("ai-status-label");
-        aiStatusLabel.setVisible(false);
+        // 初始同步窗口位置和大小
+        chatStage.setX(mainStage.getX());
+        chatStage.setY(mainStage.getY());
+        chatStage.setWidth(mainStage.getWidth());
+        chatStage.setHeight(mainStage.getHeight());
 
-        Label title = new Label("观战中...");
-        title.setFont(Font.font("微软雅黑", 22));
-        // 使用CSS类替代内联样式
-        title.getStyleClass().add("section-title");
+        BorderPane root = new BorderPane();
+        root.getStyleClass().add("chat-background");
 
-        Label elapsedLabel = new Label("用时：--:--");
-        elapsedLabel.setFont(Font.font("微软雅黑", 18));
-        // 使用CSS类替代内联样式
-        elapsedLabel.getStyleClass().add("elapsed-time-label");
+        // Header部分代码保持不变...
+        HBox header = new HBox();
+        header.setPadding(new Insets(10, 15, 10, 15));
+        header.getStyleClass().add("chat-header");
+        header.setAlignment(Pos.CENTER_LEFT);
 
-        Label moveLabel = new Label("步数：--");
-        moveLabel.setFont(Font.font("微软雅黑", 18));
-        // 使用CSS类替代内联样式
-        moveLabel.getStyleClass().add("elapsed-time-label");
+        Button backBtn = new Button("← 返回");
+        backBtn.setFont(Font.font("微软雅黑", 14));
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setOnAction(e -> {
+            if (chatRefreshTimeline != null) {
+                chatRefreshTimeline.stop();
+            }
 
-        ReplayBoardPane boardPane = new ReplayBoardPane(new ArrayList<>(), new ArrayList<>(), null);
+            double chatX = chatStage.getX();
+            double chatY = chatStage.getY();
+            double chatWidth = chatStage.getWidth();
+            double chatHeight = chatStage.getHeight();
 
-        root.getChildren().addAll(title, aiStatusLabel, elapsedLabel, moveLabel, boardPane);
+            chatStage.close();
 
-        Scene scene = new Scene(root, 520, 700);
-        // 加载CSS样式
-        loadCSS(scene);
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+            Platform.runLater(() -> {
+                if ("mailbox".equals(sourceType)) {
+                    preloadedChatData.remove(currentUser);
+                    showPrivateChatListDirectly(currentUser, chatX, chatY, chatWidth, chatHeight);
+                } else {
+                    mainStage.setX(chatX);
+                    mainStage.setY(chatY);
+                    mainStage.setWidth(chatWidth);
+                    mainStage.setHeight(chatHeight);
+                    showFriends(currentUser);
+                }
+            });
+        });
 
-        final javafx.animation.Timeline[] timeline = new javafx.animation.Timeline[1];
-        final boolean[] aiTipShown = {false};
+        Label titleLabel = new Label("与 " + otherUser + " 的聊天");
+        titleLabel.setFont(Font.font("微软雅黑", 18));
+        titleLabel.getStyleClass().add("chat-header-title");
 
-        timeline[0] = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1.5), e -> {
+        Region spacer1 = new Region();
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer1, Priority.ALWAYS);
+
+        header.getChildren().clear();
+        header.getChildren().addAll(backBtn, spacer1, titleLabel, spacer2);
+
+        root.setTop(header);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.getStyleClass().add("chat-scroll-pane");
+
+        VBox chatArea = new VBox(10);
+        chatArea.setPadding(new Insets(15));
+        chatArea.getStyleClass().add("chat-area");
+
+        // 加载指示器代码保持不变...
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        loadingIndicator.setPrefSize(40, 40);
+
+        Label loadingLabel = new Label("正在加载聊天记录...");
+        loadingLabel.setFont(Font.font("微软雅黑", 14));
+        loadingLabel.getStyleClass().add("loading-label");
+
+        VBox loadingBox = new VBox(10);
+        loadingBox.setAlignment(Pos.CENTER);
+        loadingBox.setPadding(new Insets(50));
+        loadingBox.getChildren().addAll(loadingIndicator, loadingLabel);
+
+        chatArea.getChildren().add(loadingBox);
+
+        scrollPane.setContent(chatArea);
+        root.setCenter(scrollPane);
+
+        VBox bottomArea = new VBox(10);
+        bottomArea.setPadding(new Insets(10, 15, 15, 15));
+        bottomArea.getStyleClass().add("chat-bottom-area");
+
+        TextArea messageInput = new TextArea();
+        messageInput.setPromptText("输入消息...");
+        messageInput.setPrefRowCount(3);
+        messageInput.setMaxHeight(80);
+        messageInput.setWrapText(true);
+        messageInput.getStyleClass().add("chat-input");
+
+        HBox buttonArea = new HBox(10);
+        buttonArea.setAlignment(Pos.CENTER_RIGHT);
+
+        Button sendBtn = new Button("发送");
+        sendBtn.setPrefWidth(80);
+        sendBtn.getStyleClass().add("send-button");
+
+        buttonArea.getChildren().add(sendBtn);
+        bottomArea.getChildren().addAll(messageInput, buttonArea);
+        root.setBottom(bottomArea);
+
+        // 修复：添加本地发送消息跟踪
+        final long[] lastMessageTimestamp = {0};
+        final java.util.Set<String> localSentMessages = new java.util.HashSet<>(); // 跟踪本地发送的消息
+
+        // 异步加载聊天消息
+        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane, lastMessageTimestamp);
+
+        // 修复：改进发送消息方法，添加本地消息跟踪
+        Runnable sendMessage = () -> {
+            String message = messageInput.getText().trim();
+            if (!message.isEmpty()) {
+                String currentTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                // 修复：生成唯一标识符跟踪这条本地消息
+                String messageId = currentUser + ":" + message + ":" + currentTime;
+                localSentMessages.add(messageId);
+
+                VBox messageBox = createMessageBubble(message, currentTime, true);
+                chatArea.getChildren().add(messageBox);
+
+                messageInput.clear();
+                scrollToBottomSmoothly(scrollPane);
+
+                Thread saveThread = new Thread(() -> {
                     try {
                         MongoDBUtil db = new MongoDBUtil();
-                        MongoCollection<Document> col = db.getCollection("online_games");
-                        Document doc = col.find(Filters.eq("roomId", roomId)).first();
-                        db.close();
-                        if (doc != null) {
-                            List<Document> blockDocs = (List<Document>) doc.get("blocks");
-                            List<GameFrame.Block> blocks = convertToBlockList(blockDocs);
-                            boardPane.setBlocks(blocks);
-                            // 显示用时
-                            String elapsedTime = doc.getString("elapsedTime");
-                            Integer moveCount = doc.getInteger("moveCount", 0);
-                            javafx.application.Platform.runLater(() -> {
-                                elapsedLabel.setText("用时：" + (elapsedTime != null ? elapsedTime : "--:--"));
-                                if (doc.containsKey("moveCount")) {
-                                    moveLabel.setText("步数：" + doc.getInteger("moveCount", 0));
-                                } else {
-                                    moveLabel.setText("步数：--");
-                                }
-                            });
+                        MongoCollection<Document> messagesCol = db.getCollection("private_messages");
 
-                            // 检查AI帮解状态
-                            Boolean aiSolving = doc.getBoolean("aiSolving", false);
-                            if (aiSolving != null && aiSolving) {
-                                if (!aiTipShown[0]) {
-                                    aiTipShown[0] = true;
-                                    javafx.application.Platform.runLater(() -> {
-                                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                        alert.setTitle("观战提示");
-                                        alert.setHeaderText(null);
-                                        alert.setContentText("对方正在使用AI帮解");
-                                        alert.showAndWait();
-                                        aiStatusLabel.setText("对方正在使用AI帮解中");
-                                        aiStatusLabel.setVisible(true);
-                                    });
-                                } else {
-                                    javafx.application.Platform.runLater(() -> {
-                                        aiStatusLabel.setText("对方正在使用AI帮解中");
-                                        aiStatusLabel.setVisible(true);
-                                    });
-                                }
-                            } else {
-                                aiTipShown[0] = false;
-                                javafx.application.Platform.runLater(() -> aiStatusLabel.setVisible(false));
-                            }
-                        } else {
-                            timeline[0].stop();
-                            javafx.application.Platform.runLater(() -> {
-                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                alert.setTitle("观战结束");
-                                alert.setHeaderText(null);
-                                alert.setContentText("对方已结束观战，窗口将自动关闭。");
-                                alert.showAndWait();
-                                stage.close();
-                            });
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                        long timestamp = System.currentTimeMillis();
+                        Document messageDoc = new Document()
+                                .append("from", currentUser)
+                                .append("to", otherUser)
+                                .append("message", message)
+                                .append("timestamp", timestamp)
+                                .append("time", currentTime)
+                                .append("read", false);
+
+                        messagesCol.insertOne(messageDoc);
+                        db.close();
+
+                        lastMessageTimestamp[0] = timestamp;
+
+                        // 修复：成功保存到云端后，延迟移除本地跟踪
+                        Platform.runLater(() -> {
+                            preloadedChatData.remove(currentUser);
+
+                            // 5秒后移除本地消息跟踪，避免永久累积
+                            javafx.animation.Timeline removeTrack = new javafx.animation.Timeline(
+                                    new javafx.animation.KeyFrame(javafx.util.Duration.seconds(5), e -> {
+                                        localSentMessages.remove(messageId);
+                                    })
+                            );
+                            removeTrack.play();
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() -> {
+                            // 修复：发送失败时移除本地跟踪，避免影响后续刷新
+                            localSentMessages.remove(messageId);
+                            showAlert("错误", "发送私信失败", "网络错误，消息可能未发送成功", Alert.AlertType.WARNING);
+                        });
                     }
+                });
+
+                saveThread.setDaemon(true);
+                saveThread.start();
+            }
+        };
+
+        sendBtn.setOnAction(e -> sendMessage.run());
+
+        messageInput.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER") && e.isControlDown()) {
+                sendMessage.run();
+                e.consume();
+            }
+        });
+
+        // 修复：启动自动刷新功能，传入本地消息跟踪集合
+        startChatAutoRefresh(chatArea, currentUser, otherUser, scrollPane, lastMessageTimestamp, localSentMessages);
+
+        chatStage.setOnCloseRequest(e -> {
+            if (chatRefreshTimeline != null) {
+                chatRefreshTimeline.stop();
+            }
+        });
+
+        Scene scene = new Scene(root);
+        loadCSS(scene);
+        chatStage.setScene(scene);
+        chatStage.show();
+    }
+
+    // 修复：更新启动聊天自动刷新方法
+    private void startChatAutoRefresh(VBox chatArea, String currentUser, String otherUser, ScrollPane scrollPane, long[] lastMessageTimestamp, java.util.Set<String> localSentMessages) {
+        if (chatRefreshTimeline != null) {
+            chatRefreshTimeline.stop();
+        }
+
+        chatRefreshTimeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(2), e -> {
+                    checkForNewMessages(chatArea, currentUser, otherUser, scrollPane, lastMessageTimestamp, localSentMessages);
                 })
         );
-        timeline[0].setCycleCount(javafx.animation.Animation.INDEFINITE);
-        timeline[0].play();
-
-        stage.setOnCloseRequest(e -> timeline[0].stop());
+        chatRefreshTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        chatRefreshTimeline.play();
     }
 
     //金币
@@ -3928,20 +4598,36 @@ public class MainInterfaceFrame {
             updateStepLabel();
         }
 
+        // 修复：确保棋盘为5行4列，格子和边框完全对齐
         private void setupBoard() {
             this.getChildren().clear();
-            this.setPrefSize(400, 500);
-            // 使用CSS类替代内联样式
+            this.setPrefSize(320, 400); // 修复：4列×80像素=320，5行×80像素=400
+            this.setMaxSize(320, 400);
+            this.setMinSize(320, 400);
+
+            // 修复：关键 - 设置GridPane的间距和内边距为0，确保格子完全贴合
+            this.setHgap(0);
+            this.setVgap(0);
+            this.setPadding(new Insets(0));
+            this.setAlignment(Pos.TOP_LEFT);
+
+            // 修复：设置整个棋盘的边框样式
+            this.setStyle("-fx-background-color: #8b7355; -fx-border-color: #654321; -fx-border-width: 2px;");
             this.getStyleClass().add("replay-board");
 
-            // 创建5x4网格背景
-            for (int row = 0; row < 5; row++) {
-                for (int col = 0; col < 4; col++) {
-                    Rectangle cell = new Rectangle(80, 100);
-                    cell.setFill(Color.TRANSPARENT);
-                    cell.setStroke(Color.web("#8b7355"));
-                    cell.setStrokeWidth(1);
+            // 修复：创建5行4列网格背景，格子大小精确计算
+            for (int row = 0; row < 5; row++) {        // 5行
+                for (int col = 0; col < 4; col++) {    // 4列
+                    Rectangle cell = new Rectangle(80, 80); // 修复：80x80的正方形格子
+                    cell.setFill(Color.web("#D2B48C")); // 修复：设置格子背景色为浅棕色
+                    cell.setStroke(Color.web("#8b7355")); // 修复：格子边框颜色
+                    cell.setStrokeWidth(1); // 修复：细边框
+                    cell.setStrokeType(javafx.scene.shape.StrokeType.INSIDE); // 修复：关键 - 边框向内绘制，避免超出格子范围
+
+                    // 修复：确保格子完全填充GridPane的单元格
                     this.add(cell, col, row);
+                    GridPane.setHalignment(cell, HPos.CENTER);
+                    GridPane.setValignment(cell, VPos.CENTER);
                 }
             }
 
@@ -3949,25 +4635,34 @@ public class MainInterfaceFrame {
         }
 
         private void drawBlocks() {
-            // 清除现有的方块
+            // 清除现有的方块（保留格子背景）
             this.getChildren().removeIf(node -> node instanceof StackPane);
 
             for (GameFrame.Block block : blocks) {
                 StackPane blockPane = new StackPane();
-                Rectangle rect = new Rectangle(block.getWidth() * 80, block.getHeight() * 100);
+
+                // 修复：方块大小计算 - 使用80x80的格子大小，稍微缩小以显示格子边框
+                double blockWidth = block.getWidth() * 80 - 2; // 减去2像素显示格子边框
+                double blockHeight = block.getHeight() * 80 - 2; // 减去2像素显示格子边框
+
+                Rectangle rect = new Rectangle(blockWidth, blockHeight);
                 rect.setFill(block.getColor());
                 rect.setStroke(Color.BLACK);
                 rect.setStrokeWidth(2);
-                rect.setArcWidth(10);
-                rect.setArcHeight(10);
+                rect.setArcWidth(8);
+                rect.setArcHeight(8);
 
                 Label nameLabel = new Label(block.getName());
                 nameLabel.setFont(Font.font("微软雅黑", 14));
-                // 移除内联样式，将在CSS中统一设置
                 nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
                 blockPane.getChildren().addAll(rect, nameLabel);
+
+                // 修复：精确定位方块，确保与格子对齐
                 this.add(blockPane, block.getCol(), block.getRow(), block.getWidth(), block.getHeight());
+                GridPane.setHalignment(blockPane, HPos.CENTER);
+                GridPane.setValignment(blockPane, VPos.CENTER);
+                GridPane.setMargin(blockPane, new Insets(1)); // 添加1像素边距，确保不完全覆盖格子边框
             }
         }
 
@@ -4254,7 +4949,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 新增：异步加载信箱状态
+    // 异步加载信箱状态
     private void loadMailboxStatusAsync(String username, VBox statusArea, VBox friendRequestCard, VBox privateChatCard) {
         Thread loadThread = new Thread(() -> {
             try {
@@ -4343,7 +5038,7 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 新增：预加载好友申请数据
+    // 预加载好友申请数据
     private void preloadFriendRequestsAsync(String username) {
         Thread preloadThread = new Thread(() -> {
             try {
@@ -4377,7 +5072,7 @@ public class MainInterfaceFrame {
         preloadThread.start();
     }
 
-    // 新增：预加载私信聊天列表数据
+    // 预加载私信聊天列表数据
     private void preloadPrivateChatListAsync(String username) {
         Thread preloadThread = new Thread(() -> {
             try {
@@ -4441,7 +5136,7 @@ public class MainInterfaceFrame {
         preloadThread.start();
     }
 
-    // 新增：更新卡片未读标记
+    // 更新卡片未读标记
     private void updateCardUnreadBadge(VBox card, int unreadCount) {
         // 找到未读标记标签
         Label unreadBadge = null;
@@ -4459,7 +5154,7 @@ public class MainInterfaceFrame {
         }
     }
 
-    // 修改：showPrivateChatListAndClose 方法中的返回按钮逻辑 - 修复重复新建信箱窗口的问题
+    // showPrivateChatListAndClose 方法中的返回按钮逻辑 - 修复重复新建信箱窗口的问题
     private void showPrivateChatListAndClose(String username, Stage fromMailboxStage) {
         Stage chatListStage = new Stage();
         chatListStage.setTitle("私信聊天");
@@ -4522,7 +5217,7 @@ public class MainInterfaceFrame {
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> {
             chatListStage.close();
-            // 修改：直接显示原信箱窗口，不新建
+            // 直接显示原信箱窗口，不新建
             fromMailboxStage.show();
             fromMailboxStage.toFront();
         });
@@ -4581,13 +5276,13 @@ public class MainInterfaceFrame {
         chatListStage.setScene(scene);
         chatListStage.show();
 
-        // 修改：先显示新窗口，然后隐藏（不关闭）原信箱窗口
+        // 先显示新窗口，然后隐藏（不关闭）原信箱窗口
         Platform.runLater(() -> {
             fromMailboxStage.hide();
         });
     }
 
-    // 新增：带位置参数的信箱显示方法
+    // 带位置参数的信箱显示方法
     private void showMailboxWithPosition(String username, double x, double y, double width, double height) {
         Stage mailboxStage = new Stage();
         mailboxStage.setTitle("信箱中心");
@@ -4733,7 +5428,7 @@ public class MainInterfaceFrame {
         loadMailboxStatusAsync(username, statusArea, friendRequestCard, privateChatCard);
     }
 
-    // 修改：在预加载数据的显示中也使用卡片布局
+    // 在预加载数据的显示中也使用卡片布局
     private void showFriendRequestsAndClose(String username, Stage mailboxStage) {
         Stage friendRequestStage = new Stage();
         friendRequestStage.setTitle("好友申请");
@@ -4796,7 +5491,7 @@ public class MainInterfaceFrame {
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> {
             friendRequestStage.close();
-            // 修改：直接显示原信箱窗口，不新建
+            // 直接显示原信箱窗口，不新建
             mailboxStage.show();
             mailboxStage.toFront();
         });
@@ -4832,7 +5527,7 @@ public class MainInterfaceFrame {
                 VBox emptyStateBox = createFriendRequestEmptyState();
                 root.getChildren().addAll(headerBox, titleArea, emptyStateBox);
             } else {
-                // 修改：使用新的卡片布局替代表格
+                // 使用新的卡片布局替代表格
                 VBox requestCards = createFriendRequestCards(username, data);
 
                 ScrollPane cardsScrollPane = new ScrollPane(requestCards);
@@ -4874,13 +5569,13 @@ public class MainInterfaceFrame {
         friendRequestStage.setScene(scene);
         friendRequestStage.show();
 
-        // 修改：先显示新窗口，然后隐藏（不关闭）原信箱窗口
+        // 先显示新窗口，然后隐藏（不关闭）原信箱窗口
         Platform.runLater(() -> {
             mailboxStage.hide();
         });
     }
 
-    // 修改：在 loadFriendRequestsAsync 方法中使用新的卡片布局
+    // 在 loadFriendRequestsAsync 方法中使用新的卡片布局
     private void loadFriendRequestsAsync(String username, VBox root, VBox loadingBox) {
         Thread loadThread = new Thread(() -> {
             try {
@@ -4948,7 +5643,7 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 新增：创建好友申请空状态
+    // 创建好友申请空状态
     private VBox createFriendRequestEmptyState() {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
@@ -4970,35 +5665,83 @@ public class MainInterfaceFrame {
         return emptyBox;
     }
 
-    // 新增： 改进滚动版本
-    // 修复：改进聊天消息加载和滚动逻辑
-    private void loadChatMessagesAsync(VBox chatArea, String currentUser, String otherUser, VBox loadingBox, ScrollPane scrollPane) {
-        Thread loadThread = new Thread(() -> {
+
+    // 统一的平滑滚动到底部方法
+    private void scrollToBottomSmoothly(ScrollPane scrollPane) {
+        // 使用多次延迟执行确保滚动生效
+        Platform.runLater(() -> {
+            scrollPane.setVvalue(1.0);
+
+            // 第一次延迟
+            Platform.runLater(() -> {
+                scrollPane.setVvalue(1.0);
+
+                // 第二次延迟（使用Timeline确保在UI完全渲染后执行）
+                javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+                        new javafx.animation.KeyFrame(javafx.util.Duration.millis(50), event -> {
+                            scrollPane.setVvalue(1.0);
+                        })
+                );
+                timeline.setCycleCount(2); // 执行2次
+                timeline.play();
+
+                // 最后一次保险滚动
+                javafx.animation.Timeline finalScroll = new javafx.animation.Timeline(
+                        new javafx.animation.KeyFrame(javafx.util.Duration.millis(150), event -> {
+                            scrollPane.setVvalue(1.0);
+                        })
+                );
+                finalScroll.play();
+            });
+        });
+    }
+
+    // 修复：更新检查新消息方法，过滤本地已发送的消息
+    private void checkForNewMessages(VBox chatArea, String currentUser, String otherUser, ScrollPane scrollPane, long[] lastMessageTimestamp, java.util.Set<String> localSentMessages) {
+        Thread checkThread = new Thread(() -> {
             try {
                 MongoDBUtil db = new MongoDBUtil();
                 MongoCollection<Document> messagesCol = db.getCollection("private_messages");
 
-                FindIterable<Document> docs = messagesCol.find(
-                        Filters.or(
-                                Filters.and(Filters.eq("from", currentUser), Filters.eq("to", otherUser)),
-                                Filters.and(Filters.eq("from", otherUser), Filters.eq("to", currentUser))
+                FindIterable<Document> newDocs = messagesCol.find(
+                        Filters.and(
+                                Filters.or(
+                                        Filters.and(Filters.eq("from", currentUser), Filters.eq("to", otherUser)),
+                                        Filters.and(Filters.eq("from", otherUser), Filters.eq("to", currentUser))
+                                ),
+                                Filters.gt("timestamp", lastMessageTimestamp[0])
                         )
                 ).sort(Sorts.ascending("timestamp"));
 
-                List<VBox> messageBubbles = new ArrayList<>();
+                List<VBox> newMessageBubbles = new ArrayList<>();
                 List<String> messageIds = new ArrayList<>();
+                long latestTimestamp = lastMessageTimestamp[0];
 
-                for (Document doc : docs) {
+                for (Document doc : newDocs) {
                     String from = doc.getString("from");
                     String message = doc.getString("message");
                     String time = doc.getString("time");
+                    long timestamp = doc.getLong("timestamp");
+
+                    // 修复：检查是否为本地已发送的消息，如果是则跳过
+                    String messageId = from + ":" + message + ":" + time;
+                    if (localSentMessages.contains(messageId)) {
+                        // 这是本地已发送的消息，跳过显示但更新时间戳
+                        if (timestamp > latestTimestamp) {
+                            latestTimestamp = timestamp;
+                        }
+                        continue;
+                    }
 
                     VBox messageBox = createMessageBubble(message, time, from.equals(currentUser));
-                    messageBubbles.add(messageBox);
+                    newMessageBubbles.add(messageBox);
 
-                    // 收集需要标记为已读的消息ID
                     if (from.equals(otherUser)) {
                         messageIds.add(doc.getObjectId("_id").toString());
+                    }
+
+                    if (timestamp > latestTimestamp) {
+                        latestTimestamp = timestamp;
                     }
                 }
 
@@ -5014,6 +5757,188 @@ public class MainInterfaceFrame {
 
                 db.close();
 
+                if (!newMessageBubbles.isEmpty()) {
+                    final long finalLatestTimestamp = latestTimestamp;
+                    Platform.runLater(() -> {
+                        chatArea.getChildren().removeIf(node -> {
+                            if (node instanceof VBox) {
+                                VBox vbox = (VBox) node;
+                                return vbox.getChildren().stream().anyMatch(child ->
+                                        child instanceof Label &&
+                                                ((Label) child).getText().contains("暂无聊天记录"));
+                            }
+                            return false;
+                        });
+
+                        chatArea.getChildren().addAll(newMessageBubbles);
+                        lastMessageTimestamp[0] = finalLatestTimestamp;
+                        scrollToBottomSmoothly(scrollPane);
+                    });
+                } else {
+                    // 修复：即使没有新消息要显示，也要更新时间戳
+                    final long finalLatestTimestamp = latestTimestamp;
+                    if (finalLatestTimestamp > lastMessageTimestamp[0]) {
+                        Platform.runLater(() -> {
+                            lastMessageTimestamp[0] = finalLatestTimestamp;
+                        });
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        checkThread.setDaemon(true);
+        checkThread.start();
+    }
+
+    //
+    private javafx.animation.Timeline chatRefreshTimeline = null;
+
+    // 检查新消息
+    private void checkForNewMessages(VBox chatArea, String currentUser, String otherUser, ScrollPane scrollPane, long[] lastMessageTimestamp) {
+        Thread checkThread = new Thread(() -> {
+            try {
+                MongoDBUtil db = new MongoDBUtil();
+                MongoCollection<Document> messagesCol = db.getCollection("private_messages");
+
+                // 只查询比最后一条消息更新的消息
+                FindIterable<Document> newDocs = messagesCol.find(
+                        Filters.and(
+                                Filters.or(
+                                        Filters.and(Filters.eq("from", currentUser), Filters.eq("to", otherUser)),
+                                        Filters.and(Filters.eq("from", otherUser), Filters.eq("to", currentUser))
+                                ),
+                                Filters.gt("timestamp", lastMessageTimestamp[0])
+                        )
+                ).sort(Sorts.ascending("timestamp"));
+
+                List<VBox> newMessageBubbles = new ArrayList<>();
+                List<String> messageIds = new ArrayList<>();
+                long latestTimestamp = lastMessageTimestamp[0];
+
+                for (Document doc : newDocs) {
+                    String from = doc.getString("from");
+                    String message = doc.getString("message");
+                    String time = doc.getString("time");
+                    long timestamp = doc.getLong("timestamp");
+
+                    VBox messageBox = createMessageBubble(message, time, from.equals(currentUser));
+                    newMessageBubbles.add(messageBox);
+
+                    // 收集需要标记为已读的消息ID（对方发送的消息）
+                    if (from.equals(otherUser)) {
+                        messageIds.add(doc.getObjectId("_id").toString());
+                    }
+
+                    // 更新最新时间戳
+                    if (timestamp > latestTimestamp) {
+                        latestTimestamp = timestamp;
+                    }
+                }
+
+                // 批量标记消息为已读
+                if (!messageIds.isEmpty()) {
+                    for (String id : messageIds) {
+                        messagesCol.updateOne(
+                                Filters.eq("_id", new org.bson.types.ObjectId(id)),
+                                new Document("$set", new Document("read", true))
+                        );
+                    }
+                }
+
+                db.close();
+
+                // 如果有新消息，在UI线程中添加
+                if (!newMessageBubbles.isEmpty()) {
+                    final long finalLatestTimestamp = latestTimestamp;
+                    Platform.runLater(() -> {
+                        // 移除可能存在的空状态提示
+                        chatArea.getChildren().removeIf(node -> {
+                            if (node instanceof VBox) {
+                                VBox vbox = (VBox) node;
+                                return vbox.getChildren().stream().anyMatch(child ->
+                                        child instanceof Label &&
+                                                ((Label) child).getText().contains("暂无聊天记录"));
+                            }
+                            return false;
+                        });
+
+                        // 添加新消息
+                        chatArea.getChildren().addAll(newMessageBubbles);
+
+                        // 更新最后消息时间戳
+                        lastMessageTimestamp[0] = finalLatestTimestamp;
+
+                        // 滚动到底部
+                        scrollToBottomSmoothly(scrollPane);
+                    });
+                }
+
+            } catch (Exception e) {
+                // 静默处理异常，避免干扰用户体验
+                e.printStackTrace();
+            }
+        });
+
+        checkThread.setDaemon(true);
+        checkThread.start();
+    }
+
+    // 修复：改进聊天消息加载和滚动逻辑
+    private void loadChatMessagesAsync(VBox chatArea, String currentUser, String otherUser, VBox loadingBox, ScrollPane scrollPane, long[] lastMessageTimestamp) {
+        Thread loadThread = new Thread(() -> {
+            try {
+                MongoDBUtil db = new MongoDBUtil();
+                MongoCollection<Document> messagesCol = db.getCollection("private_messages");
+
+                FindIterable<Document> docs = messagesCol.find(
+                        Filters.or(
+                                Filters.and(Filters.eq("from", currentUser), Filters.eq("to", otherUser)),
+                                Filters.and(Filters.eq("from", otherUser), Filters.eq("to", currentUser))
+                        )
+                ).sort(Sorts.ascending("timestamp"));
+
+                List<VBox> messageBubbles = new ArrayList<>();
+                List<String> messageIds = new ArrayList<>();
+                long latestTimestamp = 0;
+
+                for (Document doc : docs) {
+                    String from = doc.getString("from");
+                    String message = doc.getString("message");
+                    String time = doc.getString("time");
+                    long timestamp = doc.getLong("timestamp");
+
+                    VBox messageBox = createMessageBubble(message, time, from.equals(currentUser));
+                    messageBubbles.add(messageBox);
+
+                    // 收集需要标记为已读的消息ID
+                    if (from.equals(otherUser)) {
+                        messageIds.add(doc.getObjectId("_id").toString());
+                    }
+
+                    // 记录最新的时间戳
+                    if (timestamp > latestTimestamp) {
+                        latestTimestamp = timestamp;
+                    }
+                }
+
+                // 批量标记消息为已读
+                if (!messageIds.isEmpty()) {
+                    for (String id : messageIds) {
+                        messagesCol.updateOne(
+                                Filters.eq("_id", new org.bson.types.ObjectId(id)),
+                                new Document("$set", new Document("read", true))
+                        );
+                    }
+                }
+
+                db.close();
+
+                // 设置最后消息时间戳
+                final long finalLatestTimestamp = latestTimestamp;
+
                 // 在JavaFX应用线程中更新UI
                 Platform.runLater(() -> {
                     // 移除加载指示器
@@ -5021,6 +5946,9 @@ public class MainInterfaceFrame {
 
                     // 添加所有消息
                     chatArea.getChildren().addAll(messageBubbles);
+
+                    // 设置最后消息时间戳
+                    lastMessageTimestamp[0] = finalLatestTimestamp;
 
                     // 如果没有消息，显示提示
                     if (messageBubbles.isEmpty()) {
@@ -5068,7 +5996,7 @@ public class MainInterfaceFrame {
                     retryBtn.setOnAction(event -> {
                         chatArea.getChildren().clear();
                         chatArea.getChildren().add(loadingBox);
-                        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane);
+                        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane, lastMessageTimestamp);
                     });
 
                     errorBox.getChildren().addAll(errorIcon, errorLabel, errorDetail, retryBtn);
@@ -5083,266 +6011,7 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 新增：统一的平滑滚动到底部方法
-    private void scrollToBottomSmoothly(ScrollPane scrollPane) {
-        // 使用多次延迟执行确保滚动生效
-        Platform.runLater(() -> {
-            scrollPane.setVvalue(1.0);
-
-            // 第一次延迟
-            Platform.runLater(() -> {
-                scrollPane.setVvalue(1.0);
-
-                // 第二次延迟（使用Timeline确保在UI完全渲染后执行）
-                javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(javafx.util.Duration.millis(50), event -> {
-                            scrollPane.setVvalue(1.0);
-                        })
-                );
-                timeline.setCycleCount(2); // 执行2次
-                timeline.play();
-
-                // 最后一次保险滚动
-                javafx.animation.Timeline finalScroll = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(javafx.util.Duration.millis(150), event -> {
-                            scrollPane.setVvalue(1.0);
-                        })
-                );
-                finalScroll.play();
-            });
-        });
-    }
-
-    // 修复：微信风格的聊天界面 - 统一滚动逻辑
-    // 修复：微信风格的聊天界面 - 修复返回逻辑
-    private void showWeChatStyleChat(String currentUser, String otherUser, String sourceType) {
-        Stage chatStage = new Stage();
-        chatStage.setTitle("与 " + otherUser + " 的聊天");
-        chatStage.setResizable(true);
-
-        // 窗口同步绑定（与主界面保持一致）
-        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
-                mainStage.setWidth(newVal.doubleValue());
-            }
-        });
-        mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getWidth()) > 2) {
-                chatStage.setWidth(newVal.doubleValue());
-            }
-        });
-        chatStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
-                mainStage.setHeight(newVal.doubleValue());
-            }
-        });
-        mainStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getHeight()) > 2) {
-                chatStage.setHeight(newVal.doubleValue());
-            }
-        });
-        chatStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
-                mainStage.setX(newVal.doubleValue());
-            }
-        });
-        mainStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getX()) > 2) {
-                chatStage.setX(newVal.doubleValue());
-            }
-        });
-        chatStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
-                mainStage.setY(newVal.doubleValue());
-            }
-        });
-        mainStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getY()) > 2) {
-                chatStage.setY(newVal.doubleValue());
-            }
-        });
-
-        // 初始同步窗口位置和大小
-        chatStage.setX(mainStage.getX());
-        chatStage.setY(mainStage.getY());
-        chatStage.setWidth(mainStage.getWidth());
-        chatStage.setHeight(mainStage.getHeight());
-
-        BorderPane root = new BorderPane();
-        root.getStyleClass().add("chat-background");
-
-        // 修复：重新创建header，避免重复添加子节点
-        HBox header = new HBox();
-        header.setPadding(new Insets(10, 15, 10, 15));
-        header.getStyleClass().add("chat-header");
-        header.setAlignment(Pos.CENTER_LEFT);
-
-        // 修复：重新创建返回按钮 - 简化返回逻辑
-        Button backBtn = new Button("← 返回");
-        backBtn.setFont(Font.font("微软雅黑", 14));
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> {
-            // 记录聊天窗口的位置和大小
-            double chatX = chatStage.getX();
-            double chatY = chatStage.getY();
-            double chatWidth = chatStage.getWidth();
-            double chatHeight = chatStage.getHeight();
-
-            chatStage.close();
-
-            // 修复：根据来源类型返回到正确界面
-            Platform.runLater(() -> {
-                if ("mailbox".equals(sourceType)) {
-                    // 从信箱私信进入，返回到私信列表
-                    // 清除预加载数据以获取最新状态
-                    preloadedChatData.remove(currentUser);
-                    // 创建一个临时的信箱窗口用于返回逻辑
-                    showPrivateChatListDirectly(currentUser, chatX, chatY, chatWidth, chatHeight);
-                } else {
-                    // 从好友列表进入，返回到好友列表
-                    // 临时设置主窗口位置
-                    mainStage.setX(chatX);
-                    mainStage.setY(chatY);
-                    mainStage.setWidth(chatWidth);
-                    mainStage.setHeight(chatHeight);
-                    showFriends(currentUser);
-                }
-            });
-        });
-
-        // 重新创建标题标签
-        Label titleLabel = new Label("与 " + otherUser + " 的聊天");
-        titleLabel.setFont(Font.font("微软雅黑", 18));
-        titleLabel.getStyleClass().add("chat-header-title");
-
-        // 重新创建空白区域
-        Region spacer1 = new Region();
-        Region spacer2 = new Region();
-        HBox.setHgrow(spacer1, Priority.ALWAYS);
-
-        // 清除header子节点并重新添加
-        header.getChildren().clear();
-        header.getChildren().addAll(backBtn, spacer1, titleLabel, spacer2);
-
-        root.setTop(header);
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.getStyleClass().add("chat-scroll-pane");
-
-        VBox chatArea = new VBox(10);
-        chatArea.setPadding(new Insets(15));
-        chatArea.getStyleClass().add("chat-area");
-
-        // 添加加载指示器
-        ProgressIndicator loadingIndicator = new ProgressIndicator();
-        loadingIndicator.setPrefSize(40, 40);
-
-        Label loadingLabel = new Label("正在加载聊天记录...");
-        loadingLabel.setFont(Font.font("微软雅黑", 14));
-        loadingLabel.getStyleClass().add("loading-label");
-
-        VBox loadingBox = new VBox(10);
-        loadingBox.setAlignment(Pos.CENTER);
-        loadingBox.setPadding(new Insets(50));
-        loadingBox.getChildren().addAll(loadingIndicator, loadingLabel);
-
-        // 初始显示加载指示器
-        chatArea.getChildren().add(loadingBox);
-
-        scrollPane.setContent(chatArea);
-        root.setCenter(scrollPane);
-
-        VBox bottomArea = new VBox(10);
-        bottomArea.setPadding(new Insets(10, 15, 15, 15));
-        bottomArea.getStyleClass().add("chat-bottom-area");
-
-        TextArea messageInput = new TextArea();
-        messageInput.setPromptText("输入消息...");
-        messageInput.setPrefRowCount(3);
-        messageInput.setMaxHeight(80);
-        messageInput.setWrapText(true);
-        messageInput.getStyleClass().add("chat-input");
-
-        HBox buttonArea = new HBox(10);
-        buttonArea.setAlignment(Pos.CENTER_RIGHT);
-
-        Button sendBtn = new Button("发送");
-        sendBtn.setPrefWidth(80);
-        sendBtn.getStyleClass().add("send-button");
-
-        buttonArea.getChildren().add(sendBtn);
-        bottomArea.getChildren().addAll(messageInput, buttonArea);
-        root.setBottom(bottomArea);
-
-        // 异步加载聊天消息
-        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane);
-
-        // 修复：统一的发送消息方法
-        Runnable sendMessage = () -> {
-            String message = messageInput.getText().trim();
-            if (!message.isEmpty()) {
-                String currentTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                VBox messageBox = createMessageBubble(message, currentTime, true);
-                chatArea.getChildren().add(messageBox);
-
-                messageInput.clear();
-
-                // 立即滚动到底部
-                scrollToBottomSmoothly(scrollPane);
-
-                Thread saveThread = new Thread(() -> {
-                    try {
-                        MongoDBUtil db = new MongoDBUtil();
-                        MongoCollection<Document> messagesCol = db.getCollection("private_messages");
-
-                        Document messageDoc = new Document()
-                                .append("from", currentUser)
-                                .append("to", otherUser)
-                                .append("message", message)
-                                .append("timestamp", System.currentTimeMillis())
-                                .append("time", currentTime)
-                                .append("read", false);
-
-                        messagesCol.insertOne(messageDoc);
-                        db.close();
-
-                        // 清除预加载缓存，确保下次返回时显示最新数据
-                        Platform.runLater(() -> {
-                            preloadedChatData.remove(currentUser);
-                        });
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Platform.runLater(() -> {
-                            showAlert("错误", "发送私信失败", "网络错误，消息可能未发送成功", Alert.AlertType.WARNING);
-                        });
-                    }
-                });
-
-                saveThread.setDaemon(true);
-                saveThread.start();
-            }
-        };
-
-        sendBtn.setOnAction(e -> sendMessage.run());
-
-        messageInput.setOnKeyPressed(e -> {
-            if (e.getCode().toString().equals("ENTER") && e.isControlDown()) {
-                sendMessage.run();
-                e.consume();
-            }
-        });
-
-        Scene scene = new Scene(root);
-        loadCSS(scene);
-        chatStage.setScene(scene);
-        chatStage.show();
-    }
-
-    // 新增：直接显示私信聊天列表的方法（不依赖父窗口）
+    // 直接显示私信聊天列表的方法（不依赖父窗口）
     private void showPrivateChatListDirectly(String username, double x, double y, double width, double height) {
         Stage chatListStage = new Stage();
         chatListStage.setTitle("私信聊天");
@@ -5474,6 +6143,7 @@ public class MainInterfaceFrame {
     }
 
     // 创建消息气泡
+    // 创建消息气泡 - 修复消息不显示的问题
     private VBox createMessageBubble(String message, String time, boolean isFromCurrentUser) {
         VBox messageContainer = new VBox(5);
         messageContainer.setPadding(new Insets(5, 0, 5, 0));
@@ -5481,41 +6151,53 @@ public class MainInterfaceFrame {
         HBox messageBox = new HBox();
 
         if (isFromCurrentUser) {
+            // 当前用户发送的消息（右侧）
             messageBox.setAlignment(Pos.CENTER_RIGHT);
 
-            VBox bubble = new VBox(3);
+            VBox bubble = new VBox(5);
             bubble.setMaxWidth(350);
-            // 使用CSS类替代内联样式
-            bubble.getStyleClass().add("message-bubble-sent");
+            bubble.setPadding(new Insets(10, 15, 10, 15));
+
+            // 修复：明确设置发送消息的样式
+            bubble.setStyle("-fx-background-color: #4CAF50; -fx-background-radius: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 1, 1);");
 
             Label messageLabel = new Label(message);
             messageLabel.setFont(Font.font("微软雅黑", 14));
             messageLabel.setWrapText(true);
-            messageLabel.setMaxWidth(330);
+            messageLabel.setMaxWidth(320);
+            // 修复：明确设置文字颜色为白色
+            messageLabel.setStyle("-fx-text-fill: white; -fx-font-weight: normal;");
 
             Label timeLabel = new Label(time);
             timeLabel.setFont(Font.font("微软雅黑", 10));
-            timeLabel.setStyle("-fx-text-fill: #666;");
+            // 修复：设置时间标签的颜色
+            timeLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.8);");
 
             bubble.getChildren().addAll(messageLabel, timeLabel);
             messageBox.getChildren().add(bubble);
 
         } else {
+            // 对方发送的消息（左侧）
             messageBox.setAlignment(Pos.CENTER_LEFT);
 
-            VBox bubble = new VBox(3);
+            VBox bubble = new VBox(5);
             bubble.setMaxWidth(350);
-            // 使用CSS类替代内联样式
-            bubble.getStyleClass().add("message-bubble-received");
+            bubble.setPadding(new Insets(10, 15, 10, 15));
+
+            // 修复：明确设置接收消息的样式
+            bubble.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 1, 1);");
 
             Label messageLabel = new Label(message);
             messageLabel.setFont(Font.font("微软雅黑", 14));
             messageLabel.setWrapText(true);
-            messageLabel.setMaxWidth(330);
+            messageLabel.setMaxWidth(320);
+            // 修复：明确设置文字颜色为深色
+            messageLabel.setStyle("-fx-text-fill: #333333; -fx-font-weight: normal;");
 
             Label timeLabel = new Label(time);
             timeLabel.setFont(Font.font("微软雅黑", 10));
-            timeLabel.setStyle("-fx-text-fill: #666;");
+            // 修复：设置时间标签的颜色
+            timeLabel.setStyle("-fx-text-fill: #666666;");
 
             bubble.getChildren().addAll(messageLabel, timeLabel);
             messageBox.getChildren().add(bubble);
@@ -5525,7 +6207,7 @@ public class MainInterfaceFrame {
         return messageContainer;
     }
 
-    // 新增：创建好友申请表格的方法
+    // 创建好友申请表格的方法
     private TableView<MailRecord> createFriendRequestTable(String username, List<MailRecord> data) {
         TableView<MailRecord> table = new TableView<>();
         table.setPrefWidth(550);
@@ -5657,7 +6339,7 @@ public class MainInterfaceFrame {
         return table;
     }
 
-    // 新增：创建微信风格的聊天列表卡片
+    // 创建微信风格的聊天列表卡片
     private VBox createChatListCards(String username, List<ChatListRecord> data, Stage parentStage) {
         VBox cardsContainer = new VBox(12);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
@@ -5674,7 +6356,7 @@ public class MainInterfaceFrame {
         return cardsContainer;
     }
 
-    // 修改：创建现代化的私信聊天卡片
+    // 创建现代化的私信聊天卡片
     private HBox createChatCard(String username, ChatListRecord record, Stage parentStage) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -5836,7 +6518,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 修改：创建私信聊天空状态 - 使用与好友申请一致的风格
+    // 创建私信聊天空状态 - 使用与好友申请一致的风格
     private VBox createChatListEmptyState() {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
@@ -5859,7 +6541,7 @@ public class MainInterfaceFrame {
         return emptyBox;
     }
 
-    // 修改：使用新的滚动面板样式类
+    // 使用新的滚动面板样式类
     private void loadPrivateChatListAsync(String username, VBox root, VBox loadingBox, Stage parentStage) {
         Thread loadThread = new Thread(() -> {
             try {
@@ -5957,7 +6639,7 @@ public class MainInterfaceFrame {
         loadThread.start();
     }
 
-    // 修改：创建单个好友卡片 - 传入"friends"作为来源
+    // 创建单个好友卡片 - 传入"friends"作为来源
     private HBox createFriendCard(String username, String friendUsername, Stage parentStage, VBox container) {
         HBox card = new HBox(15);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -6075,7 +6757,7 @@ public class MainInterfaceFrame {
         }
     }
 
-    // 新增：异步同意好友申请
+    // 异步同意好友申请
     private void agreeFriendRequestAsync(String username, String fromUser, Runnable onSuccess) {
         Thread agreeThread = new Thread(() -> {
             try {
@@ -6137,7 +6819,7 @@ public class MainInterfaceFrame {
         agreeThread.start();
     }
 
-    // 新增：异步拒绝好友申请
+    // 异步拒绝好友申请
     private void rejectFriendRequestAsync(String username, String fromUser, Runnable onSuccess) {
         Thread rejectThread = new Thread(() -> {
             try {
@@ -6170,7 +6852,7 @@ public class MainInterfaceFrame {
         rejectThread.start();
     }
 
-    // 修改：用现代化卡片替代好友申请表格
+    // 用现代化卡片替代好友申请表格
     private VBox createFriendRequestCards(String username, List<MailRecord> data) {
         VBox cardsContainer = new VBox(12);
         cardsContainer.setAlignment(Pos.TOP_CENTER);
@@ -6184,7 +6866,7 @@ public class MainInterfaceFrame {
         return cardsContainer;
     }
 
-    // 新增：创建单个好友申请卡片
+    // 创建单个好友申请卡片
     private HBox createFriendRequestCard(String username, MailRecord record, VBox container) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -6442,7 +7124,7 @@ public class MainInterfaceFrame {
         return card;
     }
 
-    // 新增：更新卡片为已同意状态
+    // 更新卡片为已同意状态
     private void updateCardToAgreedState(HBox card, MailRecord record) {
         // 找到状态指示器并更新
         StackPane statusIndicator = (StackPane) card.getChildren().get(0);
@@ -6468,7 +7150,7 @@ public class MainInterfaceFrame {
         actionArea.getChildren().add(timeLabel);
     }
 
-    // 新增：更新卡片为已拒绝状态
+    // 更新卡片为已拒绝状态
     private void updateCardToRejectedState(HBox card, MailRecord record) {
         // 找到状态指示器并更新
         StackPane statusIndicator = (StackPane) card.getChildren().get(0);
@@ -6494,7 +7176,7 @@ public class MainInterfaceFrame {
         actionArea.getChildren().add(timeLabel);
     }
 
-    // 新增：显示成功提示
+    // 显示成功提示
     private void showSuccessToast(String message) {
         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
         successAlert.setTitle("操作成功");
@@ -6518,7 +7200,7 @@ public class MainInterfaceFrame {
         successAlert.showAndWait();
     }
 
-    // 新增：显示信息提示
+    // 显示信息提示
     private void showInfoToast(String message) {
         Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
         infoAlert.setTitle("操作完成");
@@ -6542,7 +7224,7 @@ public class MainInterfaceFrame {
         infoAlert.showAndWait();
     }
 
-    // 新增：快捷键支持
+    // 快捷键支持
     private void setupKeyboardShortcuts(Scene scene) {
         scene.setOnKeyPressed(e -> {
             try {
@@ -6671,7 +7353,7 @@ public class MainInterfaceFrame {
                     if (!corruptedDocs.isEmpty()) {
                         showCorruptedRecordsDialog(username, layoutName, corruptedDocs.size(), () -> {
                             // 删除所有损坏的记录
-                            deleteCorruptedRecordsAsync(username, layoutName, corruptedDocs, currentStage); // 修改：使用 currentStage 参数
+                            deleteCorruptedRecordsAsync(username, layoutName, corruptedDocs, currentStage); // 使用 currentStage 参数
                         });
                     }
 
@@ -6681,7 +7363,7 @@ public class MainInterfaceFrame {
                         root.getChildren().add(emptyState);
                     } else {
                         // 显示有效的历史记录
-                        VBox historyCards = createHistoryCards(username, layoutName, validRecords, currentStage, parentStage); // 修改：使用 currentStage 参数
+                        VBox historyCards = createHistoryCards(username, layoutName, validRecords, currentStage, parentStage); // 使用 currentStage 参数
 
                         ScrollPane cardsScrollPane = new ScrollPane(historyCards);
                         cardsScrollPane.setFitToWidth(true);
@@ -6744,7 +7426,7 @@ public class MainInterfaceFrame {
                             Alert.AlertType.INFORMATION);
 
                     // 刷新当前页面
-                    if (currentStage != null && currentStage.isShowing()) { // 修改：使用 currentStage 参数
+                    if (currentStage != null && currentStage.isShowing()) { // 使用 currentStage 参数
                         currentStage.close();
                         showHistoryList(username, layoutName, null);
                     }

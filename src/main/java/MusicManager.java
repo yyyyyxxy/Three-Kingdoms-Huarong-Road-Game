@@ -96,19 +96,6 @@ public class MusicManager {
         currentMusicType = "";
     }
 
-    // 暂停音乐
-    public void pauseMusic() {
-        if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
-            mediaPlayer.pause();
-        }
-    }
-
-    // 恢复音乐
-    public void resumeMusic() {
-        if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED) {
-            mediaPlayer.play();
-        }
-    }
 
     // 切换音乐开关
     public void toggleMusic() {
@@ -120,13 +107,6 @@ public class MusicManager {
             if (!currentMusicType.isEmpty()) {
                 playMusic(currentMusicType);
             }
-        }
-    }
-
-    // 设置音乐开关
-    public void setMusicEnabled(boolean enabled) {
-        if (isMusicEnabled != enabled) {
-            toggleMusic();
         }
     }
 
@@ -146,16 +126,6 @@ public class MusicManager {
     // 获取音量
     public double getVolume() {
         return volume;
-    }
-
-    // 调整音量
-    public void adjustVolume(double delta) {
-        setVolume(volume + delta);
-    }
-
-    // 获取当前播放状态
-    public boolean isPlaying() {
-        return mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING;
     }
 
     // 释放资源

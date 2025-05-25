@@ -14,7 +14,6 @@ import com.mongodb.client.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Optional;
 
 public class LogInFrame {
 
@@ -23,7 +22,6 @@ public class LogInFrame {
     }
 
     private boolean isRegisterMode = false;
-    private VBox mainContainer;
     private VBox formCard;
     private Label title;
     private Label confirmLabel;
@@ -194,8 +192,8 @@ public class LogInFrame {
         primaryStage.setMinHeight(400);  // 设置合理的最小高度
 
         // 修改：设置默认窗口大小，但不限制比例
-        primaryStage.setWidth(900);
-        primaryStage.setHeight(600);
+        primaryStage.setWidth(1110);
+        primaryStage.setHeight(740);
 
         primaryStage.show();
 

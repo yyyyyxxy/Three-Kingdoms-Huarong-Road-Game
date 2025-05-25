@@ -1,0 +1,37 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="objisb:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/objisb_jar</output-path>
+    <root id="archive" name="objisb.jar">
+      <element id="module-output" name="objisb" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-simple/2.0.7/slf4j-simple-2.0.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.media.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.swing.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/jfx.incubator.input.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/24.0.1/javafx-base-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongodb-driver-core/4.9.1/mongodb-driver-core-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.web.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/24.0.1/javafx-fxml-24.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.controls.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-media/24.0.1/javafx-media-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-media/24.0.1/javafx-media-24.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongodb-driver-sync/4.9.1/mongodb-driver-sync-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/24.0.1/javafx-controls-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/bson/4.9.1/bson-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/24.0.1/javafx-graphics-24.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/24.0.1/javafx-controls-24.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/bson-record-codec/4.9.1/bson-record-codec-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx-swt.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-swing/24.0.1/javafx-swing-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/24.0.1/javafx-fxml-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/jdk.jsobject.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-swing/24.0.1/javafx-swing-24.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.fxml.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.graphics.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/javafx.base.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-24.0.1/lib/jfx.incubator.richtext.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/24.0.1/javafx-graphics-24.0.1-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/24.0.1/javafx-base-24.0.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

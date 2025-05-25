@@ -876,7 +876,7 @@ public class GameFrame {
         instructionSection.getStyleClass().add("control-section");
 
         Label instructionTitle = new Label("📖 操作说明");
-        instructionTitle.setFont(Font.font("微软雅黑", 16));
+        instructionTitle.setFont(Font.font("微软雅黑", 10));
         instructionTitle.getStyleClass().add("control-section-title");
 
         VBox instructionContent = new VBox(8);
@@ -885,8 +885,6 @@ public class GameFrame {
 
         Label[] instructions = {
                 new Label("• 点击方块进行选择"),
-                new Label("• 使用方向键移动"),
-                new Label("• 或点击方向按钮"),
                 new Label("• 将曹操移到出口获胜")
         };
 
@@ -2458,10 +2456,6 @@ public class GameFrame {
         shakeDelay.play();
     }
 
-    // 手动触发失败界面的方法（可在其他地方调用）
-    public void triggerFailure(String reason, String message) {
-        showFailDialog(reason, message);
-    }
 
     // 获取当前用时字符串
     private String getElapsedTimeString() {
@@ -2626,10 +2620,13 @@ public class GameFrame {
                 MongoDBUtil db = new MongoDBUtil();
                 List<String> friends = getFriendsOfUser(userName); // 你需要实现这个方法
 
+                String layoutName = BoardLayouts.getLayoutNames().get(currentLayoutIndex);
+
                 Document state = new Document("roomId", roomId)
                         .append("host", username)
                         .append("blocks", blocksToDocuments(blocks))
                         .append("moveCount", moveCount)
+                        .append("layoutName", layoutName)
                         .append("elapsedTime", elapsedTime)
                         .append("timestamp", System.currentTimeMillis())
                         .append("friends", friends); // 新增
@@ -2743,7 +2740,6 @@ public class GameFrame {
         });
         aiThread.start();
     }
-
     // 获取用户金币数量
     private int getUserCoins(String username) {
         int coins = 0;
