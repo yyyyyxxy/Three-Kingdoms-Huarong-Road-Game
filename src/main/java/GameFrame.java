@@ -123,7 +123,6 @@ public class GameFrame {
         }
     }
 
-    // 修改：createTopPanel 方法 - 添加音乐控制按钮
     // 修改：createTopPanel 方法 - 所有按钮居中对称排列
     private HBox createTopPanel() {
         HBox topPanel = new HBox();
