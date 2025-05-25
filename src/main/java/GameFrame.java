@@ -66,13 +66,13 @@ public class GameFrame {
     private int timeLimitSeconds = 300; // 5分钟
     private int remainSeconds = 300;
 
-    // 新增：保存主界面Stage
+    // 保存主界面Stage
     private Stage parentStageToClose = null;
 
     // 在类的开头添加音乐管理器引用
     private MusicManager musicManager = MusicManager.getInstance();
 
-    // 修改：show 方法 - 添加音乐播放
+    // show 方法 - 添加音乐播放
     public void show(Stage primaryStage, String userName, boolean showLayoutDialog, Stage parentStageToClose, boolean isTimed) {
         this.primaryStage = primaryStage;
         this.userName = userName;
@@ -115,7 +115,7 @@ public class GameFrame {
 
         primaryStage.show();
 
-        // 新增：根据模式播放对应音乐
+        // 根据模式播放对应音乐
         if (isTimed) {
             musicManager.playMusic(MusicManager.TIMED_MODE);
         } else {
@@ -123,12 +123,12 @@ public class GameFrame {
         }
     }
 
-    // 修改：createTopPanel 方法 - 所有按钮居中对称排列
+    // createTopPanel 方法 - 所有按钮居中对称排列
     private HBox createTopPanel() {
         HBox topPanel = new HBox();
         topPanel.setPadding(new Insets(12, 20, 12, 20));
         topPanel.getStyleClass().add("game-top-panel");
-        topPanel.setAlignment(Pos.CENTER); // 修改：设置为居中对齐
+        topPanel.setAlignment(Pos.CENTER); // 设置为居中对齐
 
         // 按钮容器 - 居中排列所有按钮
         HBox buttonRow = new HBox(8); // 设置按钮间距
@@ -359,7 +359,7 @@ public class GameFrame {
         topPanelButtons.add(saveButton);
         topPanelButtons.add(backButton);
 
-        // 修改：直接将按钮行添加到顶部面板，实现居中对称布局
+        // 直接将按钮行添加到顶部面板，实现居中对称布局
         topPanel.getChildren().add(buttonRow);
 
         return topPanel;
@@ -416,9 +416,7 @@ public class GameFrame {
         return volumeButton;
     }
 
-
-
-    // 新增：显示音量控制对话框
+    // 显示音量控制对话框
     private void showVolumeControl() {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("音量控制");
@@ -463,11 +461,11 @@ public class GameFrame {
         dialog.showAndWait();
     }
 
-    // 修改：showWinDialog 方法 - 添加胜利音乐
+    // showWinDialog 方法 - 添加胜利音乐
     private void showWinDialog() {
         if (timer != null) timer.stop();
 
-        // 新增：播放胜利音乐
+        // 播放胜利音乐
         musicManager.playMusic(MusicManager.VICTORY);
 
         String elapsedTime = getElapsedTimeString();
@@ -559,11 +557,11 @@ public class GameFrame {
         }
     }
 
-    // 修改：showFailDialog 方法 - 添加失败音乐
+    // showFailDialog 方法 - 添加失败音乐
     private void showFailDialog(String failReason, String failMessage) {
         if (timer != null) timer.stop();
 
-        // 新增：播放失败音乐
+        // 播放失败音乐
         musicManager.playMusic(MusicManager.FAILURE);
 
         String elapsedTime = getElapsedTimeString();
@@ -623,7 +621,7 @@ public class GameFrame {
         startFailureAnimations(failContent);
     }
 
-    // 新增：创建音乐控制栏
+    // 创建音乐控制栏
     private HBox createMusicControlBar() {
         HBox musicBar = new HBox(15);
         musicBar.setAlignment(Pos.CENTER_RIGHT);
@@ -657,7 +655,7 @@ public class GameFrame {
         return musicBar;
     }
 
-    // 修改：createVictoryButtonAreaFixed 方法中的按钮事件
+    // createVictoryButtonAreaFixed 方法中的按钮事件
     private HBox createVictoryButtonAreaFixed() {
         HBox buttonArea = new HBox(15);
         buttonArea.setAlignment(Pos.CENTER);
@@ -734,7 +732,7 @@ public class GameFrame {
         return buttonArea;
     }
 
-    // 修改：createFailureButtonArea 方法中的按钮事件
+    // createFailureButtonArea 方法中的按钮事件
     private HBox createFailureButtonArea() {
         HBox buttonArea = new HBox(15);
         buttonArea.setAlignment(Pos.CENTER);
@@ -812,7 +810,7 @@ public class GameFrame {
         return buttonArea;
     }
 
-    // 新增：加载CSS样式的方法
+    // 加载CSS样式的方法
     private void loadCSS(Scene scene) {
         try {
             String cssPath = getClass().getResource("/styles.css").toExternalForm();
@@ -823,7 +821,7 @@ public class GameFrame {
         }
     }
 
-    // 修改：createGameControls 方法 - 添加选中方块信息更新
+    // createGameControls 方法 - 添加选中方块信息更新
     private VBox createGameControls() {
         VBox gameControls = new VBox(20);
         gameControls.setAlignment(Pos.CENTER);
@@ -909,7 +907,7 @@ public class GameFrame {
         selectionTitle.setFont(Font.font("微软雅黑", 16));
         selectionTitle.getStyleClass().add("control-section-title");
 
-        // 修改：创建可更新的选择信息标签
+        // 创建可更新的选择信息标签
         Label selectionInfo = new Label("请先选择一个方块");
         selectionInfo.setFont(Font.font("微软雅黑", 14));
         selectionInfo.getStyleClass().add("selection-info");
@@ -926,27 +924,10 @@ public class GameFrame {
         return gameControls;
     }
 
-    // 新增：选择信息标签引用
+    // 选择信息标签引用
     private Label selectionInfoLabel;
 
-    // 修改：selectBlock 方法 - 更新选择信息显示
-    private void selectBlock(Block block) {
-        selectedBlock = block;
-        drawBlocks();
-
-        for (Button btn : directionButtons) {
-            btn.setDisable(false);
-        }
-
-        // 更新选择信息显示
-        if (selectionInfoLabel != null) {
-            String blockInfo = String.format("已选择：%s\n位置：第%d行，第%d列",
-                    block.getName(), block.getRow() + 1, block.getCol() + 1);
-            selectionInfoLabel.setText(blockInfo);
-        }
-    }
-
-    // 修改：移动后清除选择时也要更新信息
+    // 在 GameFrame.java 中修改 moveSelectedBlock 方法
     private void moveSelectedBlock(Direction direction) {
         if (selectedBlock == null || gameWon) {
             return;
@@ -969,6 +950,9 @@ public class GameFrame {
             moveCount++;
             moveCountLabel.setText("步数: " + moveCount);
 
+            // 添加移动音效
+            playMoveSound();
+
             // 更新选择信息
             if (selectionInfoLabel != null) {
                 String blockInfo = String.format("已选择：%s\n位置：第%d行，第%d列",
@@ -982,16 +966,149 @@ public class GameFrame {
             if (watchable && roomId != null) {
                 uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
             }
+        } else {
+            // 添加无效移动音效
+            playInvalidMoveSound();
         }
     }
 
-    // 修改：undoMove 方法 - 撤销时清除选择信息
+    // 新增：播放移动音效的方法
+    private void playMoveSound() {
+        if (!musicManager.isMusicEnabled()) return; // 如果音乐被禁用，也不播放音效
+
+        try {
+            new Thread(() -> {
+                try {
+                    // 尝试播放自定义音效文件
+                    javafx.scene.media.AudioClip moveSound = new javafx.scene.media.AudioClip(
+                            getClass().getResource("/music/move.wav").toExternalForm()
+                    );
+                    moveSound.setVolume(musicManager.getVolume() * 0.6); // 音效音量较小
+                    moveSound.play();
+                } catch (Exception e) {
+                    // 如果音效文件不存在，使用系统默认音效
+                    try {
+                        java.awt.Toolkit.getDefaultToolkit().beep();
+                    } catch (Exception ex) {
+                        // 完全静默，不影响游戏
+                    }
+                }
+            }).start();
+        } catch (Exception e) {
+            // 音效播放失败时不影响游戏进行
+        }
+    }
+
+    private void playInvalidMoveSound() {
+        if (!musicManager.isMusicEnabled()) return;
+
+        try {
+            new Thread(() -> {
+                try {
+                    javafx.scene.media.AudioClip invalidSound = new javafx.scene.media.AudioClip(
+                            getClass().getResource("/music/invalid.wav").toExternalForm()
+                    );
+                    invalidSound.setVolume(musicManager.getVolume() * 0.4);
+                    invalidSound.play();
+                } catch (Exception e) {
+                    // 回退到双重蜂鸣声
+                    try {
+                        java.awt.Toolkit.getDefaultToolkit().beep();
+                        Thread.sleep(100);
+                        java.awt.Toolkit.getDefaultToolkit().beep();
+                    } catch (Exception ex) {
+                        // 静默处理
+                    }
+                }
+            }).start();
+        } catch (Exception e) {
+            // 静默处理
+        }
+    }
+
+    private void playSelectSound() {
+        if (!musicManager.isMusicEnabled()) return;
+
+        try {
+            new Thread(() -> {
+                try {
+                    javafx.scene.media.AudioClip selectSound = new javafx.scene.media.AudioClip(
+                            getClass().getResource("/music/select.wav").toExternalForm()
+                    );
+                    selectSound.setVolume(musicManager.getVolume() * 0.3); // 选择音效更轻柔
+                    selectSound.play();
+                } catch (Exception e) {
+                    try {
+                        java.awt.Toolkit.getDefaultToolkit().beep();
+                    } catch (Exception ex) {
+                        // 静默处理
+                    }
+                }
+            }).start();
+        } catch (Exception e) {
+            // 静默处理
+        }
+    }
+
+    private void playUndoSound() {
+        if (!musicManager.isMusicEnabled()) return;
+
+        try {
+            new Thread(() -> {
+                try {
+                    javafx.scene.media.AudioClip undoSound = new javafx.scene.media.AudioClip(
+                            getClass().getResource("/music/undo.wav").toExternalForm()
+                    );
+                    undoSound.setVolume(musicManager.getVolume() * 0.3);
+                    undoSound.play();
+                } catch (Exception e) {
+                    // 回退到序列蜂鸣声
+                    try {
+                        for (int i = 0; i < 2; i++) {
+                            java.awt.Toolkit.getDefaultToolkit().beep();
+                            Thread.sleep(80);
+                        }
+                    } catch (Exception ex) {
+                        // 静默处理
+                    }
+                }
+            }).start();
+        } catch (Exception e) {
+            // 静默处理
+        }
+    }
+
+
+    // 在 selectBlock 方法中也可以添加选择音效
+    private void selectBlock(Block block) {
+        selectedBlock = block;
+        drawBlocks();
+
+        for (Button btn : directionButtons) {
+            btn.setDisable(false);
+        }
+
+        // 添加选择音效
+        playSelectSound();
+
+        // 更新选择信息显示
+        if (selectionInfoLabel != null) {
+            String blockInfo = String.format("已选择：%s\n位置：第%d行，第%d列",
+                    block.getName(), block.getRow() + 1, block.getCol() + 1);
+            selectionInfoLabel.setText(blockInfo);
+        }
+    }
+
+    // 在 undoMove 方法中添加撤销音效
     private void undoMove() {
         if (!historyStack.isEmpty()) {
             blocks = deepCopyBlocks(historyStack.pop());
             moveCount = Math.max(0, moveCount - 1);
             moveCountLabel.setText("步数: " + moveCount);
             selectedBlock = null;
+
+            // 添加撤销音效
+            playUndoSound();
 
             // 清除选择信息
             if (selectionInfoLabel != null) {
@@ -1009,7 +1126,8 @@ public class GameFrame {
         }
     }
 
-    // 修改：createMainLayout 方法 - 重新调整布局结构
+
+    // createMainLayout 方法 - 重新调整布局结构
     private BorderPane createMainLayout() {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("game-main-background");
@@ -1026,7 +1144,7 @@ public class GameFrame {
         VBox centerContent = new VBox(15);
         centerContent.setAlignment(Pos.CENTER);
 
-        // 新增：棋盘区域包装器，包含左右状态信息
+        // 棋盘区域包装器，包含左右状态信息
         VBox gameBoardWrapper = createGameBoardWithStatus();
 
         // 下方状态框（只显示布局名称）
@@ -1044,7 +1162,7 @@ public class GameFrame {
         return root;
     }
 
-    // 修改：restartGame 方法 - 更新布局创建
+    // restartGame 方法 - 更新布局创建
     private void restartGame() {
         initGameData();
 
@@ -1083,7 +1201,7 @@ public class GameFrame {
         }
     }
 
-    // 新增：创建方向按钮
+    // 创建方向按钮
     private Button createDirectionButton(String symbol, String text) {
         Button button = new Button(symbol);
         button.setPrefSize(60, 50);
@@ -1099,7 +1217,7 @@ public class GameFrame {
         return button;
     }
 
-    // 修改：createControlPanel 方法 - 优化控制面板设计
+    // createControlPanel 方法 - 优化控制面板设计
     private VBox createControlPanel() {
         VBox controlPanel = new VBox(15);
         controlPanel.setPadding(new Insets(25, 20, 25, 20));
@@ -1127,7 +1245,8 @@ public class GameFrame {
         controlPanelRef = controlPanel;
         return controlPanel;
     }
-    // 修改：createGameStatusBox 方法 - 正确添加所有状态显示元素
+
+    // createGameStatusBox 方法 - 正确添加所有状态显示元素
     private HBox createGameStatusBox() {
         HBox statusBox = new HBox(40);
         statusBox.setAlignment(Pos.CENTER);
@@ -1182,7 +1301,7 @@ public class GameFrame {
         return statusBox;
     }
 
-    // 修改：构造函数中的标签样式 - 确保白色显示
+    // 构造函数中的标签样式 - 确保白色显示
     public GameFrame() {
         moveCountLabel = new Label("步数: 0");
         moveCountLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -1209,7 +1328,7 @@ public class GameFrame {
         syncTimeline.play();
     }
 
-    // 新增：创建AI控制区域
+    // 创建AI控制区域
     private VBox createAIControls() {
         VBox aiControls = new VBox(20);
         aiControls.setAlignment(Pos.CENTER);
@@ -1355,7 +1474,7 @@ public class GameFrame {
         }
     }
 
-    // 新增：获取当前布局名称
+    // 获取当前布局名称
     private String getCurrentLayoutName() {
         List<String> layoutNames = BoardLayouts.getLayoutNames();
         if (currentLayoutIndex >= 0 && currentLayoutIndex < layoutNames.size()) {
@@ -1516,7 +1635,7 @@ public class GameFrame {
         return content;
     }
 
-    // 新增：创建固定尺寸的胜利标题区域
+    // 创建固定尺寸的胜利标题区域
     private VBox createVictoryTitleAreaFixed() {
         VBox titleArea = new VBox(15);
         titleArea.setAlignment(Pos.CENTER);
@@ -1540,7 +1659,7 @@ public class GameFrame {
         return titleArea;
     }
 
-    // 新增：创建固定尺寸的成就展示区域
+    // 创建固定尺寸的成就展示区域
     private VBox createAchievementAreaFixed(int moveCount, String elapsedTime) {
         VBox achievementArea = new VBox(12);
         achievementArea.setAlignment(Pos.CENTER);
@@ -1592,7 +1711,7 @@ public class GameFrame {
         return achievementArea;
     }
 
-    // 新增：创建固定尺寸的成就项目
+    // 创建固定尺寸的成就项目
     private HBox createAchievementItemFixed(String icon, String title, String description) {
         HBox achievementItem = new HBox(10);
         achievementItem.setAlignment(Pos.CENTER_LEFT);
@@ -1623,7 +1742,7 @@ public class GameFrame {
         return achievementItem;
     }
 
-    // 新增：创建固定尺寸的胜利统计区域
+    // 创建固定尺寸的胜利统计区域
     private VBox createVictoryStatsAreaFixed(String layoutName, int moveCount, String elapsedTime, boolean hasReward, Thread rewardThread) {
         VBox statsArea = new VBox(20);
         statsArea.setAlignment(Pos.CENTER);
@@ -1670,7 +1789,7 @@ public class GameFrame {
         return statsArea;
     }
 
-    // 新增：创建固定尺寸的统计项目
+    // 创建固定尺寸的统计项目
     private VBox createStatItemFixed(String icon, String label, String value) {
         VBox statItem = new VBox(8);
         statItem.setAlignment(Pos.CENTER);
@@ -1694,7 +1813,7 @@ public class GameFrame {
         return statItem;
     }
 
-    // 新增：创建固定尺寸的效率评价
+    // 创建固定尺寸的效率评价
     private VBox createEfficiencyRatingFixed(int moveCount) {
         VBox efficiencyItem = new VBox(8);
         efficiencyItem.setAlignment(Pos.CENTER);
@@ -1739,7 +1858,7 @@ public class GameFrame {
         return efficiencyItem;
     }
 
-    // 新增：创建固定尺寸的奖励区域
+    // 创建固定尺寸的奖励区域
     private VBox createRewardAreaFixed(Thread rewardThread) {
         VBox rewardArea = new VBox(12);
         rewardArea.setAlignment(Pos.CENTER);
@@ -1783,7 +1902,7 @@ public class GameFrame {
         return rewardArea;
     }
 
-    // 新增：启动固定布局的胜利动画
+    // 启动固定布局的胜利动画
     private void startVictoryAnimationsResponsive(HBox victoryContent) {
         // 为胜利内容添加淡入动画
         victoryContent.setOpacity(0);
@@ -1853,7 +1972,7 @@ public class GameFrame {
     }
 
 
-    // 修改：createGameBoardWithStatus 方法 - 修复时钟图标右边矩形方框问题
+    // createGameBoardWithStatus 方法 - 修复时钟图标右边矩形方框问题
     private VBox createGameBoardWithStatus() {
         VBox wrapper = new VBox(10);
         wrapper.setAlignment(Pos.CENTER);
@@ -1962,7 +2081,7 @@ public class GameFrame {
     private void uploadGameResult(String username, String layoutName, int moveCount, String elapsedTime, List<String> historyStack) {
         try {
             MongoDBUtil db = new MongoDBUtil();
-            // 新增：格式化当前时间
+            // 格式化当前时间
             String saveTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             Document record = new Document("username", username)
                     .append("layout", layoutName)
@@ -1970,7 +2089,7 @@ public class GameFrame {
                     .append("moveCount", moveCount)
                     .append("elapsedTime", elapsedTime)
                     .append("historyStack", historyStack)
-                    .append("saveTime", saveTime) // 新增：存储时间字符串
+                    .append("saveTime", saveTime) // 存储时间字符串
                     .append("timestamp", System.currentTimeMillis())
                     .append("gameWon",gameWon);
             db.getCollection("game_history").insertOne(record);
@@ -1980,7 +2099,7 @@ public class GameFrame {
         }
     }
 
-    // 修改：updateTimer 方法 - 添加失败界面调用
+    // updateTimer 方法 - 添加失败界面调用
     private void updateTimer() {
         if (isTimed) {
             remainSeconds--;
@@ -1989,7 +2108,7 @@ public class GameFrame {
             timerLabel.setText(String.format("倒计时: %02d:%02d", minutes, seconds));
             if (remainSeconds <= 0) {
                 timer.stop();
-                // 修改：调用失败界面而不是简单的弹窗
+                // 调用失败界面而不是简单的弹窗
                 showFailDialog("时间耗尽", "很遗憾，挑战时间已用完！");
             }
         } else {
@@ -2000,7 +2119,7 @@ public class GameFrame {
         }
     }
 
-    // 新增：创建失败画面内容
+    // 创建失败画面内容
     private HBox createFailureContent(String failReason, String failMessage, String layoutName, int moveCount, String elapsedTime) {
         HBox content = new HBox(40);
         content.setAlignment(Pos.CENTER);
@@ -2041,7 +2160,7 @@ public class GameFrame {
         return content;
     }
 
-    // 新增：创建失败标题区域
+    // 创建失败标题区域
     private VBox createFailureTitleArea(String failReason, String failMessage) {
         VBox titleArea = new VBox(15);
         titleArea.setAlignment(Pos.CENTER);
@@ -2071,7 +2190,7 @@ public class GameFrame {
         return titleArea;
     }
 
-    // 新增：创建失败统计区域
+    // 创建失败统计区域
     private VBox createFailureStatsArea(String layoutName, int moveCount, String elapsedTime) {
         VBox statsArea = new VBox(18);
         statsArea.setAlignment(Pos.CENTER);
@@ -2112,7 +2231,7 @@ public class GameFrame {
         return statsArea;
     }
 
-    // 新增：创建失败统计项目
+    // 创建失败统计项目
     private VBox createFailureStatItem(String icon, String label, String value) {
         VBox statItem = new VBox(8);
         statItem.setAlignment(Pos.CENTER);
@@ -2136,7 +2255,7 @@ public class GameFrame {
         return statItem;
     }
 
-    // 新增：创建完成度评估
+    // 创建完成度评估
     private VBox createProgressEvaluation(int moveCount) {
         VBox progressItem = new VBox(8);
         progressItem.setAlignment(Pos.CENTER);
@@ -2183,7 +2302,7 @@ public class GameFrame {
         return progressItem;
     }
 
-    // 新增：创建失败建议区域
+    // 创建失败建议区域
     private VBox createFailureSuggestionArea(String failReason, int moveCount) {
         VBox suggestionArea = new VBox(15);
         suggestionArea.setAlignment(Pos.CENTER);
@@ -2241,7 +2360,7 @@ public class GameFrame {
         return suggestionArea;
     }
 
-    // 新增：创建建议项目
+    // 创建建议项目
     private HBox createSuggestionItem(String icon, String title, String description) {
         HBox suggestionItem = new HBox(12);
         suggestionItem.setAlignment(Pos.CENTER_LEFT);
@@ -2271,7 +2390,7 @@ public class GameFrame {
         return suggestionItem;
     }
 
-    // 新增：启动失败动画
+    // 启动失败动画
     private void startFailureAnimations(HBox failContent) {
         // 为失败内容添加淡入动画
         failContent.setOpacity(0);
@@ -2339,7 +2458,7 @@ public class GameFrame {
         shakeDelay.play();
     }
 
-    // 新增：手动触发失败界面的方法（可在其他地方调用）
+    // 手动触发失败界面的方法（可在其他地方调用）
     public void triggerFailure(String reason, String message) {
         showFailDialog(reason, message);
     }
@@ -2560,7 +2679,7 @@ public class GameFrame {
     }
 
     private void solveByAI() {
-        // 新增：AI帮解前弹窗并判断金币
+        // AI帮解前弹窗并判断金币
         int coins = getUserCoins(userName);
         if (coins < 300) {
             showAlert("金币不足", null, "金币余额不足，请充值", Alert.AlertType.WARNING);
@@ -2625,7 +2744,7 @@ public class GameFrame {
         aiThread.start();
     }
 
-    // 新增：获取用户金币数量
+    // 获取用户金币数量
     private int getUserCoins(String username) {
         int coins = 0;
         try {

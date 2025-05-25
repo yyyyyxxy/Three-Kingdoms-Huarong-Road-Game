@@ -1743,74 +1743,6 @@ public class MainInterfaceFrame {
         stage.show();
     }
 
-    // 新增：异步加载历史数据并创建现代化的卡片布局
-    private void loadHistoryDataAsync(String username, String layoutName, VBox root, VBox loadingBox, Stage currentStage, Stage parentStage) {
-        Thread loadThread = new Thread(() -> {
-            try {
-                DatabaseManager dbManager = DatabaseManager.getInstance();
-                MongoCollection<Document> col = dbManager.getCollection("game_history");
-
-                FindIterable<Document> docs = col.find(
-                        Filters.and(
-                                Filters.eq("username", username),
-                                Filters.eq("layout", layoutName)
-                        )
-                ).sort(Sorts.descending("timestamp"));
-
-                List<HistoryRecord> data = new ArrayList<>();
-
-                for (Document doc : docs) {
-                    String saveTime = doc.getString("saveTime");
-                    int moveCount = doc.getInteger("moveCount", 0);
-                    String elapsedTime = doc.getString("elapsedTime");
-
-                    // 兼容Boolean和String类型的gameWon
-                    Object gameWonObj = doc.get("gameWon");
-                    boolean gameWon;
-                    if (gameWonObj instanceof Boolean) {
-                        gameWon = (Boolean) gameWonObj;
-                    } else if (gameWonObj instanceof String) {
-                        gameWon = Boolean.parseBoolean((String) gameWonObj);
-                    } else {
-                        gameWon = false;
-                    }
-                    data.add(new HistoryRecord(saveTime, moveCount, elapsedTime, gameWon));
-                }
-
-                // 在JavaFX应用线程中更新UI
-                Platform.runLater(() -> {
-                    // 移除加载指示器
-                    root.getChildren().remove(loadingBox);
-
-                    if (data.isEmpty()) {
-                        // 显示空状态
-                        VBox emptyStateBox = createHistoryEmptyState(layoutName);
-                        root.getChildren().add(emptyStateBox);
-                    } else {
-                        // 创建历史记录卡片
-                        VBox historyCards = createHistoryCards(username, layoutName, data, currentStage, parentStage);
-
-                        ScrollPane cardsScrollPane = new ScrollPane(historyCards);
-                        cardsScrollPane.setFitToWidth(true);
-                        cardsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                        cardsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                        cardsScrollPane.getStyleClass().add("history-cards-scroll");
-                        cardsScrollPane.setPrefHeight(400);
-
-                        root.getChildren().add(cardsScrollPane);
-                    }
-                });
-
-            } catch (Exception e) {
-                ExceptionHandler.handleDatabaseException(e, "读取历史记录",
-                        () -> loadHistoryDataAsync(username, layoutName, root, loadingBox, currentStage, parentStage));
-            }
-        });
-
-        loadThread.setDaemon(true);
-        loadThread.start();
-    }
-
     // 新增：创建历史记录空状态
     private VBox createHistoryEmptyState(String layoutName) {
         VBox emptyBox = new VBox(20);
@@ -3389,32 +3321,43 @@ public class MainInterfaceFrame {
 
     private void restoreGame(String username, HistoryRecord record, Stage historyListStage, Stage layoutSelectStage) {
         try {
-            MongoDBUtil db = new MongoDBUtil();
-            MongoCollection<Document> col = db.getCollection("game_history");
-            Document doc = col.find(
-                    Filters.and(
-                            Filters.eq("username", username),
-                            Filters.eq("saveTime", record.getSaveTime()),
-                            Filters.eq("moveCount", record.getMoveCount()),
-                            Filters.eq("elapsedTime", record.getElapsedTime())
-                    )
-            ).first();
+            DatabaseManager dbManager = DatabaseManager.getInstance();
+            MongoCollection<Document> col = dbManager.getCollection("game_history");
 
-            if (doc != null) {
-                List<Document> blockDocs = (List<Document>) doc.get("blocks");
-                int savedMoveCount = doc.getInteger("moveCount", 0);
-                String savedElapsedTime = doc.getString("elapsedTime");
-                List<String> savedHistoryStack = (List<String>) doc.get("historyStack");
-                String layoutName = doc.getString("layout");
+            Document query = new Document("username", username)
+                    .append("saveTime", record.getSaveTime())
+                    .append("moveCount", record.getMoveCount())
+                    .append("elapsedTime", record.getElapsedTime());
 
+            Document gameDoc = col.find(query).first();
+
+            if (gameDoc == null) {
+                showAlert("错误", "记录不存在",
+                        "找不到对应的游戏记录，可能已被删除。", Alert.AlertType.ERROR);
+                return;
+            }
+
+            try {
+                // 验证并解析游戏数据
+                List<GameFrame.Block> savedBlocks = validateAndParseBlocks(gameDoc);
+                int savedMoveCount = validateMoveCount(gameDoc);
+                String savedElapsedTime = validateElapsedTime(gameDoc);
+                List<String> savedHistoryStack = validateHistoryStack(gameDoc);
+                String layoutName = gameDoc.getString("layout");
+
+                // 验证布局名称
+                if (layoutName == null || layoutName.trim().isEmpty()) {
+                    throw new DataCorruptionException("布局名称缺失或为空");
+                }
+
+                // 如果数据验证成功，恢复游戏
                 int layoutIndex = BoardLayouts.getLayoutNames().indexOf(layoutName);
-
-                List<GameFrame.Block> savedBlocks = convertToBlockList(blockDocs);
+                if (layoutIndex < 0) {
+                    throw new DataCorruptionException("无效的布局名称: " + layoutName);
+                }
 
                 GameFrame gameFrame = new GameFrame();
-                if (layoutIndex >= 0) {
-                    gameFrame.setCurrentLayoutIndex(layoutIndex);
-                }
+                gameFrame.setCurrentLayoutIndex(layoutIndex);
                 Stage gameStage = new Stage();
                 gameFrame.show(gameStage, username, false, mainStage, false);
                 mainStage.hide();
@@ -3423,40 +3366,296 @@ public class MainInterfaceFrame {
                 // 先将新游戏窗口置顶
                 gameStage.toFront();
 
-                // 只关闭历史记录窗口和布局选择窗口
+                // 关闭历史记录和布局选择窗口
                 if (historyListStage != null) historyListStage.close();
                 if (layoutSelectStage != null) layoutSelectStage.close();
-                // 确保布局选择窗口也关闭
-                if (layoutSelectStage != null) layoutSelectStage.close();
-            } else {
-                showAlert("错误", "恢复游戏失败", "未找到存档记录", Alert.AlertType.ERROR);
+
+            } catch (DataCorruptionException e) {
+                // 数据损坏异常处理
+                System.err.println("发现损坏的历史记录: " + gameDoc.getObjectId("_id") +
+                        ", 错误: " + e.getMessage());
+
+                // 显示损坏提示对话框
+                Alert corruptionAlert = new Alert(Alert.AlertType.WARNING);
+                corruptionAlert.setTitle("数据损坏");
+                corruptionAlert.setHeaderText("云端数据损坏");
+                corruptionAlert.setContentText("检测到该游戏记录的云端数据已损坏：\n" +
+                        e.getMessage() + "\n\n是否删除这条损坏的记录？");
+
+                // 应用样式
+                DialogPane dialogPane = corruptionAlert.getDialogPane();
+                dialogPane.getStyleClass().add("dialog-pane");
+                dialogPane.getStyleClass().add("warning-dialog");
+
+                ButtonType deleteBtn = new ButtonType("删除损坏记录", ButtonBar.ButtonData.YES);
+                ButtonType cancelBtn = new ButtonType("取消", ButtonBar.ButtonData.CANCEL_CLOSE);
+                corruptionAlert.getButtonTypes().setAll(deleteBtn, cancelBtn);
+
+                Optional<ButtonType> result = corruptionAlert.showAndWait();
+
+                if (result.isPresent() && result.get() == deleteBtn) {
+                    // 删除损坏的记录
+                    deleteCorruptedRecordAsync(username, record, gameDoc.getObjectId("_id"), historyListStage);
+                }
             }
-            db.close();
+
         } catch (Exception e) {
+            ExceptionHandler.handleDatabaseException(e, "恢复游戏");
             e.printStackTrace();
-            showAlert("错误", "恢复游戏失败", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
-    private List<GameFrame.Block> convertToBlockList(List<Document> blockDocs) {
-        List<GameFrame.Block> blocks = new ArrayList<>();
-        if (blockDocs != null) {
-            for (Document blockDoc : blockDocs) {
+    // 3. 添加数据验证方法
+    private List<GameFrame.Block> validateAndParseBlocks(Document gameDoc) throws DataCorruptionException {
+        try {
+            List<Document> blockDocs = (List<Document>) gameDoc.get("blocks");
+            if (blockDocs == null || blockDocs.isEmpty()) {
+                throw new DataCorruptionException("方块数据为空或缺失");
+            }
+
+            List<GameFrame.Block> blocks = new ArrayList<>();
+            for (int i = 0; i < blockDocs.size(); i++) {
+                Document blockDoc = blockDocs.get(i);
+
+                // 验证必要字段
+                if (!blockDoc.containsKey("name") || !blockDoc.containsKey("row") ||
+                        !blockDoc.containsKey("col") || !blockDoc.containsKey("width") ||
+                        !blockDoc.containsKey("height") || !blockDoc.containsKey("color")) {
+                    throw new DataCorruptionException("方块数据字段缺失，索引: " + i);
+                }
+
+                String name = blockDoc.getString("name");
+                Integer row = blockDoc.getInteger("row");
+                Integer col = blockDoc.getInteger("col");
+                Integer width = blockDoc.getInteger("width");
+                Integer height = blockDoc.getInteger("height");
+                String colorStr = blockDoc.getString("color");
+
+                // 验证数据完整性
+                if (name == null || row == null || col == null || width == null || height == null || colorStr == null) {
+                    throw new DataCorruptionException("方块数据包含空值，索引: " + i);
+                }
+
+                // 验证数据范围
+                if (row < 0 || row >= 5 || col < 0 || col >= 4) {
+                    throw new DataCorruptionException("方块位置数据无效，索引: " + i + ", row=" + row + ", col=" + col);
+                }
+
+                if (width <= 0 || width > 4 || height <= 0 || height > 5) {
+                    throw new DataCorruptionException("方块尺寸数据无效，索引: " + i + ", width=" + width + ", height=" + height);
+                }
+
+                if (name.trim().isEmpty()) {
+                    throw new DataCorruptionException("方块名称为空，索引: " + i);
+                }
+
+                // 解析颜色
+                javafx.scene.paint.Color color;
                 try {
-                    int row = blockDoc.getInteger("row", 0);
-                    int col = blockDoc.getInteger("col", 0);
-                    int width = blockDoc.getInteger("width", 1);
-                    int height = blockDoc.getInteger("height", 1);
-                    String colorString = blockDoc.getString("color");
-                    Color color = Color.valueOf(colorString);
-                    String name = blockDoc.getString("name");
-                    blocks.add(new GameFrame.Block(row, col, width, height, color, name));
+                    color = javafx.scene.paint.Color.valueOf(colorStr);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    showAlert("错误", "转换 Block 数据失败", e.getMessage(), Alert.AlertType.ERROR);
+                    throw new DataCorruptionException("方块颜色数据无效，索引: " + i + ", 颜色: " + colorStr);
+                }
+
+                blocks.add(new GameFrame.Block(row, col, width, height, color, name));
+            }
+
+            // 验证方块数量是否合理
+            if (blocks.size() < 5 || blocks.size() > 15) {
+                throw new DataCorruptionException("方块数量异常: " + blocks.size());
+            }
+
+            // 验证是否存在曹操方块
+            boolean hasCaocao = blocks.stream().anyMatch(block -> "曹操".equals(block.getName()));
+            if (!hasCaocao) {
+                throw new DataCorruptionException("缺少曹操方块");
+            }
+
+            return blocks;
+
+        } catch (ClassCastException e) {
+            throw new DataCorruptionException("方块数据类型错误", e);
+        } catch (NullPointerException e) {
+            throw new DataCorruptionException("方块数据包含空值", e);
+        }
+    }
+
+    private int validateMoveCount(Document gameDoc) throws DataCorruptionException {
+        try {
+            Integer moveCount = gameDoc.getInteger("moveCount");
+            if (moveCount == null) {
+                throw new DataCorruptionException("步数数据缺失");
+            }
+
+            if (moveCount < 0 || moveCount > 10000) {
+                throw new DataCorruptionException("步数数据异常: " + moveCount);
+            }
+
+            return moveCount;
+
+        } catch (ClassCastException e) {
+            throw new DataCorruptionException("步数数据类型错误", e);
+        }
+    }
+
+    private String validateElapsedTime(Document gameDoc) throws DataCorruptionException {
+        try {
+            String elapsedTime = gameDoc.getString("elapsedTime");
+            if (elapsedTime == null || elapsedTime.trim().isEmpty()) {
+                throw new DataCorruptionException("用时数据缺失或为空");
+            }
+
+            // 验证时间格式 (MM:SS)
+            if (!elapsedTime.matches("\\d{1,3}:\\d{2}")) {
+                throw new DataCorruptionException("用时数据格式错误: " + elapsedTime);
+            }
+
+            // 验证时间合理性
+            String[] parts = elapsedTime.split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+
+            if (minutes < 0 || minutes > 999 || seconds < 0 || seconds > 59) {
+                throw new DataCorruptionException("用时数据值异常: " + elapsedTime);
+            }
+
+            return elapsedTime;
+
+        } catch (NumberFormatException e) {
+            throw new DataCorruptionException("用时数据包含非数字字符", e);
+        }
+    }
+
+    private List<String> validateHistoryStack(Document gameDoc) throws DataCorruptionException {
+        try {
+            List<String> historyStack = (List<String>) gameDoc.get("historyStack");
+            if (historyStack == null) {
+                // 历史记录栈可以为空，返回空列表
+                return new ArrayList<>();
+            }
+
+            // 验证历史记录格式
+            for (int i = 0; i < historyStack.size(); i++) {
+                String record = historyStack.get(i);
+                if (record == null) {
+                    throw new DataCorruptionException("历史记录栈包含空值，索引: " + i);
+                }
+
+                // 简单验证格式 (应该包含方块名称和坐标)
+                if (!record.contains("(") || !record.contains(")") || !record.contains(",")) {
+                    throw new DataCorruptionException("历史记录格式错误，索引: " + i + ", 内容: " + record);
                 }
             }
+
+            // 验证历史记录数量合理性
+            if (historyStack.size() > 10000) {
+                throw new DataCorruptionException("历史记录数量异常: " + historyStack.size());
+            }
+
+            return historyStack;
+
+        } catch (ClassCastException e) {
+            throw new DataCorruptionException("历史记录栈数据类型错误", e);
         }
+    }
+
+    // 4. 添加异步删除损坏记录的方法
+    private void deleteCorruptedRecordAsync(String username, HistoryRecord record, org.bson.types.ObjectId objectId, Stage historyListStage) {
+        Thread deleteThread = new Thread(() -> {
+            try {
+                DatabaseManager dbManager = DatabaseManager.getInstance();
+
+                // 使用 ObjectId 删除特定记录
+                long deletedCount = dbManager.getCollection("game_history")
+                        .deleteOne(Filters.eq("_id", objectId))
+                        .getDeletedCount();
+
+                Platform.runLater(() -> {
+                    if (deletedCount > 0) {
+                        showAlert("删除成功", "记录已删除",
+                                "损坏的游戏记录已从云端删除。", Alert.AlertType.INFORMATION);
+
+                        // 刷新历史记录列表
+                        if (historyListStage != null && historyListStage.isShowing()) {
+                            // 重新加载历史记录页面
+                            historyListStage.close();
+                            // 这里可以调用刷新历史记录列表的方法
+                            showHistoryList(username, getCurrentLayoutFromRecord(record), null);
+                        }
+                    } else {
+                        showAlert("删除失败", "记录未找到",
+                                "无法找到要删除的记录，可能已被删除。", Alert.AlertType.WARNING);
+                    }
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    ExceptionHandler.handleDatabaseException(e, "删除损坏记录");
+                });
+                e.printStackTrace();
+            }
+        });
+
+        deleteThread.setDaemon(true);
+        deleteThread.start();
+    }
+
+    // 6. 添加批量损坏记录对话框
+    private void showCorruptedRecordsDialog(String username, String layoutName, int corruptedCount, Runnable onDelete) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("发现损坏数据");
+        alert.setHeaderText("云端数据损坏");
+        alert.setContentText("在 \"" + layoutName + "\" 布局中发现 " + corruptedCount + " 条损坏的历史记录。\n" +
+                "这些记录可能由于网络传输错误或存储问题导致数据损坏。\n\n" +
+                "建议删除这些损坏的记录以避免后续问题，是否继续？");
+
+        // 应用样式
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStyleClass().add("dialog-pane");
+        dialogPane.getStyleClass().add("warning-dialog");
+
+        ButtonType deleteAllBtn = new ButtonType("删除所有损坏记录", ButtonBar.ButtonData.YES);
+        ButtonType ignoreBtn = new ButtonType("暂时忽略", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(deleteAllBtn, ignoreBtn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteAllBtn) {
+            onDelete.run();
+        }
+    }
+
+
+    private String getCurrentLayoutFromRecord(HistoryRecord record) {
+        // 这个方法需要根据你的 HistoryRecord 实现来获取布局名称
+        // 如果 HistoryRecord 没有保存布局信息，可能需要从其他地方获取
+        // 这里返回一个默认值，你需要根据实际情况修改
+        List<String> layoutNames = BoardLayouts.getLayoutNames();
+        return layoutNames.isEmpty() ? "未知布局" : layoutNames.get(0);
+    }
+
+    // 9. 添加将Document转换为Block列表的方法（如果不存在）
+    private List<GameFrame.Block> convertToBlockList(List<Document> blockDocs) throws DataCorruptionException {
+        List<GameFrame.Block> blocks = new ArrayList<>();
+
+        for (Document blockDoc : blockDocs) {
+            String name = blockDoc.getString("name");
+            int row = blockDoc.getInteger("row", 0);
+            int col = blockDoc.getInteger("col", 0);
+            int width = blockDoc.getInteger("width", 1);
+            int height = blockDoc.getInteger("height", 1);
+            String colorStr = blockDoc.getString("color");
+
+            javafx.scene.paint.Color color;
+            try {
+                color = javafx.scene.paint.Color.valueOf(colorStr);
+            } catch (Exception e) {
+                throw new DataCorruptionException("无效的颜色值: " + colorStr);
+            }
+
+            blocks.add(new GameFrame.Block(row, col, width, height, color, name));
+        }
+
         return blocks;
     }
 
@@ -6380,108 +6579,195 @@ public class MainInterfaceFrame {
         });
     }
 
-    // 新增：音乐状态显示
-    private void updateMusicStatus() {
-        // 可以在状态栏或其他地方显示当前音乐状态
-        String status = musicManager.isMusicEnabled() ?
-                "🎵 音乐已开启 (" + Math.round(musicManager.getVolume() * 100) + "%)" :
-                "🔇 音乐已关闭";
+    private static class DataCorruptionException extends Exception {
+        public DataCorruptionException(String message) {
+            super(message);
+        }
 
-        // 如果有状态栏可以在这里更新
-        System.out.println("音乐状态: " + status);
-    }
-
-    // 新增：音乐淡入淡出效果（可选）
-    private void playMusicWithFadeIn() {
-        try {
-            double originalVolume = musicManager.getVolume();
-            musicManager.setVolume(0);
-            musicManager.playMusic(MusicManager.MAIN_MENU);
-
-            // 创建淡入效果
-            javafx.animation.Timeline fadeIn = new javafx.animation.Timeline();
-            int steps = 20;
-            double volumeStep = originalVolume / steps;
-
-            for (int i = 0; i <= steps; i++) {
-                final double volume = i * volumeStep;
-                fadeIn.getKeyFrames().add(
-                        new javafx.animation.KeyFrame(
-                                javafx.util.Duration.millis(i * 50),
-                                e -> musicManager.setVolume(volume)
-                        )
-                );
-            }
-
-            fadeIn.play();
-        } catch (Exception e) {
-            System.err.println("音乐淡入效果失败: " + e.getMessage());
+        public DataCorruptionException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 
-    // 新增：音乐淡出效果（可选）
-    private void stopMusicWithFadeOut(Runnable onComplete) {
-        try {
-            double currentVolume = musicManager.getVolume();
-            javafx.animation.Timeline fadeOut = new javafx.animation.Timeline();
-            int steps = 20;
-            double volumeStep = currentVolume / steps;
-
-            for (int i = 0; i <= steps; i++) {
-                final double volume = currentVolume - (i * volumeStep);
-                fadeOut.getKeyFrames().add(
-                        new javafx.animation.KeyFrame(
-                                javafx.util.Duration.millis(i * 50),
-                                e -> musicManager.setVolume(Math.max(0, volume))
-                        )
-                );
-            }
-
-            fadeOut.setOnFinished(e -> {
-                musicManager.stopMusic();
-                if (onComplete != null) {
-                    onComplete.run();
-                }
-            });
-
-            fadeOut.play();
-        } catch (Exception e) {
-            System.err.println("音乐淡出效果失败: " + e.getMessage());
-            // 如果淡出失败，直接执行完成回调
-            if (onComplete != null) {
-                onComplete.run();
-            }
-        }
-    }
-
-    // 新增：音乐错误处理
-    private void handleMusicError(Exception e, String context) {
-        System.err.println("音乐操作失败 [" + context + "]: " + e.getMessage());
-
-        // 可选：显示用户友好的错误提示
-        Platform.runLater(() -> {
+    private void loadHistoryDataAsync(String username, String layoutName, VBox root, VBox loadingBox, Stage currentStage, Stage parentStage) {
+        Thread loadThread = new Thread(() -> {
             try {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("音乐提示");
-                alert.setHeaderText("音乐播放异常");
-                alert.setContentText("背景音乐功能暂时不可用，但不影响游戏正常进行。");
+                MongoDBUtil db = new MongoDBUtil(); // 使用你现有的数据库连接
 
-                // 设置自动关闭
-                javafx.animation.Timeline autoClose = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(javafx.util.Duration.seconds(3), event -> {
-                            if (alert.isShowing()) {
-                                alert.close();
+                List<Document> docs = db.getCollection("game_history")
+                        .find(new Document("username", username).append("layout", layoutName))
+                        .sort(new Document("timestamp", -1))
+                        .into(new ArrayList<>());
+
+                List<HistoryRecord> validRecords = new ArrayList<>();
+                List<Document> corruptedDocs = new ArrayList<>();
+
+                // 验证每条记录
+                for (Document doc : docs) {
+                    try {
+                        // 基本验证 - 不做详细验证，避免影响加载速度
+                        String saveTime = doc.getString("saveTime");
+                        Integer moveCount = doc.getInteger("moveCount");
+                        String elapsedTime = doc.getString("elapsedTime");
+                        Object gameWonObj = doc.get("gameWon");
+
+                        if (saveTime == null || moveCount == null || elapsedTime == null) {
+                            throw new DataCorruptionException("基本字段缺失");
+                        }
+
+                        // 简单验证数据合理性
+                        if (moveCount < 0 || moveCount > 10000) {
+                            throw new DataCorruptionException("步数数据异常");
+                        }
+
+                        if (!elapsedTime.matches("\\d{1,3}:\\d{2}")) {
+                            throw new DataCorruptionException("用时格式错误");
+                        }
+
+                        // 验证方块数据存在性（不做详细验证）
+                        @SuppressWarnings("unchecked")
+                        List<Document> blockDocs = (List<Document>) doc.get("blocks");
+                        if (blockDocs == null || blockDocs.isEmpty()) {
+                            throw new DataCorruptionException("方块数据缺失");
+                        }
+
+                        // 验证关键方块字段
+                        for (Document blockDoc : blockDocs) {
+                            if (!blockDoc.containsKey("name") || !blockDoc.containsKey("row") ||
+                                    !blockDoc.containsKey("col") || !blockDoc.containsKey("width") ||
+                                    !blockDoc.containsKey("height")) {
+                                throw new DataCorruptionException("方块数据字段不完整");
                             }
-                        })
-                );
-                autoClose.play();
+                        }
 
-                alert.show();
-            } catch (Exception alertEx) {
-                // 如果连提示都无法显示，只打印日志
-                System.err.println("无法显示音乐错误提示: " + alertEx.getMessage());
+                        // 兼容Boolean和String类型的gameWon
+                        boolean gameWon;
+                        if (gameWonObj instanceof Boolean) {
+                            gameWon = (Boolean) gameWonObj;
+                        } else if (gameWonObj instanceof String) {
+                            gameWon = Boolean.parseBoolean((String) gameWonObj);
+                        } else {
+                            gameWon = false; // 默认值
+                        }
+
+                        // 如果验证通过，添加到有效记录列表
+                        validRecords.add(new HistoryRecord(saveTime, moveCount, elapsedTime, gameWon));
+
+                    } catch (Exception e) {
+                        // 记录损坏的文档
+                        corruptedDocs.add(doc);
+                        System.err.println("发现损坏的历史记录: " + doc.getObjectId("_id") +
+                                ", 错误: " + e.getMessage());
+                    }
+                }
+
+                db.close(); // 确保关闭连接
+
+                Platform.runLater(() -> {
+                    // 移除加载指示器
+                    root.getChildren().remove(loadingBox);
+
+                    // 如果有损坏的记录，询问用户是否删除
+                    if (!corruptedDocs.isEmpty()) {
+                        showCorruptedRecordsDialog(username, layoutName, corruptedDocs.size(), () -> {
+                            // 删除所有损坏的记录
+                            deleteCorruptedRecordsAsync(username, layoutName, corruptedDocs, currentStage); // 修改：使用 currentStage 参数
+                        });
+                    }
+
+                    if (validRecords.isEmpty()) {
+                        // 显示空状态
+                        VBox emptyState = createHistoryEmptyState(layoutName);
+                        root.getChildren().add(emptyState);
+                    } else {
+                        // 显示有效的历史记录
+                        VBox historyCards = createHistoryCards(username, layoutName, validRecords, currentStage, parentStage); // 修改：使用 currentStage 参数
+
+                        ScrollPane cardsScrollPane = new ScrollPane(historyCards);
+                        cardsScrollPane.setFitToWidth(true);
+                        cardsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                        cardsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                        cardsScrollPane.getStyleClass().add("history-cards-scroll");
+                        cardsScrollPane.setPrefHeight(400);
+
+                        root.getChildren().add(cardsScrollPane);
+                    }
+                });
+
+            } catch (Exception e) {
+                System.err.println("加载历史记录时发生异常: " + e.getMessage());
+                e.printStackTrace();
+
+                Platform.runLater(() -> {
+                    root.getChildren().remove(loadingBox);
+
+                    if (e.getMessage() != null && (e.getMessage().contains("connection") ||
+                            e.getMessage().contains("timeout") || e.getMessage().contains("network"))) {
+                        showAlert("网络错误", "加载失败",
+                                "网络连接异常，请检查网络设置后重试。", Alert.AlertType.ERROR);
+                    } else {
+                        showAlert("错误", "加载失败",
+                                "加载历史记录时发生错误：" + e.getMessage(), Alert.AlertType.ERROR);
+                    }
+                });
             }
         });
+
+        loadThread.setDaemon(true);
+        loadThread.start();
     }
 
+    // 同时修改 deleteCorruptedRecordsAsync 方法的参数名
+    private void deleteCorruptedRecordsAsync(String username, String layoutName, List<Document> corruptedDocs, Stage currentStage) {
+        Thread deleteThread = new Thread(() -> {
+            try {
+                MongoDBUtil db = new MongoDBUtil();
+
+                int deletedCount = 0;
+                for (Document doc : corruptedDocs) {
+                    try {
+                        db.getCollection("game_history").deleteOne(
+                                new Document("_id", doc.getObjectId("_id"))
+                        );
+                        deletedCount++;
+                    } catch (Exception e) {
+                        System.err.println("删除损坏记录失败: " + doc.getObjectId("_id") + ", 错误: " + e.getMessage());
+                    }
+                }
+
+                db.close();
+
+                final int finalDeletedCount = deletedCount;
+                Platform.runLater(() -> {
+                    showAlert("清理完成", "损坏记录已删除",
+                            "成功删除了 " + finalDeletedCount + " 条损坏的历史记录。\n页面将自动刷新。",
+                            Alert.AlertType.INFORMATION);
+
+                    // 刷新当前页面
+                    if (currentStage != null && currentStage.isShowing()) { // 修改：使用 currentStage 参数
+                        currentStage.close();
+                        showHistoryList(username, layoutName, null);
+                    }
+                });
+
+            } catch (Exception e) {
+                System.err.println("批量删除损坏记录时发生异常: " + e.getMessage());
+                e.printStackTrace();
+
+                Platform.runLater(() -> {
+                    if (e.getMessage() != null && (e.getMessage().contains("connection") ||
+                            e.getMessage().contains("timeout") || e.getMessage().contains("network"))) {
+                        showAlert("网络错误", "清理失败",
+                                "网络连接异常，无法清理损坏记录。", Alert.AlertType.ERROR);
+                    } else {
+                        showAlert("错误", "清理失败",
+                                "清理损坏记录时发生错误：" + e.getMessage(), Alert.AlertType.ERROR);
+                    }
+                });
+            }
+        });
+
+        deleteThread.setDaemon(true);
+        deleteThread.start();
+    }
 }
