@@ -4090,3 +4090,135 @@
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
 }
+/* 音乐控制相关样式 */
+.game-button-music {
+    -fx-background-color: linear-gradient(to bottom, #e91e63, #c2185b);
+    -fx-background-radius: 6px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.game-button-music:hover {
+    -fx-background-color: linear-gradient(to bottom, #f06292, #e91e63);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.game-button-volume {
+    -fx-background-color: linear-gradient(to bottom, #9c27b0, #7b1fa2);
+    -fx-background-radius: 6px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.game-button-volume:hover {
+    -fx-background-color: linear-gradient(to bottom, #ba68c8, #9c27b0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.music-control-bar {
+    -fx-background-color: rgba(0,0,0,0.7);
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-width: 1px;
+}
+
+.music-control-button {
+    -fx-background-color: linear-gradient(to bottom, #4caf50, #388e3c);
+    -fx-background-radius: 15px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.music-control-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #66bb6a, #4caf50);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.music-volume-slider {
+    -fx-background-color: transparent;
+}
+
+.music-volume-slider .track {
+    -fx-background-color: rgba(255,255,255,0.3);
+    -fx-background-radius: 5px;
+}
+
+.music-volume-slider .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.music-volume-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.main-control-button {
+    -fx-background-color: linear-gradient(to bottom, #2196f3, #1976d2);
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.main-control-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #64b5f6, #2196f3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.main-top-bar {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 1px;
+}
+
+/* 音乐控制样式 */
+.music-control-panel {
+    -fx-background-color: rgba(255,255,255,0.95);
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 3);
+}
+
+.music-toggle-button {
+    -fx-background-color: linear-gradient(to bottom, #4caf50, #388e3c);
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.music-toggle-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #66bb6a, #4caf50);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.volume-button {
+    -fx-background-color: linear-gradient(to bottom, #2196f3, #1976d2);
+    -fx-background-radius: 6px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.volume-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #64b5f6, #2196f3);
+}

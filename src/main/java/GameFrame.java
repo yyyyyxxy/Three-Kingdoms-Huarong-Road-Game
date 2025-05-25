@@ -69,6 +69,10 @@ public class GameFrame {
     // 新增：保存主界面Stage
     private Stage parentStageToClose = null;
 
+    // 在类的开头添加音乐管理器引用
+    private MusicManager musicManager = MusicManager.getInstance();
+
+    // 修改：show 方法 - 添加音乐播放
     public void show(Stage primaryStage, String userName, boolean showLayoutDialog, Stage parentStageToClose, boolean isTimed) {
         this.primaryStage = primaryStage;
         this.userName = userName;
@@ -80,27 +84,21 @@ public class GameFrame {
         BorderPane root = createMainLayout();
         initGameData();
 
-        // 修改：使用与主界面一致的尺寸，而不是固定尺寸
         Scene scene = new Scene(root);
-
         loadCSS(scene);
-
         primaryStage.setScene(scene);
 
-        // 修改：如果有父窗口，继承其尺寸；否则使用合理的默认尺寸
         if (parentStageToClose != null) {
             primaryStage.setX(parentStageToClose.getX());
             primaryStage.setY(parentStageToClose.getY());
             primaryStage.setWidth(parentStageToClose.getWidth());
             primaryStage.setHeight(parentStageToClose.getHeight());
         } else {
-            // 默认尺寸，与主界面保持一致
             primaryStage.setWidth(1200);
             primaryStage.setHeight(800);
             primaryStage.centerOnScreen();
         }
 
-        // 修改：设置最小尺寸以确保游戏内容完整显示
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(700);
 
@@ -110,9 +108,709 @@ public class GameFrame {
             showLayoutSelectionDialog(parentStageToClose);
         }
 
-        primaryStage.setOnCloseRequest(e -> cleanOnlineRoom());
+        primaryStage.setOnCloseRequest(e -> {
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 关闭时停止音乐
+        });
 
         primaryStage.show();
+
+        // 新增：根据模式播放对应音乐
+        if (isTimed) {
+            musicManager.playMusic(MusicManager.TIMED_MODE);
+        } else {
+            musicManager.playMusic(MusicManager.GAME_PLAY);
+        }
+    }
+
+    // 修改：createTopPanel 方法 - 添加音乐控制按钮
+    // 修改：createTopPanel 方法 - 所有按钮居中对称排列
+    private HBox createTopPanel() {
+        HBox topPanel = new HBox();
+        topPanel.setPadding(new Insets(12, 20, 12, 20));
+        topPanel.getStyleClass().add("game-top-panel");
+        topPanel.setAlignment(Pos.CENTER); // 修改：设置为居中对齐
+
+        // 按钮容器 - 居中排列所有按钮
+        HBox buttonRow = new HBox(8); // 设置按钮间距
+        buttonRow.setAlignment(Pos.CENTER);
+
+        // 创建所有按钮
+        Button restartButton = createTopButton("🔄", "重开", "game-button-restart");
+        restartButton.setOnAction(e -> restartGame());
+
+        Button layoutButton = createTopButton("🎯", "更换布局", "game-button-layout");
+        layoutButton.setOnAction(e -> {
+            cleanOnlineRoom();
+            showLayoutSelectionDialog(null);
+        });
+
+        Button aiSolveBtn = createTopButton("🤖", aiSolving ? "演示中" : "AI帮解", "game-button-ai");
+        aiSolveBtn.setDisable(aiSolving);
+        aiSolveBtn.setOnAction(e -> solveByAI());
+
+        Button undoButton = createTopButton("↶", "撤销", "game-button-undo");
+        undoButton.setOnAction(e -> undoMove());
+
+        Button watchableBtn = createTopButton("👁", "可观战", "game-button-watch");
+        watchableBtn.setOnAction(e -> {
+            if (!watchable) {
+                watchable = true;
+                roomId = userName + "_" + System.currentTimeMillis();
+                watchableBtn.setText("👁 结束观战");
+                uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
+                showAlert("提示", "观战已开启", "现在其他用户可以观战你的对局。", Alert.AlertType.INFORMATION);
+            } else {
+                cleanOnlineRoom();
+                watchableBtn.setText("👁 可观战");
+                showAlert("提示", "观战已关闭", "你的对局已不再同步到观战列表。", Alert.AlertType.INFORMATION);
+            }
+        });
+
+        // 音乐控制按钮
+        Button musicButton = createMusicControlButton();
+
+        // 音量控制按钮
+        Button volumeButton = createVolumeControlButton();
+
+        Button saveButton = createTopButton("💾", "存档", "game-button-save");
+        saveButton.setOnAction(e -> {
+            // 存档逻辑保持不变...
+            if (isTimed) {
+                Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
+                failAlert.setHeaderText("限时模式存档提示");
+                failAlert.setTitle("提示");
+                Optional<ButtonType> failResult = failAlert.showAndWait();
+                if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
+                    return;
+                }
+            }
+            if ("离线用户".equals(userName)) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
+                alert.setHeaderText(null);
+                alert.setTitle("提示");
+                alert.showAndWait();
+                return;
+            }
+            if (this.time != null) {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖之前的历史记录？", ButtonType.YES, ButtonType.NO);
+                confirm.setHeaderText("检测到本局为历史存档继续");
+                confirm.setTitle("覆盖提示");
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.YES) {
+                    try {
+                        MongoDBUtil db = new MongoDBUtil();
+                        db.getCollection("game_history").deleteOne(
+                                new org.bson.Document("username", userName)
+                                        .append("layout", getCurrentLayoutName())
+                                        .append("saveTime", this.time)
+                        );
+                        db.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    this.time = null;
+                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                    alert.setHeaderText(null);
+                    alert.setTitle("提示");
+                    alert.showAndWait();
+                    cleanOnlineRoom();
+                    musicManager.stopMusic(); // 停止音乐
+                    if (parentStageToClose != null) {
+                        parentStageToClose.show();
+                        musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                    }
+                    primaryStage.close();
+                    return;
+                } else {
+                    this.time = null;
+                    return;
+                }
+            }
+            uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+            alert.setHeaderText(null);
+            alert.setTitle("提示");
+            alert.showAndWait();
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止音乐
+            if (parentStageToClose != null) {
+                parentStageToClose.show();
+                musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+            }
+            primaryStage.close();
+        });
+
+        Button backButton = createTopButton("🏠", "返回主界面", "game-button-back");
+        backButton.setOnAction(e -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否存档当前进度？", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+            confirm.setHeaderText("返回主界面");
+            confirm.setTitle("提示");
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == ButtonType.YES) {
+                    // 存档逻辑...
+                    if (isTimed) {
+                        Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
+                        failAlert.setHeaderText("限时模式存档提示");
+                        failAlert.setTitle("提示");
+                        Optional<ButtonType> failResult = failAlert.showAndWait();
+                        if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
+                            return;
+                        }
+                    }
+                    if ("离线用户".equals(userName)) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
+                        alert.setHeaderText(null);
+                        alert.setTitle("提示");
+                        alert.showAndWait();
+                        cleanOnlineRoom();
+                        musicManager.stopMusic(); // 停止音乐
+                        if (parentStageToClose != null) {
+                            parentStageToClose.show();
+                            musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                        }
+                        primaryStage.close();
+                        return;
+                    }
+                    if (this.time != null) {
+                        Alert coverConfirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖上一次存档？", ButtonType.YES, ButtonType.NO);
+                        coverConfirm.setHeaderText("检测到本局为历史存档继续");
+                        coverConfirm.setTitle("覆盖提示");
+                        Optional<ButtonType> coverResult = coverConfirm.showAndWait();
+                        if (coverResult.isPresent() && coverResult.get() == ButtonType.YES) {
+                            try {
+                                MongoDBUtil db = new MongoDBUtil();
+                                db.getCollection("game_history").deleteOne(
+                                        new org.bson.Document("username", userName)
+                                                .append("layout", getCurrentLayoutName())
+                                                .append("saveTime", this.time)
+                                );
+                                db.close();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            this.time = null;
+                            uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                            alert.setHeaderText(null);
+                            alert.setTitle("提示");
+                            alert.showAndWait();
+                            cleanOnlineRoom();
+                            musicManager.stopMusic(); // 停止音乐
+                            if (parentStageToClose != null) {
+                                parentStageToClose.show();
+                                musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                            }
+                            primaryStage.close();
+                            return;
+                        } else {
+                            this.time = null;
+                            cleanOnlineRoom();
+                            musicManager.stopMusic(); // 停止音乐
+                            if (parentStageToClose != null) {
+                                parentStageToClose.show();
+                                musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                            }
+                            primaryStage.close();
+                            return;
+                        }
+                    }
+                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
+                    alert.setHeaderText(null);
+                    alert.setTitle("提示");
+                    alert.showAndWait();
+                    cleanOnlineRoom();
+                    musicManager.stopMusic(); // 停止音乐
+                    if (parentStageToClose != null) {
+                        parentStageToClose.show();
+                        musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                    }
+                    primaryStage.close();
+                } else if (result.get() == ButtonType.NO) {
+                    cleanOnlineRoom();
+                    musicManager.stopMusic(); // 停止音乐
+                    if (parentStageToClose != null) {
+                        parentStageToClose.show();
+                        musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+                    }
+                    primaryStage.close();
+                }
+            }
+        });
+
+        // 将所有按钮按逻辑顺序添加到按钮行中
+        buttonRow.getChildren().addAll(
+                restartButton,      // 重新开始
+                layoutButton,       // 更换布局
+                aiSolveBtn,        // AI帮解
+                undoButton,        // 撤销
+                watchableBtn,      // 观战
+                musicButton,       // 音乐控制
+                volumeButton,      // 音量控制
+                saveButton,        // 存档
+                backButton         // 返回主界面
+        );
+
+        // 更新顶部按钮引用
+        topPanelButtons.clear();
+        topPanelButtons.add(undoButton);
+        topPanelButtons.add(saveButton);
+        topPanelButtons.add(backButton);
+
+        // 修改：直接将按钮行添加到顶部面板，实现居中对称布局
+        topPanel.getChildren().add(buttonRow);
+
+        return topPanel;
+    }
+
+    // 同时调整按钮尺寸以确保一排能放下所有按钮
+    private Button createTopButton(String icon, String text, String styleClass) {
+        Button button = new Button(icon + " " + text);
+        button.setPrefWidth(85);  // 适当减小宽度以适应更多按钮
+        button.setPrefHeight(32);
+        button.setFont(Font.font("微软雅黑", 10)); // 适当减小字体
+        button.getStyleClass().add("game-top-button");
+        button.getStyleClass().add(styleClass);
+        return button;
+    }
+
+    // 同时调整音乐控制按钮的尺寸
+    private Button createMusicControlButton() {
+        Button musicButton = new Button(musicManager.isMusicEnabled() ? "🔊 音乐" : "🔇 音乐");
+        musicButton.setPrefWidth(75);  // 减小宽度
+        musicButton.setPrefHeight(32);
+        musicButton.setFont(Font.font("微软雅黑", 10)); // 减小字体
+        musicButton.getStyleClass().add("game-top-button");
+        musicButton.getStyleClass().add("game-button-music");
+
+        musicButton.setOnAction(e -> {
+            musicManager.toggleMusic();
+            musicButton.setText(musicManager.isMusicEnabled() ? "🔊 音乐" : "🔇 音乐");
+
+            // 如果重新开启音乐，播放当前界面对应的音乐
+            if (musicManager.isMusicEnabled()) {
+                if (isTimed) {
+                    musicManager.playMusic(MusicManager.TIMED_MODE);
+                } else {
+                    musicManager.playMusic(MusicManager.GAME_PLAY);
+                }
+            }
+        });
+
+        return musicButton;
+    }
+
+    // 同时调整音量控制按钮的尺寸
+    private Button createVolumeControlButton() {
+        Button volumeButton = new Button("🔉 音量");
+        volumeButton.setPrefWidth(75);  // 减小宽度
+        volumeButton.setPrefHeight(32);
+        volumeButton.setFont(Font.font("微软雅黑", 10)); // 减小字体
+        volumeButton.getStyleClass().add("game-top-button");
+        volumeButton.getStyleClass().add("game-button-volume");
+
+        volumeButton.setOnAction(e -> showVolumeControl());
+
+        return volumeButton;
+    }
+
+
+
+    // 新增：显示音量控制对话框
+    private void showVolumeControl() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("音量控制");
+        dialog.setHeaderText("调整背景音乐音量");
+
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+
+        Label volumeLabel = new Label("当前音量: " + Math.round(musicManager.getVolume() * 100) + "%");
+        volumeLabel.setFont(Font.font("微软雅黑", 14));
+
+        Slider volumeSlider = new Slider(0, 1, musicManager.getVolume());
+        volumeSlider.setPrefWidth(200);
+        volumeSlider.setShowTickLabels(true);
+        volumeSlider.setShowTickMarks(true);
+        volumeSlider.setMajorTickUnit(0.25);
+        volumeSlider.setMinorTickCount(4);
+
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            musicManager.setVolume(newVal.doubleValue());
+            volumeLabel.setText("当前音量: " + Math.round(newVal.doubleValue() * 100) + "%");
+        });
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        Button muteButton = new Button(musicManager.isMusicEnabled() ? "🔇 静音" : "🔊 取消静音");
+        muteButton.setOnAction(e -> {
+            musicManager.toggleMusic();
+            muteButton.setText(musicManager.isMusicEnabled() ? "🔇 静音" : "🔊 取消静音");
+            volumeSlider.setDisable(!musicManager.isMusicEnabled());
+        });
+
+        buttonBox.getChildren().add(muteButton);
+
+        content.getChildren().addAll(volumeLabel, volumeSlider, buttonBox);
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        dialog.showAndWait();
+    }
+
+    // 修改：showWinDialog 方法 - 添加胜利音乐
+    private void showWinDialog() {
+        if (timer != null) timer.stop();
+
+        // 新增：播放胜利音乐
+        musicManager.playMusic(MusicManager.VICTORY);
+
+        String elapsedTime = getElapsedTimeString();
+        String layoutName = getCurrentLayoutName();
+
+        // 异步上传数据到云端
+        if (!Objects.equals(userName, "离线用户")) {
+            new Thread(() -> uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack())).start();
+        }
+
+        // 限时模式且在规定时间内通关，奖励金币（异步）
+        final boolean[] reward = {false};
+        Thread rewardThread = null;
+        if (isTimed && remainSeconds > 0 && !"离线用户".equals(userName)) {
+            rewardThread = new Thread(() -> {
+                try {
+                    MongoDBUtil db = new MongoDBUtil();
+                    db.getCollection("users").updateOne(
+                            new Document("username", userName),
+                            new Document("$inc", new Document("coins", 50))
+                    );
+                    db.close();
+                    reward[0] = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            rewardThread.start();
+        }
+
+        // 创建胜利画面Stage
+        Stage victoryStage = new Stage();
+        victoryStage.setTitle("游戏胜利！");
+        victoryStage.setResizable(true);
+        victoryStage.initOwner(primaryStage);
+        victoryStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        victoryStage.setX(primaryStage.getX());
+        victoryStage.setY(primaryStage.getY());
+        victoryStage.setWidth(primaryStage.getWidth());
+        victoryStage.setHeight(primaryStage.getHeight());
+
+        victoryStage.setMinWidth(1000);
+        victoryStage.setMinHeight(700);
+
+        // 创建主容器 - 添加音乐控制
+        HBox root = new HBox(0);
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("victory-background");
+
+        // 创建胜利画面内容
+        VBox mainContent = new VBox(10);
+        mainContent.setAlignment(Pos.CENTER);
+
+        // 添加音乐控制栏
+        HBox musicControlBar = createMusicControlBar();
+
+        HBox victoryContent = createVictoryContentResponsive(layoutName, moveCount, elapsedTime, reward[0], rewardThread);
+
+        mainContent.getChildren().addAll(musicControlBar, victoryContent);
+        root.getChildren().add(mainContent);
+
+        Scene scene = new Scene(root, primaryStage.getWidth(), primaryStage.getHeight());
+        loadCSS(scene);
+
+        victoryStage.setScene(scene);
+
+        // 添加关闭事件处理
+        victoryStage.setOnCloseRequest(e -> {
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止胜利音乐
+            if (parentStageToClose != null) {
+                parentStageToClose.show();
+                musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+            }
+            primaryStage.close();
+        });
+
+        victoryStage.show();
+
+        // 启动胜利动画
+        startVictoryAnimationsResponsive(victoryContent);
+
+        // 等待奖励线程结束
+        if (rewardThread != null) {
+            try {
+                rewardThread.join(100);
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    // 修改：showFailDialog 方法 - 添加失败音乐
+    private void showFailDialog(String failReason, String failMessage) {
+        if (timer != null) timer.stop();
+
+        // 新增：播放失败音乐
+        musicManager.playMusic(MusicManager.FAILURE);
+
+        String elapsedTime = getElapsedTimeString();
+        String layoutName = getCurrentLayoutName();
+
+        // 创建失败画面Stage
+        Stage failStage = new Stage();
+        failStage.setTitle("挑战失败");
+        failStage.setResizable(true);
+        failStage.initOwner(primaryStage);
+        failStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        failStage.setX(primaryStage.getX());
+        failStage.setY(primaryStage.getY());
+        failStage.setWidth(primaryStage.getWidth());
+        failStage.setHeight(primaryStage.getHeight());
+
+        failStage.setMinWidth(1000);
+        failStage.setMinHeight(700);
+
+        // 创建主容器 - 添加音乐控制
+        HBox root = new HBox(0);
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("failure-background");
+
+        // 创建失败画面内容
+        VBox mainContent = new VBox(10);
+        mainContent.setAlignment(Pos.CENTER);
+
+        // 添加音乐控制栏
+        HBox musicControlBar = createMusicControlBar();
+
+        HBox failContent = createFailureContent(failReason, failMessage, layoutName, moveCount, elapsedTime);
+
+        mainContent.getChildren().addAll(musicControlBar, failContent);
+        root.getChildren().add(mainContent);
+
+        Scene scene = new Scene(root, primaryStage.getWidth(), primaryStage.getHeight());
+        loadCSS(scene);
+
+        failStage.setScene(scene);
+
+        // 添加关闭事件处理
+        failStage.setOnCloseRequest(e -> {
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止失败音乐
+            if (parentStageToClose != null) {
+                parentStageToClose.show();
+                musicManager.playMusic(MusicManager.MAIN_MENU); // 返回主界面音乐
+            }
+            primaryStage.close();
+        });
+
+        failStage.show();
+
+        // 启动失败动画
+        startFailureAnimations(failContent);
+    }
+
+    // 新增：创建音乐控制栏
+    private HBox createMusicControlBar() {
+        HBox musicBar = new HBox(15);
+        musicBar.setAlignment(Pos.CENTER_RIGHT);
+        musicBar.setPadding(new Insets(10, 20, 5, 20));
+        musicBar.getStyleClass().add("music-control-bar");
+
+        Button musicToggleBtn = new Button(musicManager.isMusicEnabled() ? "🔊" : "🔇");
+        musicToggleBtn.setPrefSize(40, 30);
+        musicToggleBtn.setFont(Font.font("微软雅黑", 14));
+        musicToggleBtn.getStyleClass().add("music-control-button");
+        musicToggleBtn.setOnAction(e -> {
+            musicManager.toggleMusic();
+            musicToggleBtn.setText(musicManager.isMusicEnabled() ? "🔊" : "🔇");
+        });
+
+        Slider volumeSlider = new Slider(0, 1, musicManager.getVolume());
+        volumeSlider.setPrefWidth(100);
+        volumeSlider.setMaxWidth(100);
+        volumeSlider.getStyleClass().add("music-volume-slider");
+
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            musicManager.setVolume(newVal.doubleValue());
+        });
+
+        Label volumeLabel = new Label("音量");
+        volumeLabel.setFont(Font.font("微软雅黑", 12));
+        volumeLabel.getStyleClass().add("music-volume-label");
+
+        musicBar.getChildren().addAll(volumeLabel, volumeSlider, musicToggleBtn);
+
+        return musicBar;
+    }
+
+    // 修改：createVictoryButtonAreaFixed 方法中的按钮事件
+    private HBox createVictoryButtonAreaFixed() {
+        HBox buttonArea = new HBox(15);
+        buttonArea.setAlignment(Pos.CENTER);
+        buttonArea.setPadding(new Insets(15, 0, 5, 0));
+
+        Button restartButton = new Button("🔄 再来一局");
+        restartButton.setPrefWidth(120);
+        restartButton.setPrefHeight(45);
+        restartButton.setFont(Font.font("微软雅黑", 14));
+        restartButton.getStyleClass().add("victory-button-restart");
+        restartButton.setOnAction(e -> {
+            Stage victoryStage = (Stage) restartButton.getScene().getWindow();
+            victoryStage.close();
+            musicManager.stopMusic(); // 停止胜利音乐
+            restartGame();
+            // 重新播放游戏音乐
+            if (isTimed) {
+                musicManager.playMusic(MusicManager.TIMED_MODE);
+            } else {
+                musicManager.playMusic(MusicManager.GAME_PLAY);
+            }
+        });
+
+        Button newLayoutButton = new Button("🎯 新布局");
+        newLayoutButton.setPrefWidth(120);
+        newLayoutButton.setPrefHeight(45);
+        newLayoutButton.setFont(Font.font("微软雅黑", 14));
+        newLayoutButton.getStyleClass().add("victory-button-layout");
+        newLayoutButton.setOnAction(e -> {
+            Stage victoryStage = (Stage) newLayoutButton.getScene().getWindow();
+            victoryStage.close();
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止胜利音乐
+            showLayoutSelectionDialog(null);
+        });
+
+        Button backToMainButton = new Button("🏠 返回主界面");
+        backToMainButton.setPrefWidth(130);
+        backToMainButton.setPrefHeight(45);
+        backToMainButton.setFont(Font.font("微软雅黑", 14));
+        backToMainButton.getStyleClass().add("victory-button-main");
+        backToMainButton.setOnAction(e -> {
+            Stage victoryStage = (Stage) backToMainButton.getScene().getWindow();
+            victoryStage.close();
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止胜利音乐
+            if (parentStageToClose != null) {
+                parentStageToClose.show();
+                parentStageToClose.toFront();
+                musicManager.playMusic(MusicManager.MAIN_MENU); // 播放主界面音乐
+            }
+            primaryStage.close();
+        });
+
+        Button continueButton = new Button("⏭ 继续游戏");
+        continueButton.setPrefWidth(120);
+        continueButton.setPrefHeight(45);
+        continueButton.setFont(Font.font("微软雅黑", 14));
+        continueButton.getStyleClass().add("victory-button-continue");
+        continueButton.setOnAction(e -> {
+            Stage victoryStage = (Stage) continueButton.getScene().getWindow();
+            victoryStage.close();
+            musicManager.stopMusic(); // 停止胜利音乐
+            // 恢复游戏音乐
+            if (isTimed) {
+                musicManager.playMusic(MusicManager.TIMED_MODE);
+            } else {
+                musicManager.playMusic(MusicManager.GAME_PLAY);
+            }
+        });
+
+        buttonArea.getChildren().addAll(restartButton, newLayoutButton, backToMainButton, continueButton);
+
+        return buttonArea;
+    }
+
+    // 修改：createFailureButtonArea 方法中的按钮事件
+    private HBox createFailureButtonArea() {
+        HBox buttonArea = new HBox(15);
+        buttonArea.setAlignment(Pos.CENTER);
+        buttonArea.setPadding(new Insets(15, 0, 5, 0));
+
+        Button retryButton = new Button("🔄 重新挑战");
+        retryButton.setPrefWidth(130);
+        retryButton.setPrefHeight(45);
+        retryButton.setFont(Font.font("微软雅黑", 14));
+        retryButton.getStyleClass().add("failure-button-retry");
+        retryButton.setOnAction(e -> {
+            Stage failStage = (Stage) retryButton.getScene().getWindow();
+            failStage.close();
+            musicManager.stopMusic(); // 停止失败音乐
+            restartGame();
+            // 重新播放游戏音乐
+            if (isTimed) {
+                musicManager.playMusic(MusicManager.TIMED_MODE);
+            } else {
+                musicManager.playMusic(MusicManager.GAME_PLAY);
+            }
+        });
+
+        Button newLayoutButton = new Button("🎯 换个布局");
+        newLayoutButton.setPrefWidth(130);
+        newLayoutButton.setPrefHeight(45);
+        newLayoutButton.setFont(Font.font("微软雅黑", 14));
+        newLayoutButton.getStyleClass().add("failure-button-layout");
+        newLayoutButton.setOnAction(e -> {
+            Stage failStage = (Stage) newLayoutButton.getScene().getWindow();
+            failStage.close();
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止失败音乐
+            showLayoutSelectionDialog(null);
+        });
+
+        Button aiHelpButton = new Button("🤖 AI帮助");
+        aiHelpButton.setPrefWidth(130);
+        aiHelpButton.setPrefHeight(45);
+        aiHelpButton.setFont(Font.font("微软雅黑", 14));
+        aiHelpButton.getStyleClass().add("failure-button-ai");
+        aiHelpButton.setOnAction(e -> {
+            Stage failStage = (Stage) aiHelpButton.getScene().getWindow();
+            failStage.close();
+            musicManager.stopMusic(); // 停止失败音乐
+            solveByAI();
+            // AI求解时播放游戏音乐
+            if (isTimed) {
+                musicManager.playMusic(MusicManager.TIMED_MODE);
+            } else {
+                musicManager.playMusic(MusicManager.GAME_PLAY);
+            }
+        });
+
+        Button backButton = new Button("🏠 返回主界面");
+        backButton.setPrefWidth(140);
+        backButton.setPrefHeight(45);
+        backButton.setFont(Font.font("微软雅黑", 14));
+        backButton.getStyleClass().add("failure-button-back");
+        backButton.setOnAction(e -> {
+            Stage failStage = (Stage) backButton.getScene().getWindow();
+            failStage.close();
+            cleanOnlineRoom();
+            musicManager.stopMusic(); // 停止失败音乐
+            if (parentStageToClose != null) {
+                parentStageToClose.show();
+                parentStageToClose.toFront();
+                musicManager.playMusic(MusicManager.MAIN_MENU); // 播放主界面音乐
+            }
+            primaryStage.close();
+        });
+
+        buttonArea.getChildren().addAll(retryButton, newLayoutButton, aiHelpButton, backButton);
+
+        return buttonArea;
     }
 
     // 新增：加载CSS样式的方法
@@ -125,7 +823,6 @@ public class GameFrame {
             e.printStackTrace();
         }
     }
-
 
     // 修改：createGameControls 方法 - 添加选中方块信息更新
     private VBox createGameControls() {
@@ -431,262 +1128,57 @@ public class GameFrame {
         controlPanelRef = controlPanel;
         return controlPanel;
     }
-
-    // 修改：createTopPanel 方法 - 移除重复的状态显示，简化顶部
-    private HBox createTopPanel() {
-        HBox topPanel = new HBox(15); // 适当间距
-        topPanel.setPadding(new Insets(12, 20, 12, 20));
-        topPanel.getStyleClass().add("game-top-panel");
-        topPanel.setAlignment(Pos.CENTER_LEFT);
-
-        // 左侧：游戏标题
-        VBox leftInfo = new VBox(3);
-        leftInfo.setAlignment(Pos.CENTER_LEFT);
-
-        Label titleLabel = new Label("🏯 华容道游戏");
-        titleLabel.setFont(Font.font("微软雅黑", 18));
-        titleLabel.getStyleClass().add("game-title");
-
-        leftInfo.getChildren().add(titleLabel);
-
-        // 中间：游戏状态信息 - 修复颜色显示
-        HBox centerStatus = new HBox(30);
-        centerStatus.setAlignment(Pos.CENTER);
-
-        // 右侧：所有按钮排成一排
-        HBox buttonRow = new HBox(8);
-        buttonRow.setAlignment(Pos.CENTER_RIGHT);
-
-        Button restartButton = createTopButton("🔄", "重新开始", "game-button-restart");
-        restartButton.setOnAction(e -> restartGame());
-
-        Button layoutButton = createTopButton("🎯", "更换布局", "game-button-layout");
-        layoutButton.setOnAction(e -> {
-            cleanOnlineRoom();
-            showLayoutSelectionDialog(null);
-        });
-
-        Button aiSolveBtn = createTopButton("🤖", aiSolving ? "演示中" : "AI帮解", "game-button-ai");
-        aiSolveBtn.setDisable(aiSolving);
-        aiSolveBtn.setOnAction(e -> solveByAI());
-
-        Button undoButton = createTopButton("↶", "撤销", "game-button-undo");
-        undoButton.setOnAction(e -> undoMove());
-
-        Button watchableBtn = createTopButton("👁", "可观战", "game-button-watch");
-        watchableBtn.setOnAction(e -> {
-            if (!watchable) {
-                watchable = true;
-                roomId = userName + "_" + System.currentTimeMillis();
-                watchableBtn.setText("👁 结束观战");
-                uploadOnlineGameState(roomId, userName, blocks, moveCount, getElapsedTimeString());
-                showAlert("提示", "观战已开启", "现在其他用户可以观战你的对局。", Alert.AlertType.INFORMATION);
-            } else {
-                cleanOnlineRoom();
-                watchableBtn.setText("👁 可观战");
-                showAlert("提示", "观战已关闭", "你的对局已不再同步到观战列表。", Alert.AlertType.INFORMATION);
-            }
-        });
-
-        Button saveButton = createTopButton("💾", "存档", "game-button-save");
-        saveButton.setOnAction(e -> {
-            // 存档逻辑保持不变
-            if (isTimed) {
-                Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
-                failAlert.setHeaderText("限时模式存档提示");
-                failAlert.setTitle("提示");
-                Optional<ButtonType> failResult = failAlert.showAndWait();
-                if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
-                    return;
-                }
-            }
-            if ("离线用户".equals(userName)) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
-                alert.setHeaderText(null);
-                alert.setTitle("提示");
-                alert.showAndWait();
-                return;
-            }
-            if (this.time != null) {
-                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖之前的历史记录？", ButtonType.YES, ButtonType.NO);
-                confirm.setHeaderText("检测到本局为历史存档继续");
-                confirm.setTitle("覆盖提示");
-                Optional<ButtonType> result = confirm.showAndWait();
-                if (result.isPresent() && result.get() == ButtonType.YES) {
-                    try {
-                        MongoDBUtil db = new MongoDBUtil();
-                        db.getCollection("game_history").deleteOne(
-                                new org.bson.Document("username", userName)
-                                        .append("layout", getCurrentLayoutName())
-                                        .append("saveTime", this.time)
-                        );
-                        db.close();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    this.time = null;
-                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
-                    alert.setHeaderText(null);
-                    alert.setTitle("提示");
-                    alert.showAndWait();
-                    cleanOnlineRoom();
-                    if (parentStageToClose != null) parentStageToClose.show();
-                    primaryStage.close();
-                    return;
-                } else {
-                    this.time = null;
-                    return;
-                }
-            }
-            uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
-            alert.setHeaderText(null);
-            alert.setTitle("提示");
-            alert.showAndWait();
-            cleanOnlineRoom();
-            if (parentStageToClose != null) parentStageToClose.show();
-            primaryStage.close();
-        });
-
-        Button backButton = createTopButton("🏠", "返回主界面", "game-button-back");
-        backButton.setOnAction(e -> {
-            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "是否存档当前进度？", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-            confirm.setHeaderText("返回主界面");
-            confirm.setTitle("提示");
-            Optional<ButtonType> result = confirm.showAndWait();
-            if (result.isPresent()) {
-                if (result.get() == ButtonType.YES) {
-                    if (isTimed) {
-                        Alert failAlert = new Alert(Alert.AlertType.CONFIRMATION, "限时模式下存档将视为挑战失败，是否继续存档？", ButtonType.YES, ButtonType.NO);
-                        failAlert.setHeaderText("限时模式存档提示");
-                        failAlert.setTitle("提示");
-                        Optional<ButtonType> failResult = failAlert.showAndWait();
-                        if (failResult.isEmpty() || failResult.get() == ButtonType.NO) {
-                            return;
-                        }
-                    }
-                    if ("离线用户".equals(userName)) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "离线游玩，不支持存档");
-                        alert.setHeaderText(null);
-                        alert.setTitle("提示");
-                        alert.showAndWait();
-                        cleanOnlineRoom();
-                        if (parentStageToClose != null) parentStageToClose.show();
-                        primaryStage.close();
-                        return;
-                    }
-                    if (this.time != null) {
-                        Alert coverConfirm = new Alert(Alert.AlertType.CONFIRMATION, "是否覆盖上一次存档？", ButtonType.YES, ButtonType.NO);
-                        coverConfirm.setHeaderText("检测到本局为历史存档继续");
-                        coverConfirm.setTitle("覆盖提示");
-                        Optional<ButtonType> coverResult = coverConfirm.showAndWait();
-                        if (coverResult.isPresent() && coverResult.get() == ButtonType.YES) {
-                            try {
-                                MongoDBUtil db = new MongoDBUtil();
-                                db.getCollection("game_history").deleteOne(
-                                        new org.bson.Document("username", userName)
-                                                .append("layout", getCurrentLayoutName())
-                                                .append("saveTime", this.time)
-                                );
-                                db.close();
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                            this.time = null;
-                            uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
-                            alert.setHeaderText(null);
-                            alert.setTitle("提示");
-                            alert.showAndWait();
-                            cleanOnlineRoom();
-                            if (parentStageToClose != null) parentStageToClose.show();
-                            primaryStage.close();
-                            return;
-                        } else {
-                            this.time = null;
-                            cleanOnlineRoom();
-                            if (parentStageToClose != null) parentStageToClose.show();
-                            primaryStage.close();
-                            return;
-                        }
-                    }
-                    uploadGameResult(userName, getCurrentLayoutName(), moveCount, getElapsedTimeString(), serializeHistoryStack());
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "存档成功！");
-                    alert.setHeaderText(null);
-                    alert.setTitle("提示");
-                    alert.showAndWait();
-                    cleanOnlineRoom();
-                    if (parentStageToClose != null) parentStageToClose.show();
-                    primaryStage.close();
-                } else if (result.get() == ButtonType.NO) {
-                    cleanOnlineRoom();
-                    if (parentStageToClose != null) parentStageToClose.show();
-                    primaryStage.close();
-                }
-            }
-        });
-
-        // 将所有按钮添加到一排中
-        buttonRow.getChildren().addAll(
-                restartButton, layoutButton, aiSolveBtn, undoButton,
-                watchableBtn, saveButton, backButton
-        );
-
-        // 更新顶部按钮引用
-        topPanelButtons.clear();
-        topPanelButtons.add(undoButton);
-        topPanelButtons.add(saveButton);
-        topPanelButtons.add(backButton);
-
-        // 弹性空间
-        Region leftSpacer = new Region();
-        Region rightSpacer = new Region();
-        HBox.setHgrow(leftSpacer, Priority.ALWAYS);
-        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-        topPanel.getChildren().addAll(leftInfo, leftSpacer, centerStatus, rightSpacer, buttonRow);
-
-        return topPanel;
-    }
-
-    // 修改：createTopButton 方法 - 调整按钮尺寸以适应一排显示
-    private Button createTopButton(String icon, String text, String styleClass) {
-        Button button = new Button(icon + " " + text);
-        button.setPrefWidth(90); // 略微增加宽度
-        button.setPrefHeight(32); // 略微减少高度
-        button.setFont(Font.font("微软雅黑", 11)); // 略微减小字体
-        button.getStyleClass().add("game-top-button");
-        button.getStyleClass().add(styleClass);
-        return button;
-    }
-
-    // 修改：createGameStatusBox 方法 - 移除或简化下方状态框（避免重复显示）
+    // 修改：createGameStatusBox 方法 - 正确添加所有状态显示元素
     private HBox createGameStatusBox() {
         HBox statusBox = new HBox(40);
         statusBox.setAlignment(Pos.CENTER);
-        statusBox.setPadding(new Insets(10, 20, 5, 20)); // 减少padding
+        statusBox.setPadding(new Insets(10, 20, 5, 20));
         statusBox.getStyleClass().add("game-status-box");
 
-        // 只显示布局名称，移除重复的步数和时间
+        // 左侧：步数显示
+        HBox leftStatus = new HBox(8);
+        leftStatus.setAlignment(Pos.CENTER_LEFT);
+        leftStatus.setPrefWidth(200);
+        leftStatus.setMaxWidth(200);
+
+        Label moveIcon = new Label("👣");
+        moveIcon.setFont(Font.font("微软雅黑", 18));
+        moveIcon.setStyle("-fx-text-fill: #495057;");
+        moveIcon.getStyleClass().add("status-emoji-icon");
+
+        moveCountLabel.setFont(Font.font("微软雅黑", 18));
+        moveCountLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+
+        leftStatus.getChildren().addAll(moveIcon, moveCountLabel);
+
+        // 中间：布局名称显示
         VBox layoutBox = new VBox(5);
         layoutBox.setAlignment(Pos.CENTER);
-
-        Label layoutIcon = new Label("🎯");
-        layoutIcon.setFont(Font.font("微软雅黑", 18));
-        layoutIcon.getStyleClass().add("emoji-icon");
 
         Label currentLayoutLabel = new Label(getCurrentLayoutName());
         currentLayoutLabel.setFont(Font.font("微软雅黑", 16));
         currentLayoutLabel.getStyleClass().add("status-value");
 
-        Label layoutDesc = new Label("当前布局");
-        layoutDesc.setFont(Font.font("微软雅黑", 12));
-        layoutDesc.getStyleClass().add("status-description");
+        layoutBox.getChildren().addAll(currentLayoutLabel);
 
-        layoutBox.getChildren().addAll(layoutIcon, currentLayoutLabel, layoutDesc);
+        // 右侧：时间显示
+        HBox rightStatus = new HBox(8);
+        rightStatus.setAlignment(Pos.CENTER_RIGHT);
+        rightStatus.setPrefWidth(200);
+        rightStatus.setMaxWidth(200);
 
-        statusBox.getChildren().add(layoutBox);
+        Label timerIcon = new Label("⏱");
+        timerIcon.setFont(Font.font("微软雅黑", 18));
+        timerIcon.setStyle("-fx-text-fill: #495057;");
+        timerIcon.getStyleClass().add("status-emoji-icon");
+
+        timerLabel.setFont(Font.font("微软雅黑", 18));
+        timerLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+
+        rightStatus.getChildren().addAll(timerIcon, timerLabel);
+
+        // 修复：将所有三个部分都添加到状态框中
+        statusBox.getChildren().addAll(leftStatus, layoutBox, rightStatus);
 
         return statusBox;
     }
@@ -807,7 +1299,6 @@ public class GameFrame {
         return aiControls;
     }
 
-
     private void handleKeyPress(KeyEvent event) {
         if (aiSolving) return; // AI演示时禁用手动操作
         if (selectedBlock == null || gameWon) {
@@ -865,7 +1356,6 @@ public class GameFrame {
         }
     }
 
-
     // 新增：获取当前布局名称
     private String getCurrentLayoutName() {
         List<String> layoutNames = BoardLayouts.getLayoutNames();
@@ -874,7 +1364,6 @@ public class GameFrame {
         }
         return "棋局：未知";
     }
-
 
     private StackPane createGameBoard() {
         double boardWidth = BOARD_COLS * CELL_SIZE;
@@ -941,14 +1430,11 @@ public class GameFrame {
         return boardPane;
     }
 
-
     private void refreshControlPanel() {
         BorderPane root = (BorderPane) primaryStage.getScene().getRoot();
         VBox newPanel = createControlPanel();
         root.setRight(newPanel);
     }
-
-
 
     private List<Block> deepCopyBlocks(List<Block> original) {
         List<Block> copy = new ArrayList<>();
@@ -990,93 +1476,6 @@ public class GameFrame {
             showWinDialog();
         }
     }
-
-    // 修改：showWinDialog 方法 - 调整为与游戏界面一致的窗口大小和允许拖动调整
-    private void showWinDialog() {
-        if (timer != null) timer.stop();
-        String elapsedTime = getElapsedTimeString();
-        String layoutName = getCurrentLayoutName();
-
-        // 异步上传数据到云端
-        if (!Objects.equals(userName, "离线用户")) {
-            new Thread(() -> uploadGameResult(userName, layoutName, moveCount, elapsedTime, serializeHistoryStack())).start();
-        }
-
-        // 限时模式且在规定时间内通关，奖励金币（异步）
-        final boolean[] reward = {false};
-        Thread rewardThread = null;
-        if (isTimed && remainSeconds > 0 && !"离线用户".equals(userName)) {
-            rewardThread = new Thread(() -> {
-                try {
-                    MongoDBUtil db = new MongoDBUtil();
-                    db.getCollection("users").updateOne(
-                            new Document("username", userName),
-                            new Document("$inc", new Document("coins", 50))
-                    );
-                    db.close();
-                    reward[0] = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            rewardThread.start();
-        }
-
-        // 创建胜利画面Stage - 修改：与游戏界面保持一致并允许拖动调整
-        Stage victoryStage = new Stage();
-        victoryStage.setTitle("游戏胜利！");
-        victoryStage.setResizable(true); // 修改：允许调整大小
-        victoryStage.initOwner(primaryStage);
-        victoryStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-
-        // 修改：移除禁用拖动的设置，使用默认样式
-        // victoryStage.initStyle(javafx.stage.StageStyle.UTILITY); // 删除这行
-
-        // 修改：使用与游戏界面完全一致的窗口尺寸和位置
-        victoryStage.setX(primaryStage.getX());
-        victoryStage.setY(primaryStage.getY());
-        victoryStage.setWidth(primaryStage.getWidth());
-        victoryStage.setHeight(primaryStage.getHeight());
-
-        // 新增：设置最小尺寸，确保内容完整显示
-        victoryStage.setMinWidth(1000);
-        victoryStage.setMinHeight(700);
-
-        // 创建主容器 - 修改为响应式横向布局
-        HBox root = new HBox(0);
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("victory-background");
-
-        // 创建胜利画面内容 - 传入响应式布局标记
-        HBox victoryContent = createVictoryContentResponsive(layoutName, moveCount, elapsedTime, reward[0], rewardThread);
-
-        root.getChildren().add(victoryContent);
-
-        Scene scene = new Scene(root, primaryStage.getWidth(), primaryStage.getHeight());
-        loadCSS(scene);
-
-        victoryStage.setScene(scene);
-
-        // 添加关闭事件处理
-        victoryStage.setOnCloseRequest(e -> {
-            cleanOnlineRoom();
-            if (parentStageToClose != null) parentStageToClose.show();
-            primaryStage.close();
-        });
-
-        victoryStage.show();
-
-        // 启动胜利动画
-        startVictoryAnimationsResponsive(victoryContent);
-
-        // 等待奖励线程结束
-        if (rewardThread != null) {
-            try {
-                rewardThread.join(100);
-            } catch (InterruptedException ignored) {}
-        }
-    }
-
 
     private HBox createVictoryContentResponsive(String layoutName, int moveCount, String elapsedTime, boolean hasReward, Thread rewardThread) {
         HBox content = new HBox(40); // 使用固定间距，避免复杂绑定
@@ -1385,66 +1784,6 @@ public class GameFrame {
         return rewardArea;
     }
 
-    // 新增：创建固定尺寸的胜利按钮区域
-    private HBox createVictoryButtonAreaFixed() {
-        HBox buttonArea = new HBox(15);
-        buttonArea.setAlignment(Pos.CENTER);
-        buttonArea.setPadding(new Insets(15, 0, 5, 0));
-
-        Button restartButton = new Button("🔄 再来一局");
-        restartButton.setPrefWidth(120);
-        restartButton.setPrefHeight(45);
-        restartButton.setFont(Font.font("微软雅黑", 14));
-        restartButton.getStyleClass().add("victory-button-restart");
-        restartButton.setOnAction(e -> {
-            Stage victoryStage = (Stage) restartButton.getScene().getWindow();
-            victoryStage.close();
-            restartGame();
-        });
-
-        Button newLayoutButton = new Button("🎯 新布局");
-        newLayoutButton.setPrefWidth(120);
-        newLayoutButton.setPrefHeight(45);
-        newLayoutButton.setFont(Font.font("微软雅黑", 14));
-        newLayoutButton.getStyleClass().add("victory-button-layout");
-        newLayoutButton.setOnAction(e -> {
-            Stage victoryStage = (Stage) newLayoutButton.getScene().getWindow();
-            victoryStage.close();
-            cleanOnlineRoom();
-            showLayoutSelectionDialog(null);
-        });
-
-        Button backToMainButton = new Button("🏠 返回主界面");
-        backToMainButton.setPrefWidth(130);
-        backToMainButton.setPrefHeight(45);
-        backToMainButton.setFont(Font.font("微软雅黑", 14));
-        backToMainButton.getStyleClass().add("victory-button-main");
-        backToMainButton.setOnAction(e -> {
-            Stage victoryStage = (Stage) backToMainButton.getScene().getWindow();
-            victoryStage.close();
-            cleanOnlineRoom();
-            if (parentStageToClose != null) {
-                parentStageToClose.show();
-                parentStageToClose.toFront();
-            }
-            primaryStage.close();
-        });
-
-        Button continueButton = new Button("⏭ 继续游戏");
-        continueButton.setPrefWidth(120);
-        continueButton.setPrefHeight(45);
-        continueButton.setFont(Font.font("微软雅黑", 14));
-        continueButton.getStyleClass().add("victory-button-continue");
-        continueButton.setOnAction(e -> {
-            Stage victoryStage = (Stage) continueButton.getScene().getWindow();
-            victoryStage.close();
-        });
-
-        buttonArea.getChildren().addAll(restartButton, newLayoutButton, backToMainButton, continueButton);
-
-        return buttonArea;
-    }
-
     // 新增：启动固定布局的胜利动画
     private void startVictoryAnimationsResponsive(HBox victoryContent) {
         // 为胜利内容添加淡入动画
@@ -1525,45 +1864,7 @@ public class GameFrame {
         statusRow.setAlignment(Pos.CENTER);
         statusRow.setPadding(new Insets(10, 0, 10, 0));
 
-        // 左侧：步数显示
-        HBox leftStatus = new HBox(8);
-        leftStatus.setAlignment(Pos.CENTER_LEFT);
-        leftStatus.setPrefWidth(200);
-        leftStatus.setMaxWidth(200); // 添加最大宽度限制
 
-        Label moveIcon = new Label("👣");
-        moveIcon.setFont(Font.font("微软雅黑", 18));
-        moveIcon.setStyle("-fx-text-fill: #495057;");
-        // 修复：确保图标显示原色
-        moveIcon.getStyleClass().add("status-emoji-icon");
-
-        moveCountLabel.setFont(Font.font("微软雅黑", 18));
-        moveCountLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
-
-        leftStatus.getChildren().addAll(moveIcon, moveCountLabel);
-
-        // 中间弹性空间
-        Region centerSpacer = new Region();
-        HBox.setHgrow(centerSpacer, Priority.ALWAYS);
-
-        // 右侧：时间显示 - 修复矩形方框问题
-        HBox rightStatus = new HBox(8);
-        rightStatus.setAlignment(Pos.CENTER_RIGHT);
-        rightStatus.setPrefWidth(200);
-        rightStatus.setMaxWidth(200); // 添加最大宽度限制
-
-        Label timerIcon = new Label("⏱");  // 修复：使用简单的时钟符号，避免复合字符
-        timerIcon.setFont(Font.font("微软雅黑", 18));
-        timerIcon.setStyle("-fx-text-fill: #495057;");
-        // 修复：确保图标显示原色
-        timerIcon.getStyleClass().add("status-emoji-icon");
-
-        timerLabel.setFont(Font.font("微软雅黑", 18));
-        timerLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
-
-        rightStatus.getChildren().addAll(timerIcon, timerLabel);
-
-        statusRow.getChildren().addAll(leftStatus, centerSpacer, rightStatus);
 
         // 棋盘本体
         StackPane gameBoardPane = createGameBoard();
@@ -1698,57 +1999,6 @@ public class GameFrame {
             long seconds = elapsed % 60;
             timerLabel.setText(String.format("用时: %02d:%02d", minutes, seconds));
         }
-    }
-
-    // 新增：显示失败界面
-    private void showFailDialog(String failReason, String failMessage) {
-        if (timer != null) timer.stop();
-        String elapsedTime = getElapsedTimeString();
-        String layoutName = getCurrentLayoutName();
-
-        // 创建失败画面Stage
-        Stage failStage = new Stage();
-        failStage.setTitle("挑战失败");
-        failStage.setResizable(true);
-        failStage.initOwner(primaryStage);
-        failStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-
-        // 使用与游戏界面完全一致的窗口尺寸和位置
-        failStage.setX(primaryStage.getX());
-        failStage.setY(primaryStage.getY());
-        failStage.setWidth(primaryStage.getWidth());
-        failStage.setHeight(primaryStage.getHeight());
-
-        // 设置最小尺寸
-        failStage.setMinWidth(1000);
-        failStage.setMinHeight(700);
-
-        // 创建主容器 - 横向布局
-        HBox root = new HBox(0);
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("failure-background");
-
-        // 创建失败画面内容
-        HBox failContent = createFailureContent(failReason, failMessage, layoutName, moveCount, elapsedTime);
-
-        root.getChildren().add(failContent);
-
-        Scene scene = new Scene(root, primaryStage.getWidth(), primaryStage.getHeight());
-        loadCSS(scene);
-
-        failStage.setScene(scene);
-
-        // 添加关闭事件处理
-        failStage.setOnCloseRequest(e -> {
-            cleanOnlineRoom();
-            if (parentStageToClose != null) parentStageToClose.show();
-            primaryStage.close();
-        });
-
-        failStage.show();
-
-        // 启动失败动画
-        startFailureAnimations(failContent);
     }
 
     // 新增：创建失败画面内容
@@ -2020,67 +2270,6 @@ public class GameFrame {
         suggestionItem.getChildren().addAll(suggestionIcon, suggestionText);
 
         return suggestionItem;
-    }
-
-    // 新增：创建失败按钮区域
-    private HBox createFailureButtonArea() {
-        HBox buttonArea = new HBox(15);
-        buttonArea.setAlignment(Pos.CENTER);
-        buttonArea.setPadding(new Insets(15, 0, 5, 0));
-
-        Button retryButton = new Button("🔄 重新挑战");
-        retryButton.setPrefWidth(130);
-        retryButton.setPrefHeight(45);
-        retryButton.setFont(Font.font("微软雅黑", 14));
-        retryButton.getStyleClass().add("failure-button-retry");
-        retryButton.setOnAction(e -> {
-            Stage failStage = (Stage) retryButton.getScene().getWindow();
-            failStage.close();
-            restartGame();
-        });
-
-        Button newLayoutButton = new Button("🎯 换个布局");
-        newLayoutButton.setPrefWidth(130);
-        newLayoutButton.setPrefHeight(45);
-        newLayoutButton.setFont(Font.font("微软雅黑", 14));
-        newLayoutButton.getStyleClass().add("failure-button-layout");
-        newLayoutButton.setOnAction(e -> {
-            Stage failStage = (Stage) newLayoutButton.getScene().getWindow();
-            failStage.close();
-            cleanOnlineRoom();
-            showLayoutSelectionDialog(null);
-        });
-
-        Button aiHelpButton = new Button("🤖 AI帮助");
-        aiHelpButton.setPrefWidth(130);
-        aiHelpButton.setPrefHeight(45);
-        aiHelpButton.setFont(Font.font("微软雅黑", 14));
-        aiHelpButton.getStyleClass().add("failure-button-ai");
-        aiHelpButton.setOnAction(e -> {
-            Stage failStage = (Stage) aiHelpButton.getScene().getWindow();
-            failStage.close();
-            solveByAI();
-        });
-
-        Button backButton = new Button("🏠 返回主界面");
-        backButton.setPrefWidth(140);
-        backButton.setPrefHeight(45);
-        backButton.setFont(Font.font("微软雅黑", 14));
-        backButton.getStyleClass().add("failure-button-back");
-        backButton.setOnAction(e -> {
-            Stage failStage = (Stage) backButton.getScene().getWindow();
-            failStage.close();
-            cleanOnlineRoom();
-            if (parentStageToClose != null) {
-                parentStageToClose.show();
-                parentStageToClose.toFront();
-            }
-            primaryStage.close();
-        });
-
-        buttonArea.getChildren().addAll(retryButton, newLayoutButton, aiHelpButton, backButton);
-
-        return buttonArea;
     }
 
     // 新增：启动失败动画
