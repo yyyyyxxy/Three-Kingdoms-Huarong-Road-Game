@@ -1,4 +1,5 @@
 import com.mongodb.client.model.Filters;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -1546,10 +1547,77 @@ public class GameFrame {
         return boardPane;
     }
 
+    // 在 GameFrame.java 中修改 refreshControlPanel 方法
     private void refreshControlPanel() {
-        BorderPane root = (BorderPane) primaryStage.getScene().getRoot();
-        VBox newPanel = createControlPanel();
-        root.setRight(newPanel);
+        if (controlPanelRef != null) {
+            // 清除现有的控制面板内容
+            controlPanelRef.getChildren().clear();
+
+            if (aiSolving) {
+                // AI帮解模式 - 显示AI控制面板
+                VBox aiControls = createAIControls();
+                controlPanelRef.getChildren().add(aiControls);
+            } else {
+                // 正常模式 - 显示普通控制面板
+                VBox normalControls = createNormalControls(); // 这个方法需要实现
+                controlPanelRef.getChildren().add(normalControls);
+            }
+        }
+    }
+
+    // 创建普通游戏控制面板的方法
+    // 修复 createNormalControls 方法
+    private VBox createNormalControls() {
+        VBox normalControls = new VBox(15);
+        normalControls.setAlignment(Pos.CENTER);
+        normalControls.setPadding(new Insets(20));
+        normalControls.getStyleClass().add("control-panel");
+
+        // 控制面板标题
+        Label controlTitle = new Label("🎮 游戏控制");
+        controlTitle.setFont(Font.font("微软雅黑", 20));
+        controlTitle.getStyleClass().add("control-panel-title");
+
+        // 游戏控制区域
+        VBox gameControls = createGameControls();
+
+        normalControls.getChildren().addAll(controlTitle, gameControls);
+
+        return normalControls;
+    }
+
+    // 修改 stopAISolve 方法，确保正确恢复控制面板
+    private void stopAISolve() {
+        // 防止重复调用
+        if (!aiSolving) {
+            return;
+        }
+
+        setAISolvingStatus(false);
+        aiSolving = false;
+        aiPaused = false;
+        aiSolution = null;
+        aiStepIndex = 0;
+        if (aiThread != null) aiThread.interrupt();
+
+        // 恢复AI前的棋盘和步数
+        if (aiBeforeBlocks != null) {
+            blocks = deepCopyBlocks(aiBeforeBlocks);
+            moveCount = aiBeforeMoveCount;
+            moveCountLabel.setText("步数: " + moveCount);
+            drawBlocks();
+        }
+
+        // 刷新控制面板 - 这里会切换回普通控制面板
+        refreshControlPanel();
+        setTopPanelButtonsEnabled(true);
+
+        // 确保只显示一次操作完成提示
+        Platform.runLater(() -> {
+            if (!aiSolving) {
+                showAlert("AI帮解", "操作完成", "AI帮解已结束，棋盘已恢复到帮解前的状态", Alert.AlertType.INFORMATION);
+            }
+        });
     }
 
     private List<Block> deepCopyBlocks(List<Block> original) {
@@ -2768,23 +2836,6 @@ public class GameFrame {
         });
     }
 
-    private void stopAISolve() {
-        setAISolvingStatus(false); // ← AI帮解结束时上传状态
-        aiSolving = false;
-        aiPaused = false;
-        aiSolution = null;
-        aiStepIndex = 0;
-        if (aiThread != null) aiThread.interrupt();
-        // 恢复AI前的棋盘和步数
-        if (aiBeforeBlocks != null) {
-            blocks = deepCopyBlocks(aiBeforeBlocks);
-            moveCount = aiBeforeMoveCount;
-            moveCountLabel.setText("步数: " + moveCount);
-            drawBlocks();
-        }
-        refreshControlPanel();
-        setTopPanelButtonsEnabled(true);
-    }
 
     private void setTopPanelButtonsEnabled(boolean enabled) {
         for (Button btn : topPanelButtons) {
