@@ -442,6 +442,119 @@ public class MainInterfaceFrame {
             this.mainStage.setHeight(600);
         }
 
+        // ========== 🎯 新增：动态绑定组件大小 ==========
+        // 1. ScrollPane动态调整
+        scrollPane.prefWidthProperty().bind(this.mainStage.widthProperty());
+        scrollPane.prefHeightProperty().bind(this.mainStage.heightProperty());
+
+        // 2. MainLayout动态调整
+        mainLayout.prefWidthProperty().bind(scrollPane.widthProperty().subtract(20)); // 减去滚动条宽度
+        mainLayout.prefHeightProperty().bind(scrollPane.heightProperty().subtract(20)); // 减去滚动条高度
+
+        // 3. 左右分栏动态调整
+        leftSection.prefHeightProperty().bind(mainLayout.heightProperty());
+        rightSection.prefHeightProperty().bind(mainLayout.heightProperty());
+
+        // 4. 主要按钮根据窗口宽度动态调整
+        this.mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            // 开始游戏按钮动态宽度
+            if (windowWidth > 1000) {
+                startBtn.setPrefWidth(420);
+            } else if (windowWidth > 800) {
+                startBtn.setPrefWidth(380);
+            } else {
+                startBtn.setPrefWidth(340);
+            }
+
+            // 历史记录和排行榜按钮动态宽度
+            double buttonWidth = Math.max(150, Math.min(200, (windowWidth - 100) / 4));
+            historyBtn.setPrefWidth(buttonWidth);
+            rankBtn.setPrefWidth(buttonWidth);
+        });
+
+        // 5. 社交卡片根据窗口高度动态调整
+        this.mainStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            double windowHeight = newVal.doubleValue();
+
+            // 根据窗口高度调整社交卡片大小
+            double cardHeight = Math.max(80, Math.min(120, (windowHeight - 200) / 6));
+            double cardWidth = Math.max(140, Math.min(160, (windowHeight - 200) / 8));
+
+            // 更新所有社交卡片尺寸
+            for (javafx.scene.Node node : socialGrid.getChildren()) {
+                if (node instanceof VBox) {
+                    VBox card = (VBox) node;
+                    card.setPrefHeight(cardHeight);
+                    card.setPrefWidth(cardWidth);
+                }
+            }
+        });
+
+        // 6. 顶部用户信息区域动态调整
+        topSection.prefWidthProperty().bind(leftSection.widthProperty());
+
+        // 7. 标题字体根据窗口大小动态调整
+        this.mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                titleIcon.setFont(Font.font("微软雅黑", 48));
+                title.setFont(Font.font("微软雅黑", 42));
+                subtitle.setFont(Font.font("微软雅黑", 18));
+            } else if (windowWidth > 800) {
+                titleIcon.setFont(Font.font("微软雅黑", 42));
+                title.setFont(Font.font("微软雅黑", 36));
+                subtitle.setFont(Font.font("微软雅黑", 16));
+            } else {
+                titleIcon.setFont(Font.font("微软雅黑", 36));
+                title.setFont(Font.font("微软雅黑", 30));
+                subtitle.setFont(Font.font("微软雅黑", 14));
+            }
+        });
+
+        // 8. 左右分栏宽度比例动态调整
+        this.mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1200) {
+                // 宽屏时适当增加左右区域宽度
+                leftSection.setPrefWidth(450);
+                leftSection.setMaxWidth(500);
+                rightSection.setPrefWidth(400);
+                rightSection.setMaxWidth(450);
+            } else if (windowWidth > 900) {
+                // 标准尺寸
+                leftSection.setPrefWidth(400);
+                leftSection.setMaxWidth(450);
+                rightSection.setPrefWidth(350);
+                rightSection.setMaxWidth(400);
+            } else {
+                // 窄屏时压缩区域宽度
+                leftSection.setPrefWidth(350);
+                leftSection.setMaxWidth(380);
+                rightSection.setPrefWidth(300);
+                rightSection.setMaxWidth(330);
+            }
+        });
+
+        // 9. 社交网格间距动态调整
+        this.mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                socialGrid.setHgap(20);
+                socialGrid.setVgap(20);
+            } else if (windowWidth > 800) {
+                socialGrid.setHgap(15);
+                socialGrid.setVgap(15);
+            } else {
+                socialGrid.setHgap(10);
+                socialGrid.setVgap(10);
+            }
+        });
+
         // 4. 显示新的主界面 Stage
         this.mainStage.show();
 
@@ -455,18 +568,6 @@ public class MainInterfaceFrame {
                 // 使用延迟执行避免影响UI布局
                 Platform.runLater(() -> {
                     refreshCoins.run();
-                });
-            }
-        });
-
-        // 可选：添加窗口显示监听器作为补充
-        this.mainStage.showingProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal && !"离线用户".equals(username)) {
-                // 延迟执行，避免在UI初始化时影响布局
-                Platform.runLater(() -> {
-                    Platform.runLater(() -> {
-                        refreshCoins.run();
-                    });
                 });
             }
         });
@@ -4267,255 +4368,6 @@ public class MainInterfaceFrame {
         stage.show();
     }
 
-    // 修复：在 showWeChatStyleChat 方法中添加本地消息跟踪
-    private void showWeChatStyleChat(String currentUser, String otherUser, String sourceType) {
-        Stage chatStage = new Stage();
-        chatStage.setTitle("与 " + otherUser + " 的聊天");
-        chatStage.setResizable(true);
-
-        // 窗口同步绑定代码保持不变...
-        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
-                mainStage.setWidth(newVal.doubleValue());
-            }
-        });
-        mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getWidth()) > 2) {
-                chatStage.setWidth(newVal.doubleValue());
-            }
-        });
-        chatStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
-                mainStage.setHeight(newVal.doubleValue());
-            }
-        });
-        mainStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getHeight()) > 2) {
-                chatStage.setHeight(newVal.doubleValue());
-            }
-        });
-        chatStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
-                mainStage.setX(newVal.doubleValue());
-            }
-        });
-        mainStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getX()) > 2) {
-                chatStage.setX(newVal.doubleValue());
-            }
-        });
-        chatStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
-                mainStage.setY(newVal.doubleValue());
-            }
-        });
-        mainStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - chatStage.getY()) > 2) {
-                chatStage.setY(newVal.doubleValue());
-            }
-        });
-
-        // 初始同步窗口位置和大小
-        chatStage.setX(mainStage.getX());
-        chatStage.setY(mainStage.getY());
-        chatStage.setWidth(mainStage.getWidth());
-        chatStage.setHeight(mainStage.getHeight());
-
-        BorderPane root = new BorderPane();
-        root.getStyleClass().add("chat-background");
-
-        // Header部分代码保持不变...
-        HBox header = new HBox();
-        header.setPadding(new Insets(10, 15, 10, 15));
-        header.getStyleClass().add("chat-header");
-        header.setAlignment(Pos.CENTER_LEFT);
-
-        Button backBtn = new Button("← 返回");
-        backBtn.setFont(Font.font("微软雅黑", 14));
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> {
-            if (chatRefreshTimeline != null) {
-                chatRefreshTimeline.stop();
-            }
-
-            double chatX = chatStage.getX();
-            double chatY = chatStage.getY();
-            double chatWidth = chatStage.getWidth();
-            double chatHeight = chatStage.getHeight();
-
-            chatStage.close();
-
-            Platform.runLater(() -> {
-                if ("mailbox".equals(sourceType)) {
-                    preloadedChatData.remove(currentUser);
-                    showPrivateChatListDirectly(currentUser, chatX, chatY, chatWidth, chatHeight);
-                } else {
-                    mainStage.setX(chatX);
-                    mainStage.setY(chatY);
-                    mainStage.setWidth(chatWidth);
-                    mainStage.setHeight(chatHeight);
-                    showFriends(currentUser);
-                }
-            });
-        });
-
-        Label titleLabel = new Label("与 " + otherUser + " 的聊天");
-        titleLabel.setFont(Font.font("微软雅黑", 18));
-        titleLabel.getStyleClass().add("chat-header-title");
-
-        Region spacer1 = new Region();
-        Region spacer2 = new Region();
-        HBox.setHgrow(spacer1, Priority.ALWAYS);
-
-        header.getChildren().clear();
-        header.getChildren().addAll(backBtn, spacer1, titleLabel, spacer2);
-
-        root.setTop(header);
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.getStyleClass().add("chat-scroll-pane");
-
-        VBox chatArea = new VBox(10);
-        chatArea.setPadding(new Insets(15));
-        chatArea.getStyleClass().add("chat-area");
-
-        // 加载指示器代码保持不变...
-        ProgressIndicator loadingIndicator = new ProgressIndicator();
-        loadingIndicator.setPrefSize(40, 40);
-
-        Label loadingLabel = new Label("正在加载聊天记录...");
-        loadingLabel.setFont(Font.font("微软雅黑", 14));
-        loadingLabel.getStyleClass().add("loading-label");
-
-        VBox loadingBox = new VBox(10);
-        loadingBox.setAlignment(Pos.CENTER);
-        loadingBox.setPadding(new Insets(50));
-        loadingBox.getChildren().addAll(loadingIndicator, loadingLabel);
-
-        chatArea.getChildren().add(loadingBox);
-
-        scrollPane.setContent(chatArea);
-        root.setCenter(scrollPane);
-
-        VBox bottomArea = new VBox(10);
-        bottomArea.setPadding(new Insets(10, 15, 15, 15));
-        bottomArea.getStyleClass().add("chat-bottom-area");
-
-        TextArea messageInput = new TextArea();
-        messageInput.setPromptText("输入消息...");
-        messageInput.setPrefRowCount(3);
-        messageInput.setMaxHeight(80);
-        messageInput.setWrapText(true);
-        messageInput.getStyleClass().add("chat-input");
-
-        HBox buttonArea = new HBox(10);
-        buttonArea.setAlignment(Pos.CENTER_RIGHT);
-
-        Button sendBtn = new Button("发送");
-        sendBtn.setPrefWidth(80);
-        sendBtn.getStyleClass().add("send-button");
-
-        buttonArea.getChildren().add(sendBtn);
-        bottomArea.getChildren().addAll(messageInput, buttonArea);
-        root.setBottom(bottomArea);
-
-        // 修复：添加本地发送消息跟踪
-        final long[] lastMessageTimestamp = {0};
-        final java.util.Set<String> localSentMessages = new java.util.HashSet<>(); // 跟踪本地发送的消息
-
-        // 异步加载聊天消息
-        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane, lastMessageTimestamp);
-
-        // 修复：改进发送消息方法，添加本地消息跟踪
-        Runnable sendMessage = () -> {
-            String message = messageInput.getText().trim();
-            if (!message.isEmpty()) {
-                String currentTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-                // 修复：生成唯一标识符跟踪这条本地消息
-                String messageId = currentUser + ":" + message + ":" + currentTime;
-                localSentMessages.add(messageId);
-
-                VBox messageBox = createMessageBubble(message, currentTime, true);
-                chatArea.getChildren().add(messageBox);
-
-                messageInput.clear();
-                scrollToBottomSmoothly(scrollPane);
-
-                Thread saveThread = new Thread(() -> {
-                    try {
-                        MongoDBUtil db = new MongoDBUtil();
-                        MongoCollection<Document> messagesCol = db.getCollection("private_messages");
-
-                        long timestamp = System.currentTimeMillis();
-                        Document messageDoc = new Document()
-                                .append("from", currentUser)
-                                .append("to", otherUser)
-                                .append("message", message)
-                                .append("timestamp", timestamp)
-                                .append("time", currentTime)
-                                .append("read", false);
-
-                        messagesCol.insertOne(messageDoc);
-                        db.close();
-
-                        lastMessageTimestamp[0] = timestamp;
-
-                        // 修复：成功保存到云端后，延迟移除本地跟踪
-                        Platform.runLater(() -> {
-                            preloadedChatData.remove(currentUser);
-
-                            // 5秒后移除本地消息跟踪，避免永久累积
-                            javafx.animation.Timeline removeTrack = new javafx.animation.Timeline(
-                                    new javafx.animation.KeyFrame(javafx.util.Duration.seconds(5), e -> {
-                                        localSentMessages.remove(messageId);
-                                    })
-                            );
-                            removeTrack.play();
-                        });
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Platform.runLater(() -> {
-                            // 修复：发送失败时移除本地跟踪，避免影响后续刷新
-                            localSentMessages.remove(messageId);
-                            showAlert("错误", "发送私信失败", "网络错误，消息可能未发送成功", Alert.AlertType.WARNING);
-                        });
-                    }
-                });
-
-                saveThread.setDaemon(true);
-                saveThread.start();
-            }
-        };
-
-        sendBtn.setOnAction(e -> sendMessage.run());
-
-        messageInput.setOnKeyPressed(e -> {
-            if (e.getCode().toString().equals("ENTER") && e.isControlDown()) {
-                sendMessage.run();
-                e.consume();
-            }
-        });
-
-        // 修复：启动自动刷新功能，传入本地消息跟踪集合
-        startChatAutoRefresh(chatArea, currentUser, otherUser, scrollPane, lastMessageTimestamp, localSentMessages);
-
-        chatStage.setOnCloseRequest(e -> {
-            if (chatRefreshTimeline != null) {
-                chatRefreshTimeline.stop();
-            }
-        });
-
-        Scene scene = new Scene(root);
-        loadCSS(scene);
-        chatStage.setScene(scene);
-        chatStage.show();
-    }
-
     // 修复：更新启动聊天自动刷新方法
     private void startChatAutoRefresh(VBox chatArea, String currentUser, String otherUser, ScrollPane scrollPane, long[] lastMessageTimestamp, java.util.Set<String> localSentMessages) {
         if (chatRefreshTimeline != null) {
@@ -4785,7 +4637,7 @@ public class MainInterfaceFrame {
         mailboxStage.setWidth(mainStage.getWidth());
         mailboxStage.setHeight(mainStage.getHeight());
 
-        // 添加关闭事件处理
+        // 关闭事件处理
         mailboxStage.setOnCloseRequest(e -> {
             mainStage.setX(mailboxStage.getX());
             mainStage.setY(mailboxStage.getY());
@@ -4798,22 +4650,21 @@ public class MainInterfaceFrame {
             mainStage.toFront();
         });
 
-        // 修复：减少整体边距和间距，紧凑排版
-        VBox root = new VBox(20); // 减少间距从30到20
-        root.setPadding(new Insets(25, 40, 25, 40)); // 减少上下边距从40到25
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25, 40, 25, 40));
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("main-background");
 
-        // 修复：返回按钮区域 - 显著增加按钮宽度
+        // 返回按钮区域
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.setPadding(new Insets(0, 0, 15, 0)); // 减少底部边距
+        headerBox.setPadding(new Insets(0, 0, 15, 0));
 
         Button backBtn = new Button("← 返回");
         backBtn.setFont(Font.font("微软雅黑", 14));
-        backBtn.setPrefWidth(180); // 显著增加按钮宽度，从150到180
-        backBtn.setPrefHeight(30); // 略微增加高度
-        backBtn.setMinWidth(180); // 设置最小宽度
+        backBtn.setPrefWidth(180);
+        backBtn.setPrefHeight(30);
+        backBtn.setMinWidth(180);
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> {
             mailboxStage.close();
@@ -4828,42 +4679,42 @@ public class MainInterfaceFrame {
 
         headerBox.getChildren().addAll(backBtn, spacer);
 
-        // 修复：紧凑的标题区域 - 减少间距和尺寸
-        VBox titleArea = new VBox(8); // 减少间距从10到8
+        // 标题区域
+        VBox titleArea = new VBox(8);
         titleArea.setAlignment(Pos.CENTER);
 
         Label titleIcon = new Label("📬");
-        titleIcon.setFont(Font.font("微软雅黑", 32)); // 减少图标大小从36到32
+        titleIcon.setFont(Font.font("微软雅黑", 32));
         titleIcon.getStyleClass().add("feature-icon");
 
         Label title = new Label("信箱中心");
-        title.setFont(Font.font("微软雅黑", 24)); // 减少标题字体从28到24
+        title.setFont(Font.font("微软雅黑", 24));
         title.getStyleClass().add("mailbox-main-title");
 
         Label subtitle = new Label("管理您的好友申请和私信消息");
-        subtitle.setFont(Font.font("微软雅黑", 14)); // 减少副标题字体从16到14
+        subtitle.setFont(Font.font("微软雅黑", 14));
         subtitle.getStyleClass().add("mailbox-subtitle");
 
         titleArea.getChildren().addAll(titleIcon, title, subtitle);
 
-        // 修复：紧凑的状态显示区域
-        VBox statusArea = new VBox(8); // 减少间距
+        // 状态显示区域
+        VBox statusArea = new VBox(8);
         statusArea.setAlignment(Pos.CENTER);
 
         ProgressIndicator statusProgress = new ProgressIndicator();
-        statusProgress.setPrefSize(20, 20); // 减少进度指示器大小
+        statusProgress.setPrefSize(20, 20);
         statusProgress.getStyleClass().add("mailbox-progress");
 
         Label statusLabel = new Label("正在检查未读消息...");
-        statusLabel.setFont(Font.font("微软雅黑", 10)); // 减少字体大小
+        statusLabel.setFont(Font.font("微软雅黑", 10));
         statusLabel.getStyleClass().add("loading-label");
 
         statusArea.getChildren().addAll(statusProgress, statusLabel);
 
-        // 修复：功能按钮区域 - 减少间距
-        HBox buttonArea = new HBox(25); // 减少间距从30到25
+        // 功能按钮区域
+        HBox buttonArea = new HBox(25);
         buttonArea.setAlignment(Pos.CENTER);
-        buttonArea.setPadding(new Insets(20, 0, 0, 0)); // 减少上边距
+        buttonArea.setPadding(new Insets(20, 0, 0, 0));
 
         // 好友申请卡片
         VBox friendRequestCard = createMailboxCard(
@@ -4883,6 +4734,316 @@ public class MainInterfaceFrame {
 
         root.getChildren().addAll(headerBox, titleArea, statusArea, buttonArea);
 
+        // ========== 🎯 新增：动态绑定组件大小 ==========
+
+        // 1. 根容器动态调整
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("main-scroll-pane");
+
+        // 2. 动态绑定根容器大小
+        root.prefWidthProperty().bind(scrollPane.widthProperty().subtract(20));
+        root.prefHeightProperty().bind(scrollPane.heightProperty().subtract(20));
+
+        // 3. 返回按钮根据窗口宽度动态调整
+        mailboxStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                backBtn.setPrefWidth(220);
+            } else if (windowWidth > 800) {
+                backBtn.setPrefWidth(200);
+            } else {
+                backBtn.setPrefWidth(180);
+            }
+        });
+
+        // 4. 标题字体根据窗口大小动态调整
+        mailboxStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                titleIcon.setFont(Font.font("微软雅黑", 40));
+                title.setFont(Font.font("微软雅黑", 28));
+                subtitle.setFont(Font.font("微软雅黑", 16));
+            } else if (windowWidth > 800) {
+                titleIcon.setFont(Font.font("微软雅黑", 32));
+                title.setFont(Font.font("微软雅黑", 24));
+                subtitle.setFont(Font.font("微软雅黑", 14));
+            } else {
+                titleIcon.setFont(Font.font("微软雅黑", 28));
+                title.setFont(Font.font("微软雅黑", 20));
+                subtitle.setFont(Font.font("微软雅黑", 12));
+            }
+        });
+
+        // 5. 功能卡片根据窗口大小动态调整
+        mailboxStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                // 宽屏时增加卡片尺寸
+                friendRequestCard.setPrefWidth(320);
+                friendRequestCard.setPrefHeight(200);
+                privateChatCard.setPrefWidth(320);
+                privateChatCard.setPrefHeight(200);
+                buttonArea.setSpacing(35);
+            } else if (windowWidth > 800) {
+                // 标准尺寸
+                friendRequestCard.setPrefWidth(280);
+                friendRequestCard.setPrefHeight(180);
+                privateChatCard.setPrefWidth(280);
+                privateChatCard.setPrefHeight(180);
+                buttonArea.setSpacing(25);
+            } else {
+                // 窄屏时压缩卡片尺寸
+                friendRequestCard.setPrefWidth(240);
+                friendRequestCard.setPrefHeight(160);
+                privateChatCard.setPrefWidth(240);
+                privateChatCard.setPrefHeight(160);
+                buttonArea.setSpacing(20);
+            }
+        });
+
+        // 6. 状态区域根据窗口高度动态调整
+        mailboxStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            double windowHeight = newVal.doubleValue();
+
+            if (windowHeight > 700) {
+                statusProgress.setPrefSize(25, 25);
+                statusLabel.setFont(Font.font("微软雅黑", 12));
+            } else if (windowHeight > 500) {
+                statusProgress.setPrefSize(20, 20);
+                statusLabel.setFont(Font.font("微软雅黑", 10));
+            } else {
+                statusProgress.setPrefSize(18, 18);
+                statusLabel.setFont(Font.font("微软雅黑", 9));
+            }
+        });
+
+        // 7. 卡片布局方式根据窗口宽度动态调整
+        mailboxStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth < 700) {
+                // 窄屏时改为垂直布局
+                if (!(buttonArea.getParent() instanceof VBox)) {
+                    VBox verticalButtonArea = new VBox(20);
+                    verticalButtonArea.setAlignment(Pos.CENTER);
+                    verticalButtonArea.setPadding(new Insets(20, 0, 0, 0));
+                    verticalButtonArea.getChildren().addAll(friendRequestCard, privateChatCard);
+
+                    // 替换水平布局为垂直布局
+                    int buttonAreaIndex = root.getChildren().indexOf(buttonArea);
+                    if (buttonAreaIndex >= 0) {
+                        root.getChildren().set(buttonAreaIndex, verticalButtonArea);
+                    }
+                }
+            } else {
+                // 宽屏时使用水平布局
+                if (!(buttonArea.getParent() instanceof HBox)) {
+                    // 如果当前是垂直布局，切换回水平布局
+                    for (int i = 0; i < root.getChildren().size(); i++) {
+                        if (root.getChildren().get(i) instanceof VBox) {
+                            VBox vbox = (VBox) root.getChildren().get(i);
+                            if (vbox.getChildren().contains(friendRequestCard)) {
+                                // 恢复水平布局
+                                buttonArea.getChildren().clear();
+                                buttonArea.getChildren().addAll(friendRequestCard, privateChatCard);
+                                root.getChildren().set(i, buttonArea);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        Scene scene = new Scene(scrollPane);
+        loadCSS(scene);
+        mailboxStage.setScene(scene);
+
+        mailboxStage.show();
+        loadMailboxStatusAsync(username, statusArea, friendRequestCard, privateChatCard);
+    }
+
+    // 更新好友申请界面动态绑定
+    private void showFriendRequestsAndClose(String username, Stage mailboxStage) {
+        Stage friendRequestStage = new Stage();
+        friendRequestStage.setTitle("好友申请");
+        friendRequestStage.setResizable(true);
+
+        // 继承信箱窗口的位置和大小
+        friendRequestStage.setX(mailboxStage.getX());
+        friendRequestStage.setY(mailboxStage.getY());
+        friendRequestStage.setWidth(mailboxStage.getWidth());
+        friendRequestStage.setHeight(mailboxStage.getHeight());
+
+        // 窗口同步绑定
+        friendRequestStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
+                mainStage.setWidth(newVal.doubleValue());
+            }
+        });
+        friendRequestStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
+                mainStage.setHeight(newVal.doubleValue());
+            }
+        });
+        friendRequestStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
+                mainStage.setX(newVal.doubleValue());
+            }
+        });
+        friendRequestStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
+                mainStage.setY(newVal.doubleValue());
+            }
+        });
+
+        // 关闭事件处理
+        friendRequestStage.setOnCloseRequest(e -> {
+            mainStage.setX(friendRequestStage.getX());
+            mainStage.setY(friendRequestStage.getY());
+            mainStage.setWidth(friendRequestStage.getWidth());
+            mainStage.setHeight(friendRequestStage.getHeight());
+
+            if (!mainStage.isShowing()) {
+                mainStage.show();
+            }
+            mainStage.toFront();
+        });
+
+        VBox root = new VBox(25);
+        root.setPadding(new Insets(30, 40, 30, 40));
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("main-background");
+
+        // 返回按钮
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← 返回信箱");
+        backBtn.setFont(Font.font("微软雅黑", 14));
+        backBtn.setPrefWidth(120);
+        backBtn.setPrefHeight(40);
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setOnAction(e -> {
+            friendRequestStage.close();
+            mailboxStage.show();
+            mailboxStage.toFront();
+        });
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer);
+
+        // 标题区域
+        VBox titleArea = new VBox(12);
+        titleArea.setAlignment(Pos.CENTER);
+
+        Label titleIcon = new Label("👥");
+        titleIcon.setFont(Font.font("微软雅黑", 36));
+        titleIcon.getStyleClass().add("feature-icon");
+
+        Label title = new Label("好友申请");
+        title.setFont(Font.font("微软雅黑", 28));
+        title.getStyleClass().add("section-title");
+
+        Label subtitle = new Label("管理您的好友申请");
+        subtitle.setFont(Font.font("微软雅黑", 16));
+        subtitle.getStyleClass().add("mailbox-subtitle");
+
+        titleArea.getChildren().addAll(titleIcon, title, subtitle);
+
+        // ========== 🎯 新增：动态绑定组件大小 ==========
+
+        // 检查是否有预加载的数据
+        if (preloadedFriendRequestData.containsKey(username)) {
+            List<MailRecord> data = preloadedFriendRequestData.get(username);
+
+            if (data.isEmpty()) {
+                VBox emptyStateBox = createFriendRequestEmptyState();
+                root.getChildren().addAll(headerBox, titleArea, emptyStateBox);
+            } else {
+                VBox requestCards = createFriendRequestCards(username, data);
+
+                ScrollPane cardsScrollPane = new ScrollPane(requestCards);
+                cardsScrollPane.setFitToWidth(true);
+                cardsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                cardsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                cardsScrollPane.getStyleClass().add("friend-request-cards-scroll");
+                cardsScrollPane.setPrefHeight(400);
+
+                root.getChildren().addAll(headerBox, titleArea, cardsScrollPane);
+
+                // 动态调整卡片滚动区域高度
+                friendRequestStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+                    double windowHeight = newVal.doubleValue();
+
+                    if (windowHeight > 800) {
+                        cardsScrollPane.setPrefHeight(500);
+                    } else if (windowHeight > 600) {
+                        cardsScrollPane.setPrefHeight(400);
+                    } else {
+                        cardsScrollPane.setPrefHeight(300);
+                    }
+                });
+            }
+        } else {
+            ProgressIndicator progressIndicator = new ProgressIndicator();
+            progressIndicator.setPrefSize(50, 50);
+            progressIndicator.getStyleClass().add("mailbox-progress");
+
+            Label loadingLabel = new Label("正在加载好友申请...");
+            loadingLabel.setFont(Font.font("微软雅黑", 16));
+            loadingLabel.getStyleClass().add("loading-label");
+
+            VBox loadingBox = new VBox(15);
+            loadingBox.setAlignment(Pos.CENTER);
+            loadingBox.setPadding(new Insets(60));
+            loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
+
+            root.getChildren().addAll(headerBox, titleArea, loadingBox);
+            loadFriendRequestsAsync(username, root, loadingBox);
+        }
+
+        // 动态调整返回按钮大小
+        friendRequestStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                backBtn.setPrefWidth(160);
+            } else if (windowWidth > 800) {
+                backBtn.setPrefWidth(140);
+            } else {
+                backBtn.setPrefWidth(120);
+            }
+        });
+
+        // 动态调整标题字体大小
+        friendRequestStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                titleIcon.setFont(Font.font("微软雅黑", 42));
+                title.setFont(Font.font("微软雅黑", 32));
+                subtitle.setFont(Font.font("微软雅黑", 18));
+            } else if (windowWidth > 800) {
+                titleIcon.setFont(Font.font("微软雅黑", 36));
+                title.setFont(Font.font("微软雅黑", 28));
+                subtitle.setFont(Font.font("微软雅黑", 16));
+            } else {
+                titleIcon.setFont(Font.font("微软雅黑", 30));
+                title.setFont(Font.font("微软雅黑", 24));
+                subtitle.setFont(Font.font("微软雅黑", 14));
+            }
+        });
+
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -4892,10 +5053,482 @@ public class MainInterfaceFrame {
 
         Scene scene = new Scene(scrollPane);
         loadCSS(scene);
-        mailboxStage.setScene(scene);
+        friendRequestStage.setScene(scene);
+        friendRequestStage.show();
 
-        mailboxStage.show();
-        loadMailboxStatusAsync(username, statusArea, friendRequestCard, privateChatCard);
+        Platform.runLater(() -> {
+            mailboxStage.hide();
+        });
+    }
+
+    // 更新私信聊天列表界面动态绑定
+    private void showPrivateChatListAndClose(String username, Stage fromMailboxStage) {
+        Stage chatListStage = new Stage();
+        chatListStage.setTitle("私信聊天");
+        chatListStage.setResizable(true);
+
+        // 继承信箱窗口的位置和大小
+        chatListStage.setX(fromMailboxStage.getX());
+        chatListStage.setY(fromMailboxStage.getY());
+        chatListStage.setWidth(fromMailboxStage.getWidth());
+        chatListStage.setHeight(fromMailboxStage.getHeight());
+
+        // 窗口同步绑定
+        chatListStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
+                mainStage.setWidth(newVal.doubleValue());
+            }
+        });
+        chatListStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
+                mainStage.setHeight(newVal.doubleValue());
+            }
+        });
+        chatListStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
+                mainStage.setX(newVal.doubleValue());
+            }
+        });
+        chatListStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
+                mainStage.setY(newVal.doubleValue());
+            }
+        });
+
+        // 关闭事件处理
+        chatListStage.setOnCloseRequest(e -> {
+            mainStage.setX(chatListStage.getX());
+            mainStage.setY(chatListStage.getY());
+            mainStage.setWidth(chatListStage.getWidth());
+            mainStage.setHeight(chatListStage.getHeight());
+
+            if (!mainStage.isShowing()) {
+                mainStage.show();
+            }
+            mainStage.toFront();
+        });
+
+        VBox root = new VBox(25);
+        root.setPadding(new Insets(30, 40, 30, 40));
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("main-background");
+
+        // 返回按钮区域
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← 返回信箱");
+        backBtn.setFont(Font.font("微软雅黑", 14));
+        backBtn.setPrefWidth(120);
+        backBtn.setPrefHeight(40);
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setOnAction(e -> {
+            chatListStage.close();
+            fromMailboxStage.show();
+            fromMailboxStage.toFront();
+        });
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer);
+
+        // 标题区域
+        VBox titleArea = new VBox(12);
+        titleArea.setAlignment(Pos.CENTER);
+
+        Label titleIcon = new Label("💬");
+        titleIcon.setFont(Font.font("微软雅黑", 25));
+        titleIcon.getStyleClass().add("feature-icon");
+
+        Label title = new Label("私信聊天");
+        title.setFont(Font.font("微软雅黑", 20));
+        title.getStyleClass().add("section-title");
+
+        Label subtitle = new Label("查看和回复私信消息");
+        subtitle.setFont(Font.font("微软雅黑", 12));
+        subtitle.getStyleClass().add("mailbox-subtitle");
+
+        titleArea.getChildren().addAll(titleIcon, title, subtitle);
+
+        // 重新加载数据
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setPrefSize(50, 50);
+        progressIndicator.getStyleClass().add("mailbox-progress");
+
+        Label loadingLabel = new Label("正在刷新聊天列表...");
+        loadingLabel.setFont(Font.font("微软雅黑", 16));
+        loadingLabel.getStyleClass().add("loading-label");
+
+        VBox loadingBox = new VBox(15);
+        loadingBox.setAlignment(Pos.CENTER);
+        loadingBox.setPadding(new Insets(60));
+        loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
+
+        root.getChildren().addAll(headerBox, titleArea, loadingBox);
+
+        // ========== 🎯 新增：动态绑定组件大小 ==========
+
+        // 动态调整返回按钮大小
+        chatListStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                backBtn.setPrefWidth(160);
+            } else if (windowWidth > 800) {
+                backBtn.setPrefWidth(140);
+            } else {
+                backBtn.setPrefWidth(120);
+            }
+        });
+
+        // 动态调整标题字体大小
+        chatListStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                titleIcon.setFont(Font.font("微软雅黑", 30));
+                title.setFont(Font.font("微软雅黑", 24));
+                subtitle.setFont(Font.font("微软雅黑", 14));
+            } else if (windowWidth > 800) {
+                titleIcon.setFont(Font.font("微软雅黑", 25));
+                title.setFont(Font.font("微软雅黑", 20));
+                subtitle.setFont(Font.font("微软雅黑", 12));
+            } else {
+                titleIcon.setFont(Font.font("微软雅黑", 22));
+                title.setFont(Font.font("微软雅黑", 18));
+                subtitle.setFont(Font.font("微软雅黑", 11));
+            }
+        });
+
+        // 异步加载最新数据
+        loadPrivateChatListAsync(username, root, loadingBox, chatListStage);
+
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("main-scroll-pane");
+
+        Scene scene = new Scene(scrollPane);
+        loadCSS(scene);
+        chatListStage.setScene(scene);
+        chatListStage.show();
+
+        Platform.runLater(() -> {
+            fromMailboxStage.hide();
+        });
+    }
+
+    // 更新聊天界面动态绑定
+    private void showWeChatStyleChat(String currentUser, String otherUser, String sourceType) {
+        Stage chatStage = new Stage();
+        chatStage.setTitle("与 " + otherUser + " 的聊天");
+        chatStage.setResizable(true);
+
+        // 窗口同步绑定代码保持不变...
+        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
+                mainStage.setWidth(newVal.doubleValue());
+            }
+        });
+        mainStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getWidth()) > 2) {
+                chatStage.setWidth(newVal.doubleValue());
+            }
+        });
+        chatStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
+                mainStage.setHeight(newVal.doubleValue());
+            }
+        });
+        mainStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getHeight()) > 2) {
+                chatStage.setHeight(newVal.doubleValue());
+            }
+        });
+        chatStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
+                mainStage.setX(newVal.doubleValue());
+            }
+        });
+        mainStage.xProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getX()) > 2) {
+                chatStage.setX(newVal.doubleValue());
+            }
+        });
+        chatStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
+                mainStage.setY(newVal.doubleValue());
+            }
+        });
+        mainStage.yProperty().addListener((obs, oldVal, newVal) -> {
+            if (Math.abs(newVal.doubleValue() - chatStage.getY()) > 2) {
+                chatStage.setY(newVal.doubleValue());
+            }
+        });
+
+        // 初始同步窗口位置和大小
+        chatStage.setX(mainStage.getX());
+        chatStage.setY(mainStage.getY());
+        chatStage.setWidth(mainStage.getWidth());
+        chatStage.setHeight(mainStage.getHeight());
+
+        BorderPane root = new BorderPane();
+        root.getStyleClass().add("chat-background");
+
+        // Header部分
+        HBox header = new HBox();
+        header.setPadding(new Insets(10, 15, 10, 15));
+        header.getStyleClass().add("chat-header");
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← 返回");
+        backBtn.setFont(Font.font("微软雅黑", 14));
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setOnAction(e -> {
+            if (chatRefreshTimeline != null) {
+                chatRefreshTimeline.stop();
+            }
+
+            double chatX = chatStage.getX();
+            double chatY = chatStage.getY();
+            double chatWidth = chatStage.getWidth();
+            double chatHeight = chatStage.getHeight();
+
+            chatStage.close();
+
+            Platform.runLater(() -> {
+                if ("mailbox".equals(sourceType)) {
+                    preloadedChatData.remove(currentUser);
+                    showPrivateChatListDirectly(currentUser, chatX, chatY, chatWidth, chatHeight);
+                } else {
+                    mainStage.setX(chatX);
+                    mainStage.setY(chatY);
+                    mainStage.setWidth(chatWidth);
+                    mainStage.setHeight(chatHeight);
+                    showFriends(currentUser);
+                }
+            });
+        });
+
+        Label titleLabel = new Label("与 " + otherUser + " 的聊天");
+        titleLabel.setFont(Font.font("微软雅黑", 18));
+        titleLabel.getStyleClass().add("chat-header-title");
+
+        Region spacer1 = new Region();
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer1, Priority.ALWAYS);
+
+        header.getChildren().clear();
+        header.getChildren().addAll(backBtn, spacer1, titleLabel, spacer2);
+
+        root.setTop(header);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.getStyleClass().add("chat-scroll-pane");
+
+        VBox chatArea = new VBox(10);
+        chatArea.setPadding(new Insets(15));
+        chatArea.getStyleClass().add("chat-area");
+
+        // 加载指示器
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        loadingIndicator.setPrefSize(40, 40);
+
+        Label loadingLabel = new Label("正在加载聊天记录...");
+        loadingLabel.setFont(Font.font("微软雅黑", 14));
+        loadingLabel.getStyleClass().add("loading-label");
+
+        VBox loadingBox = new VBox(10);
+        loadingBox.setAlignment(Pos.CENTER);
+        loadingBox.setPadding(new Insets(50));
+        loadingBox.getChildren().addAll(loadingIndicator, loadingLabel);
+
+        chatArea.getChildren().add(loadingBox);
+
+        scrollPane.setContent(chatArea);
+        root.setCenter(scrollPane);
+
+        VBox bottomArea = new VBox(10);
+        bottomArea.setPadding(new Insets(10, 15, 15, 15));
+        bottomArea.getStyleClass().add("chat-bottom-area");
+
+        TextArea messageInput = new TextArea();
+        messageInput.setPromptText("输入消息...");
+        messageInput.setPrefRowCount(3);
+        messageInput.setMaxHeight(80);
+        messageInput.setWrapText(true);
+        messageInput.getStyleClass().add("chat-input");
+
+        HBox buttonArea = new HBox(10);
+        buttonArea.setAlignment(Pos.CENTER_RIGHT);
+
+        Button sendBtn = new Button("发送");
+        sendBtn.setPrefWidth(80);
+        sendBtn.getStyleClass().add("send-button");
+
+        buttonArea.getChildren().add(sendBtn);
+        bottomArea.getChildren().addAll(messageInput, buttonArea);
+        root.setBottom(bottomArea);
+
+        // ========== 🎯 新增：动态绑定组件大小 ==========
+
+        // 1. 动态调整返回按钮和标题
+        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                backBtn.setPrefWidth(100);
+                titleLabel.setFont(Font.font("微软雅黑", 20));
+            } else if (windowWidth > 800) {
+                backBtn.setPrefWidth(80);
+                titleLabel.setFont(Font.font("微软雅黑", 18));
+            } else {
+                backBtn.setPrefWidth(70);
+                titleLabel.setFont(Font.font("微软雅黑", 16));
+            }
+        });
+
+        // 2. 动态调整输入框高度
+        chatStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            double windowHeight = newVal.doubleValue();
+
+            if (windowHeight > 700) {
+                messageInput.setPrefRowCount(4);
+                messageInput.setMaxHeight(100);
+            } else if (windowHeight > 500) {
+                messageInput.setPrefRowCount(3);
+                messageInput.setMaxHeight(80);
+            } else {
+                messageInput.setPrefRowCount(2);
+                messageInput.setMaxHeight(60);
+            }
+        });
+
+        // 3. 动态调整发送按钮大小
+        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                sendBtn.setPrefWidth(100);
+                sendBtn.setPrefHeight(45);
+            } else if (windowWidth > 800) {
+                sendBtn.setPrefWidth(80);
+                sendBtn.setPrefHeight(40);
+            } else {
+                sendBtn.setPrefWidth(70);
+                sendBtn.setPrefHeight(35);
+            }
+        });
+
+        // 4. 动态调整聊天区域边距
+        chatStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double windowWidth = newVal.doubleValue();
+
+            if (windowWidth > 1000) {
+                chatArea.setPadding(new Insets(20));
+                bottomArea.setPadding(new Insets(15, 20, 20, 20));
+            } else if (windowWidth > 800) {
+                chatArea.setPadding(new Insets(15));
+                bottomArea.setPadding(new Insets(10, 15, 15, 15));
+            } else {
+                chatArea.setPadding(new Insets(10));
+                bottomArea.setPadding(new Insets(8, 12, 12, 12));
+            }
+        });
+
+        final long[] lastMessageTimestamp = {0};
+        final java.util.Set<String> localSentMessages = new java.util.HashSet<>();
+
+        // 异步加载聊天消息
+        loadChatMessagesAsync(chatArea, currentUser, otherUser, loadingBox, scrollPane, lastMessageTimestamp);
+
+        // 发送消息功能代码保持不变...
+        Runnable sendMessage = () -> {
+            String message = messageInput.getText().trim();
+            if (!message.isEmpty()) {
+                String currentTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                String messageId = currentUser + ":" + message + ":" + currentTime;
+                localSentMessages.add(messageId);
+
+                VBox messageBox = createMessageBubble(message, currentTime, true);
+                chatArea.getChildren().add(messageBox);
+
+                messageInput.clear();
+                scrollToBottomSmoothly(scrollPane);
+
+                Thread saveThread = new Thread(() -> {
+                    try {
+                        MongoDBUtil db = new MongoDBUtil();
+                        MongoCollection<Document> messagesCol = db.getCollection("private_messages");
+
+                        long timestamp = System.currentTimeMillis();
+                        Document messageDoc = new Document()
+                                .append("from", currentUser)
+                                .append("to", otherUser)
+                                .append("message", message)
+                                .append("timestamp", timestamp)
+                                .append("time", currentTime)
+                                .append("read", false);
+
+                        messagesCol.insertOne(messageDoc);
+                        db.close();
+
+                        lastMessageTimestamp[0] = timestamp;
+
+                        Platform.runLater(() -> {
+                            preloadedChatData.remove(currentUser);
+
+                            javafx.animation.Timeline removeTrack = new javafx.animation.Timeline(
+                                    new javafx.animation.KeyFrame(javafx.util.Duration.seconds(5), e -> {
+                                        localSentMessages.remove(messageId);
+                                    })
+                            );
+                            removeTrack.play();
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() -> {
+                            localSentMessages.remove(messageId);
+                            showAlert("错误", "发送私信失败", "网络错误，消息可能未发送成功", Alert.AlertType.WARNING);
+                        });
+                    }
+                });
+
+                saveThread.setDaemon(true);
+                saveThread.start();
+            }
+        };
+
+        sendBtn.setOnAction(e -> sendMessage.run());
+
+        messageInput.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER") && e.isControlDown()) {
+                sendMessage.run();
+                e.consume();
+            }
+        });
+
+        // 启动自动刷新功能
+        startChatAutoRefresh(chatArea, currentUser, otherUser, scrollPane, lastMessageTimestamp, localSentMessages);
+
+        chatStage.setOnCloseRequest(e -> {
+            if (chatRefreshTimeline != null) {
+                chatRefreshTimeline.stop();
+            }
+        });
+
+        Scene scene = new Scene(root);
+        loadCSS(scene);
+        chatStage.setScene(scene);
+        chatStage.show();
     }
 
     // 修复：更新信箱功能卡片创建方法，确保图标颜色正确
@@ -5154,134 +5787,6 @@ public class MainInterfaceFrame {
         }
     }
 
-    // showPrivateChatListAndClose 方法中的返回按钮逻辑 - 修复重复新建信箱窗口的问题
-    private void showPrivateChatListAndClose(String username, Stage fromMailboxStage) {
-        Stage chatListStage = new Stage();
-        chatListStage.setTitle("私信聊天");
-        chatListStage.setResizable(true);
-
-        // 继承信箱窗口的位置和大小
-        chatListStage.setX(fromMailboxStage.getX());
-        chatListStage.setY(fromMailboxStage.getY());
-        chatListStage.setWidth(fromMailboxStage.getWidth());
-        chatListStage.setHeight(fromMailboxStage.getHeight());
-
-        // 窗口同步绑定
-        chatListStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
-                mainStage.setWidth(newVal.doubleValue());
-            }
-        });
-        chatListStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
-                mainStage.setHeight(newVal.doubleValue());
-            }
-        });
-        chatListStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
-                mainStage.setX(newVal.doubleValue());
-            }
-        });
-        chatListStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
-                mainStage.setY(newVal.doubleValue());
-            }
-        });
-
-        // 关闭事件处理
-        chatListStage.setOnCloseRequest(e -> {
-            mainStage.setX(chatListStage.getX());
-            mainStage.setY(chatListStage.getY());
-            mainStage.setWidth(chatListStage.getWidth());
-            mainStage.setHeight(chatListStage.getHeight());
-
-            if (!mainStage.isShowing()) {
-                mainStage.show();
-            }
-            mainStage.toFront();
-        });
-
-        VBox root = new VBox(25);
-        root.setPadding(new Insets(30, 40, 30, 40));
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("main-background");
-
-        // 修复：返回按钮 - 直接显示原信箱窗口而不是新建
-        HBox headerBox = new HBox(10);
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-
-        Button backBtn = new Button("← 返回信箱");
-        backBtn.setFont(Font.font("微软雅黑", 14));
-        backBtn.setPrefWidth(120);
-        backBtn.setPrefHeight(40);
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> {
-            chatListStage.close();
-            // 直接显示原信箱窗口，不新建
-            fromMailboxStage.show();
-            fromMailboxStage.toFront();
-        });
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        headerBox.getChildren().addAll(backBtn, spacer);
-
-        // 修复：标题区域 - 确保图标显示正确颜色
-        VBox titleArea = new VBox(12);
-        titleArea.setAlignment(Pos.CENTER);
-
-        Label titleIcon = new Label("💬");
-        titleIcon.setFont(Font.font("微软雅黑", 25));
-        titleIcon.getStyleClass().add("feature-icon");
-
-        Label title = new Label("私信聊天");
-        title.setFont(Font.font("微软雅黑", 20));
-        title.getStyleClass().add("section-title");
-
-        Label subtitle = new Label("查看和回复私信消息");
-        subtitle.setFont(Font.font("微软雅黑", 12));
-        subtitle.getStyleClass().add("mailbox-subtitle");
-
-        titleArea.getChildren().addAll(titleIcon, title, subtitle);
-
-        // 重新加载数据（因为可能有新消息）
-        ProgressIndicator progressIndicator = new ProgressIndicator();
-        progressIndicator.setPrefSize(50, 50);
-        progressIndicator.getStyleClass().add("mailbox-progress");
-
-        Label loadingLabel = new Label("正在刷新聊天列表...");
-        loadingLabel.setFont(Font.font("微软雅黑", 16));
-        loadingLabel.getStyleClass().add("loading-label");
-
-        VBox loadingBox = new VBox(15);
-        loadingBox.setAlignment(Pos.CENTER);
-        loadingBox.setPadding(new Insets(60));
-        loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
-
-        root.getChildren().addAll(headerBox, titleArea, loadingBox);
-
-        // 异步加载最新数据
-        loadPrivateChatListAsync(username, root, loadingBox, chatListStage);
-
-        ScrollPane scrollPane = new ScrollPane(root);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.getStyleClass().add("main-scroll-pane");
-
-        Scene scene = new Scene(scrollPane);
-        loadCSS(scene);
-        chatListStage.setScene(scene);
-        chatListStage.show();
-
-        // 先显示新窗口，然后隐藏（不关闭）原信箱窗口
-        Platform.runLater(() -> {
-            fromMailboxStage.hide();
-        });
-    }
-
     // 带位置参数的信箱显示方法
     private void showMailboxWithPosition(String username, double x, double y, double width, double height) {
         Stage mailboxStage = new Stage();
@@ -5426,153 +5931,6 @@ public class MainInterfaceFrame {
 
         mailboxStage.show();
         loadMailboxStatusAsync(username, statusArea, friendRequestCard, privateChatCard);
-    }
-
-    // 在预加载数据的显示中也使用卡片布局
-    private void showFriendRequestsAndClose(String username, Stage mailboxStage) {
-        Stage friendRequestStage = new Stage();
-        friendRequestStage.setTitle("好友申请");
-        friendRequestStage.setResizable(true);
-
-        // 继承信箱窗口的位置和大小
-        friendRequestStage.setX(mailboxStage.getX());
-        friendRequestStage.setY(mailboxStage.getY());
-        friendRequestStage.setWidth(mailboxStage.getWidth());
-        friendRequestStage.setHeight(mailboxStage.getHeight());
-
-        // 窗口同步绑定
-        friendRequestStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getWidth()) > 2) {
-                mainStage.setWidth(newVal.doubleValue());
-            }
-        });
-        friendRequestStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getHeight()) > 2) {
-                mainStage.setHeight(newVal.doubleValue());
-            }
-        });
-        friendRequestStage.xProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getX()) > 2) {
-                mainStage.setX(newVal.doubleValue());
-            }
-        });
-        friendRequestStage.yProperty().addListener((obs, oldVal, newVal) -> {
-            if (Math.abs(newVal.doubleValue() - mainStage.getY()) > 2) {
-                mainStage.setY(newVal.doubleValue());
-            }
-        });
-
-        // 关闭事件处理
-        friendRequestStage.setOnCloseRequest(e -> {
-            mainStage.setX(friendRequestStage.getX());
-            mainStage.setY(friendRequestStage.getY());
-            mainStage.setWidth(friendRequestStage.getWidth());
-            mainStage.setHeight(friendRequestStage.getHeight());
-
-            if (!mainStage.isShowing()) {
-                mainStage.show();
-            }
-            mainStage.toFront();
-        });
-
-        VBox root = new VBox(25);
-        root.setPadding(new Insets(30, 40, 30, 40));
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("main-background");
-
-        // 修复：返回按钮 - 直接显示原信箱窗口而不是新建
-        HBox headerBox = new HBox(10);
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-
-        Button backBtn = new Button("← 返回信箱");
-        backBtn.setFont(Font.font("微软雅黑", 14));
-        backBtn.setPrefWidth(120);
-        backBtn.setPrefHeight(40);
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> {
-            friendRequestStage.close();
-            // 直接显示原信箱窗口，不新建
-            mailboxStage.show();
-            mailboxStage.toFront();
-        });
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        headerBox.getChildren().addAll(backBtn, spacer);
-
-        // 修复：标题区域 - 确保图标显示正确颜色
-        VBox titleArea = new VBox(12);
-        titleArea.setAlignment(Pos.CENTER);
-
-        Label titleIcon = new Label("👥");
-        titleIcon.setFont(Font.font("微软雅黑", 36));
-        titleIcon.getStyleClass().add("feature-icon");
-
-        Label title = new Label("好友申请");
-        title.setFont(Font.font("微软雅黑", 28));
-        title.getStyleClass().add("section-title");
-
-        Label subtitle = new Label("管理您的好友申请");
-        subtitle.setFont(Font.font("微软雅黑", 16));
-        subtitle.getStyleClass().add("mailbox-subtitle");
-
-        titleArea.getChildren().addAll(titleIcon, title, subtitle);
-
-        // 检查是否有预加载的数据
-        if (preloadedFriendRequestData.containsKey(username)) {
-            List<MailRecord> data = preloadedFriendRequestData.get(username);
-
-            if (data.isEmpty()) {
-                VBox emptyStateBox = createFriendRequestEmptyState();
-                root.getChildren().addAll(headerBox, titleArea, emptyStateBox);
-            } else {
-                // 使用新的卡片布局替代表格
-                VBox requestCards = createFriendRequestCards(username, data);
-
-                ScrollPane cardsScrollPane = new ScrollPane(requestCards);
-                cardsScrollPane.setFitToWidth(true);
-                cardsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                cardsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                cardsScrollPane.getStyleClass().add("friend-request-cards-scroll");
-                cardsScrollPane.setPrefHeight(400);
-
-                root.getChildren().addAll(headerBox, titleArea, cardsScrollPane);
-            }
-        } else {
-            ProgressIndicator progressIndicator = new ProgressIndicator();
-            progressIndicator.setPrefSize(50, 50);
-            progressIndicator.getStyleClass().add("mailbox-progress");
-
-            Label loadingLabel = new Label("正在加载好友申请...");
-            loadingLabel.setFont(Font.font("微软雅黑", 16));
-            loadingLabel.getStyleClass().add("loading-label");
-
-            VBox loadingBox = new VBox(15);
-            loadingBox.setAlignment(Pos.CENTER);
-            loadingBox.setPadding(new Insets(60));
-            loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
-
-            root.getChildren().addAll(headerBox, titleArea, loadingBox);
-            loadFriendRequestsAsync(username, root, loadingBox);
-        }
-
-        ScrollPane scrollPane = new ScrollPane(root);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.getStyleClass().add("main-scroll-pane");
-
-        Scene scene = new Scene(scrollPane);
-        loadCSS(scene);
-        friendRequestStage.setScene(scene);
-        friendRequestStage.show();
-
-        // 先显示新窗口，然后隐藏（不关闭）原信箱窗口
-        Platform.runLater(() -> {
-            mailboxStage.hide();
-        });
     }
 
     // 在 loadFriendRequestsAsync 方法中使用新的卡片布局
